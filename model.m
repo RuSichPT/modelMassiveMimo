@@ -4,7 +4,7 @@ initParam                               % Параметры
 SNR = 0:30;                             % Диапазон SNR 
 numExperience = 1;                      % Кол-во опытов
 minNumErrs = 100;                       % Порог ошибок для цикла 
-maxIndLoop = 3;                         % Максимальное число итераций в цикле while 50
+maxIndLoop = 1;                         % Максимальное число итераций в цикле while 50
 maxNumZero = 1;                         % Максимальное кол-во нулевых точек в цикле while 2
 
 berZF = zeros(numExperience,length(SNR),numSTS);  % BER
@@ -28,12 +28,11 @@ for indExp = 1:numExperience
         if (numZero >= maxNumZero)
             break;
         end
-        rng(150)
         while ( (conditionMF || conditionZF || conditionEIG) && (indLoop <= maxIndLoop) )
             %% Зондирование канала
             [preambulaOFDMZond,zondLtfSC] = My_helperGenPreamble(preambleParamZond);
             % Прохождение канала
-            channelPreambulaZond = passChannel(preambulaOFDMZond, H, chanParam.typeChannel);
+            channelPreambulaZond = passChannel(preambulaOFDMZond, H, chanParam.channelType);
             % Собственный  шум
             noisePreambulaZond = awgn(channelPreambulaZond, SNR(indSNR),'measured');
             % Демодулятор OFDM
@@ -52,9 +51,9 @@ for indExp = 1:numExperience
             [precodDataZF, precodWeightsZF] = applyPrecodZF(inpModData, H_estim_zond);  % Zero Forcing         
             [precodDataEIG, precodWeightsEIG, ~] = applyPrecodEIG(inpModData, H_estim_zond); % Eigenvector            
             %% Модулятор пилотов  
-            [preambulaMF, ltfSC_MF] = My_helperGenPreamble(preambleParam, precodWeightsMF(:,:,:));
-            [preambulaZF, ltfSC_ZF] = My_helperGenPreamble(preambleParam, precodWeightsZF(:,:,:));
-            [preambulaEIG, ltfSC_EIG] = My_helperGenPreamble(preambleParam, precodWeightsEIG(:,1:numSTS,:));
+            [preambulaMF, ltfSC_MF] = My_helperGenPreamble(preambleParam, precodWeightsMF);
+            [preambulaZF, ltfSC_ZF] = My_helperGenPreamble(preambleParam, precodWeightsZF);
+            [preambulaEIG, ltfSC_EIG] = My_helperGenPreamble(preambleParam, precodWeightsEIG);
             %% Модулятор OFDM
             tmpdataOFDM_MF = ofdmmod(precodDataMF, lengthFFT, cyclicPrefixLength, nullCarrierIndices);                            
             dataOFDM_MF = [preambulaMF ; tmpdataOFDM_MF];
@@ -66,9 +65,9 @@ for indExp = 1:numExperience
             dataOFDM_EIG = [preambulaEIG ; tmpdataOFDM_EIG];            
             clear tmpdataOFDM_MF tmpdataOFDM_ZF tmpdataOFDM_EIG;
             %% Прохождение канала
-            channelDataMF = passChannel(dataOFDM_MF, H, chanParam.typeChannel);
-            channelDataZF = passChannel(dataOFDM_ZF, H, chanParam.typeChannel);
-            channelDataEIG = passChannel(dataOFDM_EIG, H, chanParam.typeChannel);            
+            channelDataMF = passChannel(dataOFDM_MF, H, chanParam.channelType);
+            channelDataZF = passChannel(dataOFDM_ZF, H, chanParam.channelType);
+            channelDataEIG = passChannel(dataOFDM_EIG, H, chanParam.channelType);            
             %% Собственный шум
             noiseDataMF = awgn(channelDataMF, SNR(indSNR), 'measured');
             noiseDataZF = awgn(channelDataZF, SNR(indSNR), 'measured');

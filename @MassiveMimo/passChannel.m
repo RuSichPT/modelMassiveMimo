@@ -1,10 +1,10 @@
-function [outputData] = passChannel(inputData, channel, channelType)
+function outputData = passChannel(obj, inputData)
 
-    switch channelType
+    switch obj.channelType
         case {"PHASED_ARRAY_STATIC", "PHASED_ARRAY_DYNAMIC"}
-            outputData = toPassChannelMIMO(inputData, channel);
+            outputData = toPassChannelMIMO(inputData, obj.H);
         otherwise                  
-            outputData  = inputData*channel;
+            outputData = inputData*obj.H;
     end
         
 %     if (typeChannel == "PHASED_ARRAY_STATIC" || typeChannel == "PHASED_ARRAY_DYNAMIC") 

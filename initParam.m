@@ -7,7 +7,7 @@ freqCarrier = 28e9;                             % Частота несущей 28 GHz system
 numSTSVec = ones(1, numUsers);                  % Кол-во независимых потоков данных на одного пользователя / [2 1 3 2]; 
 numSTS = sum(numSTSVec);                        % Кол-во потоков данных; должно быть степени 2: /2/4/8/16/32/64
 numAntennsSTS = numAntenns / numSTS;            % Кол-во антенн на один поток данных
-numTx = numSTS * numAntennsSTS;                 % Кол-во излучающих антен 
+numTx = numSTS * numAntennsSTS;                 % Кол-во передающих антен 
 numRx = numSTS;                                 % Кол-во приемных антен
 bps = log2(modulation);                         % Кол-во бит на символ в секунду
 %% Параметры OFDM 
@@ -22,9 +22,9 @@ clear tmpNCI;
 
 numBits = bps * numSymbOFDM * numSubCarriers;   % Длина бинарного потока
 %% Параметры канала
-chanParam.typeChannel = "PHASED_ARRAY_STATIC";    % PHASED_ARRAY_STATIC, PHASED_ARRAY_DYNAMIC
+chanParam.channelType = "PHASED_ARRAY_STATIC";    % PHASED_ARRAY_STATIC, PHASED_ARRAY_DYNAMIC
 chanParam.numUsers = numUsers;
-if (chanParam.typeChannel == "PHASED_ARRAY_STATIC" || chanParam.typeChannel == "PHASED_ARRAY_DYNAMIC")
+if (chanParam.channelType == "PHASED_ARRAY_STATIC" || chanParam.typeChannel == "PHASED_ARRAY_DYNAMIC")
     [chanParam.da, chanParam.dp] = loadSteeringVector(numAntenns);  % Амплитуда и фаза SteeringVector
     chanParam.numDelayBeams = 3;                                    % Кол-во задержанных сигналов (размерность канального тензора)
     chanParam.txAng = {0,90,180,270};

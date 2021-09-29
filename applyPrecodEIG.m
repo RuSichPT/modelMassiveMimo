@@ -10,6 +10,7 @@ function [outputData, precodWeights, combWeights] = applyPrecodEIG(inputData, es
     
     % outputData - выходные данные размерностью [numSC,numOFDM,numTx]
     % precodWeights - веса прекодирования
+    % combWeights - веса комбинирования
     
     numSC = size(inputData,1);
     numOFDM = size(inputData,2);
@@ -24,6 +25,8 @@ function [outputData, precodWeights, combWeights] = applyPrecodEIG(inputData, es
         sqPrecodW = squeeze(precodWeights(ii,1:numSTS,:));
         outputData(ii,:,:) = squeeze(inputData(ii,:,:))*sqPrecodW;       
     end 
+    
+    precodWeights = precodWeights(:,1:numSTS,:);
     
 end
 
