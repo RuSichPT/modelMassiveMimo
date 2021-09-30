@@ -20,14 +20,15 @@ if (chanParam.channelType == "PHASED_ARRAY_STATIC" || chanParam.channelType == "
     chanParam.txAng = {0,90,180,270};
 end
 
-[H] = createChannel(chanParam);
+[impResponse] = createChannel(chanParam);
 channel.channelType = chanParam.channelType;
-channel.H = H;
+channel.impResponse = impResponse;
+
 modelMF = MassiveMimo(main, ofdm, channel);
 modelZF = copy(modelMF);
 modelEBM = copy(modelMF);
-modelZF.precoderType = "ZF";
-modelEBM.precoderType = "EBM";
+modelZF.main.precoderType = "ZF";
+modelEBM.main.precoderType = "EBM";
 
 SNR = 0:30;                             % Диапазон SNR 
 minNumErrs = 100;                       % Порог ошибок для цикла 
@@ -41,13 +42,13 @@ modelEBM.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
 %% Построение графиков
 figure();
 modelMF.plotMeanBER('k', 2, "notCreateFigure", "Eb/N0");
-str1 = ['Massive MIMO MF ' num2str(modelMF.numTx) 'x'  num2str(modelMF.numRx)];
+str1 = ['Massive MIMO MF ' num2str(modelMF.main.numTx) 'x'  num2str(modelMF.main.numRx)];
 
 modelZF.plotMeanBER('--k', 2, "notCreateFigure", "Eb/N0");
-str2 = ['Massive MIMO ZF ' num2str(modelZF.numTx) 'x'  num2str(modelZF.numRx)];
+str2 = ['Massive MIMO ZF ' num2str(modelZF.main.numTx) 'x'  num2str(modelZF.main.numRx)];
 
 modelEBM.plotMeanBER('-.k', 2, "notCreateFigure", "Eb/N0");
-str3 = ['Massive MIMO EBM ' num2str(modelEBM.numTx) 'x'  num2str(modelEBM.numRx)];
+str3 = ['Massive MIMO EBM ' num2str(modelEBM.main.numTx) 'x'  num2str(modelEBM.main.numRx)];
 
 title(" Mean ");
 legend(str1, str2, str3);

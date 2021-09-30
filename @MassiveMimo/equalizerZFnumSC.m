@@ -9,8 +9,12 @@ function outputData = equalizerZFnumSC(obj, inputData, H_estim)
 %     Instead of multiplying by the inverse, use matrix right division (/) or matrix left division (\). That is:
 %     Replace inv(A)*b with A\b - faster 
 %     Replace b*inv(A) with b/A - faster 
-    
-    outputData = zeros(obj.numSubCarriers, obj.numSymbOFDM, obj.numSTS);
+
+    numSTS = obj.main.numSTS;
+    numSubCarr = obj.ofdm.numSubCarriers;
+    numSymbOFDM = obj.ofdm.numSymbOFDM;
+
+    outputData = zeros(numSubCarr, numSymbOFDM, numSTS);
     for i = 1:size(inputData,1)    
         h_estim = squeeze(H_estim(i,:,:));
         inv_H_ZF = h_estim*h_estim';

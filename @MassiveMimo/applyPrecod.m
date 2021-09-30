@@ -12,7 +12,7 @@ function [outputData, precodWeights, combWeights] = applyPrecod(obj, inputData, 
     % precodWeights - веса прекодирования
     % combWeights - веса комбинирования
     
-    switch obj.precoderType
+    switch obj.main.precoderType
         case {"MF"}
             [outputData, precodWeights] = applyPrecodMF(inputData, estimateChannel);
             combWeights = 0;

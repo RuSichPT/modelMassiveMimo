@@ -1,6 +1,8 @@
 function estimH = channelEstimate(obj, rxData, ltfSC, numSTS)
     % Estimate channel from the preamble signal data tones
 
+    numSubCarr = obj.ofdm.numSubCarriers;
+    
     [~, nltf, numRx] = size(rxData);
     % nltf should be == numSTS
 
@@ -11,7 +13,7 @@ function estimH = channelEstimate(obj, rxData, ltfSC, numSTS)
 
     denom = nltf.*ltfSC;
 
-    estimH = complex(zeros(obj.numSubCarriers,numSTS,numRx));
+    estimH = complex(zeros(numSubCarr, numSTS, numRx));
     for i = 1:numRx
         rxsym = squeeze(rxData(:,(1:nltf),i)); % Symbols per receive antenna
         for j = 1:numSTS

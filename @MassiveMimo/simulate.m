@@ -5,9 +5,11 @@ function simulate(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation)
     % minNumErrs - минимальное кол-во ошибок
     % maxNumSimulation - максимальное кол-во симуляций
     
+    coefConfInt = obj.simulation.coefConfInterval;
+    
     numZeroBER = 0;
-    obj.ber = zeros(obj.numSTS, length(rangeSNR));
-    obj.snr = rangeSNR;
+    obj.simulation.ber = zeros(obj.main.numSTS, length(rangeSNR));
+    obj.simulation.snr = rangeSNR;
     
     for indSNR = 1:length(rangeSNR)
         if (numZeroBER < maxNumZeroBER) 
@@ -21,14 +23,14 @@ function simulate(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation)
                 allNumBits = allNumBits + numBits;
 
                 [berconf, lenConfInterval] = obj.calculateBER(allNumErrors, allNumBits);
-                maxConfidenceInterval = berconf * obj.coefConfInterval;
+                maxConfidenceInterval = berconf * coefConfInt;
                 
                 condition = max(((lenConfInterval > maxConfidenceInterval)|(numErrors < minNumErrs)));
 
                 indSim = indSim + 1;
             end
             
-            obj.ber(:,indSNR) = berconf;
+            obj.simulation.ber(:,indSNR) = berconf;
             
             if (berconf == 0)
                 numZeroBER = numZeroBER + 1;
