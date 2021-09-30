@@ -1,44 +1,42 @@
 clc;clear;
+%% Параметры системы
 main.numAntenns = 8;                                 % Кол-во антенн в антенной решетке / 12 or 8 
 main.numUsers = 4;                                   % Кол-во пользователей
 main.modulation = 4;                                 % Порядок модуляции
 main.freqCarrier = 28e9;                             % Частота несущей 28 GHz system
-main.precoderType = "MF";
+%% Параметры OFDM
 ofdm.numSubCarriers = 450;                           % Кол-во поднессущих
 ofdm.lengthFFT = 512;                                % Длина FFT для OFDM
 ofdm.numSymbOFDM = 10;                               % Кол-во символов OFDM от каждой антенны
 ofdm.cyclicPrefixLength = 64;                        % Длина защитных интервалов = 2*Ngi
-
-confidenceLevel = 0.95;         % Уровень достоверности
-coefConfInterval = 1/15;        % ???  
-
+%% Параметры канала
 chanParam.channelType = "PHASED_ARRAY_STATIC";    % PHASED_ARRAY_STATIC, PHASED_ARRAY_DYNAMIC
 chanParam.numUsers = main.numUsers;
-if (chanParam.channelType == "PHASED_ARRAY_STATIC" || chanParam.channelType == "PHASED_ARRAY_DYNAMIC")
+chanType = chanParam.channelType;
+if (chanType == "PHASED_ARRAY_STATIC" || chanType == "PHASED_ARRAY_DYNAMIC")
     [chanParam.da, chanParam.dp] = loadSteeringVector(main.numAntenns);  % Амплитуда и фаза SteeringVector
-    chanParam.numDelayBeams = 3;                                    % Кол-во задержанных сигналов (размерность канального тензора)
+    chanParam.numDelayBeams = 3;       % Кол-во задержанных сигналов (размерность канального тензора)
     chanParam.txAng = {0,90,180,270};
 end
-
 [impResponse] = createChannel(chanParam);
 channel.channelType = chanParam.channelType;
 channel.impResponse = impResponse;
-
+%% Создание моделей
 modelMF = MassiveMimo(main, ofdm, channel);
 modelZF = copy(modelMF);
 modelEBM = copy(modelMF);
+modelMF.main.precoderType = "MF"; 
 modelZF.main.precoderType = "ZF";
 modelEBM.main.precoderType = "EBM";
-
+%% Симуляция
 SNR = 0:30;                             % Диапазон SNR 
 minNumErrs = 100;                       % Порог ошибок для цикла 
 maxNumSimulation = 1;                   % Максимальное число итераций в цикле while 50
-maxNumZeroBER = 1;                       % Максимальное кол-во измерений с нулевым кол-вом 
+maxNumZeroBER = 1;                      % Максимальное кол-во измерений с нулевым кол-вом 
 
 modelMF.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
 modelZF.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
 modelEBM.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
-
 %% Построение графиков
 figure();
 modelMF.plotMeanBER('k', 2, "notCreateFigure", "Eb/N0");

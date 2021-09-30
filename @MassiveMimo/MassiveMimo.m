@@ -27,10 +27,10 @@ classdef MassiveMimo < matlab.mixin.Copyable
                 "impResponse",      0 )     % Импульсная характеристика канала
         %% Параметры симуляции
         simulation = struct(...
-                    "ber",              0, ...  % Вероятность битовой ошибки
-                    "snr",              0, ...  % Диапазон ОСШ
-                    "confidenceLevel",  0, ...  % Уровень достоверности
-                    "coefConfInterval", 0 )     % ??? 
+                    "ber",              0,      ...  % Вероятность битовой ошибки
+                    "snr",              0,      ...  % Диапазон ОСШ
+                    "confidenceLevel",  0.95,   ...  % Уровень достоверности
+                    "coefConfInterval", 1/15 )     % ??? 
     end
     
     methods
@@ -69,8 +69,10 @@ classdef MassiveMimo < matlab.mixin.Copyable
             end
             % Параметры симуляции                 
             if (nargin > 3)
-
+                obj.simulation.confidenceLevel = simulation.confidenceLevel;
+                obj.simulation.coefConfInterval = simulation.coefConfInterval;
             end
+            
         end
         % Методы
         [preamble, ltfSC] = generatePreamble(obj, numSTS, varargin)
