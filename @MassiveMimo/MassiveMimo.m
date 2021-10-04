@@ -2,15 +2,15 @@ classdef MassiveMimo < matlab.mixin.Copyable
     properties
         %% Параметры системы
         main = struct(...
-                "numAntenns",       0, ...  % Кол-во антенн в антенной решетке / 12 or 8
+                "numTx",            0, ...  % Кол-во передающих антен
+                "numRx",            0, ...  % Кол-во приемных антен
+                "numPhasedElemTx",  0, ...  % Кол-во антенных элементов в 1 решетке на передачу
+                "numPhasedElemRx",  0, ...  % Кол-во антенных элементов в 1 решетке на прием
                 "numUsers",         0, ...  % Кол-во пользователей
                 "modulation",       0, ...  % Порядок модуляции
                 "freqCarrier",      0, ...  % Частота несущей GHz        
                 "numSTSVec",        0, ...  % Кол-во независимых потоков данных на одного пользователя / [2 1 3 2]
                 "numSTS",           0, ...  % Кол-во потоков данных; должно быть степени 2: /2/4/8/16/32/64
-                "numAntennsSTS",    0, ...  % Кол-во антенн на один поток данных
-                "numTx",            0, ...  % Кол-во передающих антен 
-                "numRx",            0, ...  % Кол-во приемных антен
                 "bps",              0, ...  % Кол-во бит на символ в секунду
                 "precoderType",     "" )    % Тип прекодера                   
         %% Параметры OFDM
@@ -38,17 +38,17 @@ classdef MassiveMimo < matlab.mixin.Copyable
         function obj = MassiveMimo(main, ofdm, channel, simulation)
             % Параметры системы
             if (nargin > 0)
-                obj.main.numAntenns = main.numAntenns;     
+                obj.main.numPhasedElemTx = main.numPhasedElemTx;
+                obj.main.numPhasedElemRx = main.numPhasedElemRx;
                 obj.main.numUsers = main.numUsers;
                 obj.main.modulation = main.modulation;
                 obj.main.freqCarrier = main.freqCarrier;
                 obj.main.precoderType = main.precoderType;           
 
-                obj.main.numSTSVec = ones(1, obj.main.numUsers);                  
-                obj.main.numSTS = sum(obj.main.numSTSVec);                        
-                obj.main.numAntennsSTS = obj.main.numAntenns / obj.main.numSTS;            
-                obj.main.numTx = obj.main.numSTS * obj.main.numAntennsSTS;                 
-                obj.main.numRx = obj.main.numSTS;                                
+                obj.main.numSTSVec = main.numSTSVec;                  
+                obj.main.numSTS = sum(obj.main.numSTSVec);
+                obj.main.numTx = obj.main.numPhasedElemTx * obj.main.numSTS;
+                obj.main.numRx = obj.main.numPhasedElemRx * obj.main.numSTS; 
                 obj.main.bps = log2(obj.main.modulation);
             end
             % Параметры OFDM
@@ -65,7 +65,7 @@ classdef MassiveMimo < matlab.mixin.Copyable
             % Параметры канала                
             if (nargin > 2)
                 obj.channel.channelType = channel.channelType;
-                obj.channel.impResponse  = channel.impResponse;
+                obj.channel.impResponse = obj.createChannel(channel);
             end
             % Параметры симуляции                 
             if (nargin > 3)
@@ -94,6 +94,8 @@ classdef MassiveMimo < matlab.mixin.Copyable
         [berconf, lenConfInterval] = calculateBER(obj, allNumErrors, allNumBits);
         
         plotMeanBER(obj, lineStyle, lineWidth, flag, varargin)
+        
+        [channel] = createChannel(obj, prm)
 
     end
 end

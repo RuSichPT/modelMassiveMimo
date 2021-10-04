@@ -1,4 +1,4 @@
-function [outputData, precodWeights, combWeights] = applyPrecodEIG(inputData, estimateChannel)
+function [outputData, precodWeights, combWeights] = applyPrecodEBM(inputData, estimateChannel)
     
     % inputData - входные данные размерностью [numSC,numOFDM,numSTS]
     % numSC - кол-во поднессущих

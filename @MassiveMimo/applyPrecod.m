@@ -19,8 +19,11 @@ function [outputData, precodWeights, combWeights] = applyPrecod(obj, inputData, 
         case {"ZF"}
             [outputData, precodWeights] = applyPrecodZF(inputData, estimateChannel);
             combWeights = 0;
+        case {"RZF"}
+            [outputData, precodWeights] = applyPrecodRZF(inputData, estimateChannel,0,2);
+            combWeights = 0;
         case {"EBM"}
-            [outputData, precodWeights, combWeights] = applyPrecodEIG(inputData, estimateChannel);
+            [outputData, precodWeights, combWeights] = applyPrecodEBM(inputData, estimateChannel);
     end    
     
 end

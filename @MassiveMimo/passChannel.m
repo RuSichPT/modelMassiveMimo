@@ -6,6 +6,8 @@ function outputData = passChannel(obj, inputData)
     switch chanType
         case {"PHASED_ARRAY_STATIC", "PHASED_ARRAY_DYNAMIC"}
             outputData = toPassChannelMIMO(inputData, H);
+        case "RAYL"
+            outputData = H(inputData);
         otherwise                  
             outputData = inputData*H;
     end
