@@ -58,7 +58,7 @@ function [figObj] = plotSTSBER(obj, lineStyle, lineWidth, flagSNR, partLegendStr
         strLeg = legObj.String;
         numLegends = size(strLeg,2);
         for sts = 1:numSTS 
-            strLeg{numLegends - sts + 1} = legendStr{sts};
+            strLeg{numLegends - numSTS + sts} = legendStr{sts};
         end
         legObj.String = strLeg;
     else        
