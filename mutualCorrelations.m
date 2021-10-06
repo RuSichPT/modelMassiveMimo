@@ -6,9 +6,9 @@ main.numPhasedElemTx = 2;                               % Кол-во антенных элемен
 main.numPhasedElemRx = 1;                               % Кол-во антенных элементов в 1 решетке на прием
 main.modulation = 4;                                    % Порядок модуляции
 main.freqCarrier = 28e9;                                % Частота несущей 28 GHz system                               
-main.precoderType = "EBM";                               % Тип прекодера
-roundingType = 'significant';                           % См функцию round  
-numFixPoint = 2;                                        % См функцию round 
+main.precoderType = "ZF";                               % Тип прекодера
+alpha = 0.5;
+betta = 0.01;
 %% Параметры OFDM
 ofdm.numSubCarriers = 450;                           % Кол-во поднессущих
 ofdm.lengthFFT = 512;                                % Длина FFT для OFDM
@@ -29,19 +29,26 @@ switch channel.channelType
 end
 %% Создание моделей 
 model = MassiveMimo(main, ofdm, channel);
-modelFixPoint = MassiveMimo(main, ofdm, channel);
+modelMutCorr = MassiveMimo(main, ofdm, channel);
 %% Симуляция
 SNR = 0:30;                             % Диапазон SNR 
 minNumErrs = 100;                       % Порог ошибок для цикла 
-maxNumSimulation = 5;                   % Максимальное число итераций в цикле while 50
+maxNumSimulation = 1;                   % Максимальное число итераций в цикле while 50
 maxNumZeroBER = 1;                      % Максимальное кол-во измерений с нулевым кол-вом 
 
 model.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
-modelFixPoint.simulateFixPoint(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation, numFixPoint, roundingType);
+modelMutCorr.simulateMutCorr(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation, alpha, betta);
 %% Построение графиков
 str0 = 'Mean ';
-str1 = [str0 num2str(model.main.precoderType) ' '  num2str(model.main.numTx) 'x'  num2str(model.main.numRx)];
+str1 = [str0 num2str(model.main.precoderType) ' ' num2str(model.main.numTx) 'x'  num2str(model.main.numRx)];
 fig = model.plotMeanBER('k', 2, "SNR", str1);
 
-str2 = [str0 num2str(modelFixPoint.main.precoderType) ' fixPoint ' num2str(modelFixPoint.main.numTx) 'x'  num2str(modelFixPoint.main.numRx)];
-modelFixPoint.plotMeanBER('-.k', 2, "SNR", str2, fig);
+str = 'Corr ';
+str2 = [str0 str num2str(modelMutCorr.main.precoderType) ' ' num2str(modelMutCorr.main.numTx) 'x'  num2str(modelMutCorr.main.numRx)];
+modelMutCorr.plotMeanBER('-.k', 2, "SNR", str2, fig);
+
+lineStyle = {'r';'g';'b';'k';};
+fig = model.plotSTSBER(lineStyle, 2, "SNR", '');
+
+lineStyle = {'--r';'--g';'--b';'--k';};
+modelMutCorr.plotSTSBER(lineStyle, 2, "SNR", str, fig);

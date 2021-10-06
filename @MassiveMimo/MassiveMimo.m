@@ -34,7 +34,7 @@ classdef MassiveMimo < matlab.mixin.Copyable
     end
     
     methods
-        % Конструктор
+        %% Конструктор
         function obj = MassiveMimo(main, ofdm, channel, simulation)
             % Параметры системы
             if (nargin > 0)
@@ -74,32 +74,28 @@ classdef MassiveMimo < matlab.mixin.Copyable
             end
             
         end
-        % Методы
-        [preamble, ltfSC] = generatePreamble(obj, numSTS, varargin)
-        
-        outputData = passChannel(obj, inputData)
-        
-        estimH = channelEstimate(obj, rxData, ltfSC, numSTS)
-        
-        [outputData, precodWeights, combWeights] = applyPrecod(obj, inputData, estimateChannel)
-        
-        outputData = equalizerZFnumSC(obj, inputData, H_estim)
-        
-        [numErrors, numBits] = simulateOneSNR(obj, snr)
-        
-        simulate(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation)
-        
-        [numErrors, numBits] = simulateOneSNRfixPoint(obj, snr, numFixPoint, roundingType)
-        
-        simulateFixPoint(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation, numFixPoint, roundingType)
-        
-        numErrors = calculateErrors(obj, inpData, outData)
-        
+        %% Методы
+        [preamble, ltfSC] = generatePreamble(obj, numSTS, varargin)        
+        [outputData] = passChannel(obj, inputData)        
+        [estimH] = channelEstimate(obj, rxData, ltfSC, numSTS)        
+        [outputData, precodWeights, combWeights] = applyPrecod(obj, inputData, estimateChannel)        
+        [outputData] = equalizerZFnumSC(obj, inputData, H_estim)         
+        [numErrors] = calculateErrors(obj, inpData, outData)     
         [berconf, lenConfInterval] = calculateBER(obj, allNumErrors, allNumBits);
-        
-        plotMeanBER(obj, lineStyle, lineWidth, flag, varargin)
-        
         [channel] = createChannel(obj, prm)
+
+        % Графики  
+        [figObj] = plotMeanBER(obj, lineStyle, lineWidth, flagSNR, legendStr, varargin)
+        [figObj] = plotSTSBER(obj, lineStyle, lineWidth, flagSNR, partLegendStr, varargin)
+        
+        % Симуляция     
+        simulate(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation)
+        simulateFixPoint(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation, numFixPoint, roundingType)
+        simulateMutCorr(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation, alpha, betta)
+        
+        [numErrors, numBits] = simulateOneSNR(obj, snr)        
+        [numErrors, numBits] = simulateOneSNRfixPoint(obj, snr, numFixPoint, roundingType)
+        [numErrors, numBits] = simulateOneSNRmutCorr(obj, snr, alpha, betta)
 
     end
 end

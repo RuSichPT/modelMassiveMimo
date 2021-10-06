@@ -1,4 +1,4 @@
-function plotMeanBER(obj, lineStyle, lineWidth, flagFigure, flagSNR, varargin)
+function [figObj] = plotMeanBER(obj, lineStyle, lineWidth, flagSNR, legendStr, varargin)
 
     % lineStyle - цвет графика, lineWidth - ширина линии
     % 'k','r','g','b','c'
@@ -10,19 +10,22 @@ function plotMeanBER(obj, lineStyle, lineWidth, flagFigure, flagSNR, varargin)
     ber = obj.simulation.ber;
     
     set(0, 'DefaultAxesFontName', 'Times New Roman');
-    set(0, 'DefaultTextFontName', 'Times New Roman'); 
+    set(0, 'DefaultTextFontName', 'Times New Roman');
+%     set(0, 'CurrentFigure', figureHandle)
 
     meanBer = mean(ber,1);
-
-    if (flagFigure == "createFigure")
-        figure()
-    end   
+        
+    if (nargin == 6)
+        figObj = varargin{1};
+    else
+        figObj = figure;
+    end    
     
-    if (nargin==7)
+    if (nargin == 7)
         if (flagSNR == "SNR")
-            semilogy(snr, meanBer, lineStyle, 'LineWidth', lineWidth, 'Color', varargin{1});
+            semilogy(snr, meanBer, lineStyle, 'LineWidth', lineWidth, 'Color', varargin{2});
         elseif (flagSNR == "Eb/N0") 
-            semilogy(snr - (10*log10(bps)), meanBer,lineStyle,'LineWidth', lineWidth, 'Color', varargin{1});
+            semilogy(snr - (10*log10(bps)), meanBer,lineStyle,'LineWidth', lineWidth, 'Color', varargin{2});
         end
     else
         if (flagSNR == "SNR")
@@ -41,7 +44,16 @@ function plotMeanBER(obj, lineStyle, lineWidth, flagFigure, flagSNR, varargin)
         xlabel('E_b / N_0 , дБ');
     end
     ylabel('Вероятность битовой ошибки');
-    % ylabel('BER');
-
+    title("Massive MIMO");
+    
+    if (nargin == 6)
+        legObj = findobj(figObj, 'Type', 'Legend');
+        strLeg = legObj.String;
+        numLegends = size(strLeg,2);
+        strLeg{numLegends} = legendStr;
+        legObj.String = strLeg;
+    else        
+        legend(legendStr);
+    end
 end
 

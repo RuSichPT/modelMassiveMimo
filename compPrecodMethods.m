@@ -44,19 +44,15 @@ modelZF.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
 modelEBM.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
 modelRZF.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
 %% Построение графиков
-figure();
-str = 'Massive MIMO ';
-modelMF.plotMeanBER('k', 2, "notCreateFigure", "SNR");
-str1 = [str num2str(modelMF.main.precoderType) ' ' num2str(modelMF.main.numTx) 'x'  num2str(modelMF.main.numRx)];
+str0 = 'Mean ';
+str1 = [str0 num2str(modelMF.main.precoderType) ' ' num2str(modelMF.main.numTx) 'x'  num2str(modelMF.main.numRx)];
+fig = modelMF.plotMeanBER('k', 2, "SNR", str1);
 
-modelZF.plotMeanBER('--k', 2, "notCreateFigure", "SNR");
-str2 = [str num2str(modelZF.main.precoderType) ' ' num2str(modelZF.main.numTx) 'x'  num2str(modelZF.main.numRx)];
+str2 = [str0 num2str(modelZF.main.precoderType) ' ' num2str(modelZF.main.numTx) 'x'  num2str(modelZF.main.numRx)];
+modelZF.plotMeanBER('--k', 2, "SNR", str2, fig);
 
-modelEBM.plotMeanBER('-.k', 2, "notCreateFigure", "SNR");
-str3 = [str num2str(modelEBM.main.precoderType) ' ' num2str(modelEBM.main.numTx) 'x'  num2str(modelEBM.main.numRx)];
+str3 = [str0 num2str(modelEBM.main.precoderType) ' ' num2str(modelEBM.main.numTx) 'x'  num2str(modelEBM.main.numRx)];
+modelEBM.plotMeanBER('-.k', 2, "SNR", str3, fig);
 
-modelRZF.plotMeanBER('*k', 2, "notCreateFigure", "SNR");
-str4 = [str num2str(modelRZF.main.precoderType) ' ' num2str(modelRZF.main.numTx) 'x'  num2str(modelRZF.main.numRx)];
-
-title(" Mean ");
-legend(str1, str2, str3, str4);
+str4 = [str0 num2str(modelRZF.main.precoderType) ' ' num2str(modelRZF.main.numTx) 'x'  num2str(modelRZF.main.numRx)];
+modelRZF.plotMeanBER('*k', 2, "SNR", str4, fig);
