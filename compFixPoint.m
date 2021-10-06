@@ -6,7 +6,9 @@ main.numPhasedElemTx = 2;                               % Кол-во антенных элемен
 main.numPhasedElemRx = 1;                               % Кол-во антенных элементов в 1 решетке на прием
 main.modulation = 4;                                    % Порядок модуляции
 main.freqCarrier = 28e9;                                % Частота несущей 28 GHz system                               
-main.precoderType = "MF";                               % Тип прекодера
+main.precoderType = "EBM";                               % Тип прекодера
+roundingType = 'significant';                           % См функцию round  
+numFixPoint = 2;                                        % См функцию round 
 %% Параметры OFDM
 ofdm.numSubCarriers = 450;                           % Кол-во поднессущих
 ofdm.lengthFFT = 512;                                % Длина FFT для OFDM
@@ -26,37 +28,24 @@ switch channel.channelType
         channel.pdB = [-3 -9 -12];
 end
 %% Создание моделей 
-modelMF = MassiveMimo(main, ofdm, channel);
-modelZF = copy(modelMF);
-modelEBM = copy(modelMF);
-modelRZF = copy(modelMF);
-modelZF.main.precoderType = "ZF";
-modelEBM.main.precoderType = "EBM";
-modelRZF.main.precoderType = "RZF";
+model = MassiveMimo(main, ofdm, channel);
+modelFixPoint = MassiveMimo(main, ofdm, channel);
 %% Симуляция
 SNR = 0:30;                             % Диапазон SNR 
 minNumErrs = 100;                       % Порог ошибок для цикла 
-maxNumSimulation = 1;                   % Максимальное число итераций в цикле while 50
+maxNumSimulation = 5;                   % Максимальное число итераций в цикле while 50
 maxNumZeroBER = 1;                      % Максимальное кол-во измерений с нулевым кол-вом 
 
-modelMF.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
-modelZF.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
-modelEBM.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
-modelRZF.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
+model.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
+modelFixPoint.simulateFixPoint(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation, numFixPoint, roundingType);
 %% Построение графиков
 figure();
+model.plotMeanBER('k', 2, "notCreateFigure", "SNR");
 str = 'Massive MIMO ';
-modelMF.plotMeanBER('k', 2, "notCreateFigure", "SNR");
-str1 = [str num2str(modelMF.main.precoderType) ' ' num2str(modelMF.main.numTx) 'x'  num2str(modelMF.main.numRx)];
+str1 = [str num2str(model.main.precoderType) ' '  num2str(model.main.numTx) 'x'  num2str(model.main.numRx)];
 
-modelZF.plotMeanBER('--k', 2, "notCreateFigure", "SNR");
-str2 = [str num2str(modelZF.main.precoderType) ' ' num2str(modelZF.main.numTx) 'x'  num2str(modelZF.main.numRx)];
-
-modelEBM.plotMeanBER('-.k', 2, "notCreateFigure", "SNR");
-str3 = [str num2str(modelEBM.main.precoderType) ' ' num2str(modelEBM.main.numTx) 'x'  num2str(modelEBM.main.numRx)];
-
-modelRZF.plotMeanBER('*k', 2, "notCreateFigure", "SNR");
-str4 = [str num2str(modelRZF.main.precoderType) ' ' num2str(modelRZF.main.numTx) 'x'  num2str(modelRZF.main.numRx)];
+modelFixPoint.plotMeanBER('-.k', 2, "notCreateFigure", "SNR");
+str2 = [str num2str(modelFixPoint.main.precoderType) ' fixPoint ' num2str(modelFixPoint.main.numTx) 'x'  num2str(modelFixPoint.main.numRx)];
 
 title(" Mean ");
-legend(str1, str2, str3, str4);
+legend(str1, str2);

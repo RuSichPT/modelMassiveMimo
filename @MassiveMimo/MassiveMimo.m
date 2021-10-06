@@ -85,9 +85,13 @@ classdef MassiveMimo < matlab.mixin.Copyable
         
         outputData = equalizerZFnumSC(obj, inputData, H_estim)
         
-        [berconf, lengthConfInterval] = simulateOneSNR(obj, snr)
+        [numErrors, numBits] = simulateOneSNR(obj, snr)
         
         simulate(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation)
+        
+        [numErrors, numBits] = simulateOneSNRfixPoint(obj, snr, numFixPoint, roundingType)
+        
+        simulateFixPoint(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation, numFixPoint, roundingType)
         
         numErrors = calculateErrors(obj, inpData, outData)
         
