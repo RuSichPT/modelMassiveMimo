@@ -1,6 +1,8 @@
 function [channel] = createChannel(obj, prm)
 
     numTx = obj.main.numTx;
+    numRx = obj.main.numRx;
+    numSTS = obj.main.numSTS;
     numUsers = obj.main.numUsers;
     chanType = obj.channel.channelType;
 
@@ -18,15 +20,25 @@ function [channel] = createChannel(obj, prm)
             obj.channel.da = da;
             obj.channel.dp = dp;
         case 'RAYL'
-            prm.numTx = obj.main.numTx;
-            prm.numRx = obj.main.numRx;
-            prm.numSTS = obj.main.numSTS;
-            [channel,~,~] = create_chanel("RAYL", prm);
+            channel = comm.MIMOChannel(...
+                        'SampleRate',                       prm.sampleRate, ...
+                        'PathDelays',                       prm.tau,        ...
+                        'AveragePathGains',                 prm.pdB,        ...
+                        'MaximumDopplerShift',              0,              ...
+                        'SpatialCorrelationSpecification',  'None',         ... 
+                        'NumTransmitAntennas',              numTx,          ...
+                        'NumReceiveAntennas',               numRx,          ...
+                        'PathGainsOutputPort',              true);
+%                 'TransmitCorrelationMatrix', cat(3, eye(2), [1 0.01;0.01 1]),...
+%                 'ReceiveCorrelationMatrix',  cat(3, [1 0.1;0.1 1], eye(2)),...
         case 'STATIC'
-            prm.numTx = obj.main.numTx;
-            prm.numRx = obj.main.numRx;
-            prm.numSTS = obj.main.numSTS;
-            [channel,~,~] = create_chanel('STATIC', prm);  
+            rng(168)
+            channel = zeros(numTx, numRx);
+            for i = 1:numTx
+                for j = 1:numRx           
+                    channel(i,j) = (randn(1)+1i*randn(1))/sqrt(2);
+                end
+            end  
     end
 
 end

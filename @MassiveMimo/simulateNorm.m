@@ -1,4 +1,4 @@
-function simulateMutCorr(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation, corrMatrix)
+function simulateNorm(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation)
 
     % rangeSNR - диапазон ОСШ
     % maxNumZeroBER - максимально кол-во точек, где BER = 0
@@ -18,7 +18,7 @@ function simulateMutCorr(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulat
             allNumBits = 0; 
             condition = 1;
             while ( condition && (indSim < maxNumSimulation) )        
-                [numErrors, numBits] = obj.simulateOneSNRmutCorr(rangeSNR(indSNR), corrMatrix);
+                [numErrors, numBits] = obj.simulateOneSNRnorm(rangeSNR(indSNR));
                 allNumErrors = allNumErrors + numErrors;
                 allNumBits = allNumBits + numBits;
 

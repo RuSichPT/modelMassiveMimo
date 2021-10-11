@@ -13,16 +13,16 @@ function [outputData, precodWeights, combWeights] = applyPrecod(obj, inputData, 
     % combWeights - веса комбинирования
     
     switch obj.main.precoderType
-        case {"MF"}
+        case {'MF'}
             [outputData, precodWeights] = applyPrecodMF(inputData, estimateChannel);
             combWeights = 0;
-        case {"ZF"}
+        case {'ZF'}
             [outputData, precodWeights] = applyPrecodZF(inputData, estimateChannel);
             combWeights = 0;
-        case {"RZF"}
-            [outputData, precodWeights] = applyPrecodRZF(inputData, estimateChannel,0,2);
+        case {'RZF'}
+            [outputData, precodWeights] = applyPrecodRZF(inputData, estimateChannel,0,1);
             combWeights = 0;
-        case {"EBM"}
+        case {'EBM'}
             [outputData, precodWeights, combWeights] = applyPrecodEBM(inputData, estimateChannel);
     end    
     

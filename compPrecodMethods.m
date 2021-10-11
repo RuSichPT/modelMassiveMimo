@@ -36,7 +36,7 @@ modelRZF.main.precoderType = 'RZF';
 %% Симуляция
 SNR = 0:30;                             % Диапазон SNR 
 minNumErrs = 100;                       % Порог ошибок для цикла 
-maxNumSimulation = 1;                   % Максимальное число итераций в цикле while 50
+maxNumSimulation = 3;                   % Максимальное число итераций в цикле while 50
 maxNumZeroBER = 1;                      % Максимальное кол-во измерений с нулевым кол-вом 
 
 modelMF.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
@@ -55,4 +55,4 @@ str3 = [str0 num2str(modelEBM.main.precoderType) ' ' num2str(modelEBM.main.numTx
 modelEBM.plotMeanBER('-.k', 2, 'SNR', str3, fig);
 
 str4 = [str0 num2str(modelRZF.main.precoderType) ' ' num2str(modelRZF.main.numTx) 'x'  num2str(modelRZF.main.numRx)];
-modelRZF.plotMeanBER('*k', 2, 'SNR', str4, fig);
+modelRZF.plotMeanBER(':k', 2, 'SNR', str4, fig);

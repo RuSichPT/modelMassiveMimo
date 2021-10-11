@@ -2,6 +2,7 @@ function [figObj] = plotMeanBER(obj, lineStyle, lineWidth, flagSNR, legendStr, v
 
     % lineStyle - цвет графика, lineWidth - ширина линии
     % 'k','r','g','b','c'
+    % '-', '--', ':', '-.'
     % flagFigure = 1 создается новый график, flag = 0 не создается
     % flagSNR =  SNR Eb/N0
     
