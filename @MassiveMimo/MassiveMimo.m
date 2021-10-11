@@ -24,13 +24,14 @@ classdef MassiveMimo < matlab.mixin.Copyable
         % PHASED_ARRAY_STATIC, PHASED_ARRAY_DYNAMIC
         channel = struct(...           
                 "channelType",      "", ... % Тип канала 
-                "impResponse",      0 )     % Импульсная характеристика канала
+                "downChannel",      0, ...  % Нисходящий канал
+                "upChannel",        0 )     % Восходящий канал            
         %% Параметры симуляции
         simulation = struct(...
-                    "ber",              0,      ...  % Вероятность битовой ошибки
-                    "snr",              0,      ...  % Диапазон ОСШ
-                    "confidenceLevel",  0.95,   ...  % Уровень достоверности
-                    "coefConfInterval", 1/15 )     % ??? 
+                "ber",              0,      ...  % Вероятность битовой ошибки
+                "snr",              0,      ...  % Диапазон ОСШ
+                "confidenceLevel",  0.95,   ...  % Уровень достоверности
+                "coefConfInterval", 1/15 )     % ??? 
     end
     
     methods
@@ -65,7 +66,11 @@ classdef MassiveMimo < matlab.mixin.Copyable
             % Параметры канала                
             if (nargin > 2)
                 obj.channel.channelType = channel.channelType;
-                obj.channel.impResponse = obj.createChannel(channel);
+                obj.channel.downChannel = obj.createChannel(channel);
+                
+                if ~isobject(obj.channel.downChannel)
+                    obj.channel.upChannel = obj.channel.downChannel';
+                end
             end
             % Параметры симуляции                 
             if (nargin > 3)
@@ -75,8 +80,10 @@ classdef MassiveMimo < matlab.mixin.Copyable
             
         end
         %% Методы
-        [preamble, ltfSC] = generatePreamble(obj, numSTS, varargin)        
-        [outputData] = passChannel(obj, inputData)        
+        [preamble, ltfSC] = generatePreamble(obj, numSTS, varargin)
+        [H_estim] = channelSounding(obj, snr)
+        [H_estim] = simulateUplink(obj, snr)
+        [outputData] = passChannel(obj, inputData, channel)        
         [estimH] = channelEstimate(obj, rxData, ltfSC, numSTS)        
         [outputData, precodWeights, combWeights] = applyPrecod(obj, inputData, estimateChannel)        
         [outputData] = equalizerZFnumSC(obj, inputData, H_estim)         

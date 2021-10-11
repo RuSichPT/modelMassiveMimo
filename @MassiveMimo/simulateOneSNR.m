@@ -1,6 +1,5 @@
 function [numErrors, numBits] = simulateOneSNR(obj, snr)
-    %% Переопределение переменных
-    numTx = obj.main.numTx;
+    % Переопределение переменных
     numSTS = obj.main.numSTS;
     modulation = obj.main.modulation;
     bps = obj.main.bps;
@@ -9,19 +8,10 @@ function [numErrors, numBits] = simulateOneSNR(obj, snr)
     nullCarrInd = obj.ofdm.nullCarrierIndices;
     numSymbOFDM = obj.ofdm.numSymbOFDM;
     numSubCarr = obj.ofdm.numSubCarriers;
-    
+    downChann = obj.channel.downChannel;
     %% Зондирование канала
-    % Формируем преамбулу
-    [preambulaOFDMZond,zondLtfSC] = obj.generatePreamble(numTx);
-    % Прохождение канала
-    channelPreambulaZond = obj.passChannel(preambulaOFDMZond);
-    % Собственный  шум
-    noisePreambulaZond = awgn(channelPreambulaZond, snr, 'measured');
-    % Демодулятор OFDM
-    outPreambulaZond = ofdmdemod(noisePreambulaZond, lenFFT, cycPrefLen, cycPrefLen, ...
-                                    nullCarrInd);
-    % Оценка канала  
-    H_estim_zond = obj.channelEstimate(outPreambulaZond, zondLtfSC, numTx); 
+    H_estim_zond = obj.channelSounding(snr);
+%     H_estim_zond = obj.simulateUplink(snr); 
     %% Формируем данные
     numBits = bps * numSymbOFDM * numSubCarr;
     inpData = randi([0 1], numBits, numSTS);
@@ -36,7 +26,7 @@ function [numErrors, numBits] = simulateOneSNR(obj, snr)
     tmpdataOFDM = ofdmmod(precodData, lenFFT, cycPrefLen, nullCarrInd);                            
     dataOFDM = [inpPreambula ; tmpdataOFDM];
     %% Прохождение канала
-    channelData = obj.passChannel(dataOFDM);
+    channelData = obj.passChannel(dataOFDM, downChann);
     %% Собственный шум
     noiseData = awgn(channelData, snr, 'measured');
     %% Демодулятор OFDM

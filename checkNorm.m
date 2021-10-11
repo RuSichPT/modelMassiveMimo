@@ -26,33 +26,22 @@ switch channel.channelType
         channel.pdB = [-3 -9 -12];
 end
 %% Создание моделей 
-modelMF = MassiveMimo(main, ofdm, channel);
-modelZF = copy(modelMF);
-modelEBM = copy(modelMF);
-modelRZF = copy(modelMF);
-modelZF.main.precoderType = 'ZF';
-modelEBM.main.precoderType = 'EBM';
-modelRZF.main.precoderType = 'RZF';
+model = MassiveMimo(main, ofdm, channel);
+modelNorm = MassiveMimo(main, ofdm, channel);
 %% Симуляция
 SNR = 0:30;                             % Диапазон SNR 
 minNumErrs = 100;                       % Порог ошибок для цикла 
-maxNumSimulation = 5;                   % Максимальное число итераций в цикле while 50
+maxNumSimulation = 1;                   % Максимальное число итераций в цикле while 50
 maxNumZeroBER = 1;                      % Максимальное кол-во измерений с нулевым кол-вом 
 
-modelMF.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
-modelZF.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
-modelEBM.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
-modelRZF.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
+rng(67);
+model.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
+rng(67);
+modelNorm.simulateNorm(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
 %% Построение графиков
 str0 = 'Mean ';
-str1 = [str0 num2str(modelMF.main.precoderType) ' ' num2str(modelMF.main.numTx) 'x'  num2str(modelMF.main.numRx)];
-fig = modelMF.plotMeanBER('k', 2, 'SNR', str1);
+str1 = [str0 num2str(model.main.precoderType) ' ' num2str(model.main.numTx) 'x'  num2str(model.main.numRx)];
+fig = model.plotMeanBER('k', 2, 'SNR', str1);
 
-str2 = [str0 num2str(modelZF.main.precoderType) ' ' num2str(modelZF.main.numTx) 'x'  num2str(modelZF.main.numRx)];
-modelZF.plotMeanBER('--k', 2, 'SNR', str2, fig);
-
-str3 = [str0 num2str(modelEBM.main.precoderType) ' ' num2str(modelEBM.main.numTx) 'x'  num2str(modelEBM.main.numRx)];
-modelEBM.plotMeanBER('-.k', 2, 'SNR', str3, fig);
-
-str4 = [str0 num2str(modelRZF.main.precoderType) ' ' num2str(modelRZF.main.numTx) 'x'  num2str(modelRZF.main.numRx)];
-modelRZF.plotMeanBER(':k', 2, 'SNR', str4, fig);
+str2 = [str0 ' norm ' num2str(modelNorm.main.precoderType) ' ' num2str(modelNorm.main.numTx) 'x'  num2str(modelNorm.main.numRx)];
+modelNorm.plotMeanBER('--k', 2, 'SNR', str2, fig);

@@ -36,7 +36,7 @@ modelRZF.main.precoderType = 'RZF';
 %% Симуляция
 SNR = 0:30;                             % Диапазон SNR 
 minNumErrs = 100;                       % Порог ошибок для цикла 
-maxNumSimulation = 5;                   % Максимальное число итераций в цикле while 50
+maxNumSimulation = 3;                   % Максимальное число итераций в цикле while 50
 maxNumZeroBER = 1;                      % Максимальное кол-во измерений с нулевым кол-вом 
 
 modelMF.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);

@@ -9,13 +9,13 @@ function [numErrors, numBits] = simulateOneSNRfixPoint(obj, snr, numFixPoint, ro
     nullCarrInd = obj.ofdm.nullCarrierIndices;
     numSymbOFDM = obj.ofdm.numSymbOFDM;
     numSubCarr = obj.ofdm.numSubCarriers;
-    
+    downChann = obj.channel.downChannel;
     %% Зондирование канала
     % Формируем преамбулу
     [preambulaOFDMZond,zondLtfSC] = obj.generatePreamble(numTx);
     preambulaOFDMZond = round(preambulaOFDMZond, numFixPoint, roundingType);
     % Прохождение канала
-    channelPreambulaZond = obj.passChannel(preambulaOFDMZond);
+    channelPreambulaZond = obj.passChannel(preambulaOFDMZond, downChann);
     channelPreambulaZond = round(channelPreambulaZond, numFixPoint, roundingType);
     % Собственный  шум
     noisePreambulaZond = awgn(channelPreambulaZond, snr, 'measured');
@@ -44,7 +44,7 @@ function [numErrors, numBits] = simulateOneSNRfixPoint(obj, snr, numFixPoint, ro
     dataOFDM = [inpPreambula ; tmpdataOFDM];
     dataOFDM = round(dataOFDM, numFixPoint, roundingType);
     %% Прохождение канала
-    channelData = obj.passChannel(dataOFDM);
+    channelData = obj.passChannel(dataOFDM, downChann);
     channelData = round(channelData, numFixPoint, roundingType);
     %% Собственный шум
     noiseData = awgn(channelData, snr, 'measured');

@@ -1,15 +1,14 @@
-function outputData = passChannel(obj, inputData)
+function outputData = passChannel(obj, inputData, channel)
 
     chanType = obj.channel.channelType;
-    H = obj.channel.impResponse;
 
     switch chanType
         case {'PHASED_ARRAY_STATIC', 'PHASED_ARRAY_DYNAMIC'}
-            outputData = toPassChannelMIMO(inputData, H);
+            outputData = toPassChannelMIMO(inputData, channel);
         case 'RAYL'
-            outputData = H(inputData);
+            outputData = channel(inputData);
         otherwise                  
-            outputData = inputData*H;
+            outputData = inputData*channel;
     end
         
 %     if (typeChannel == "PHASED_ARRAY_STATIC" || typeChannel == "PHASED_ARRAY_DYNAMIC") 
