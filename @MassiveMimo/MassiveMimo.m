@@ -31,7 +31,8 @@ classdef MassiveMimo < matlab.mixin.Copyable
                 "ber",              0,      ...  % Вероятность битовой ошибки
                 "snr",              0,      ...  % Диапазон ОСШ
                 "confidenceLevel",  0.95,   ...  % Уровень достоверности
-                "coefConfInterval", 1/15 )     % ??? 
+                "coefConfInterval", 1/15 )     % ???
+        dataOFDM = 0;
     end
     
     methods
@@ -95,6 +96,7 @@ classdef MassiveMimo < matlab.mixin.Copyable
         % Графики  
         [figObj] = plotMeanBER(obj, lineStyle, lineWidth, flagSNR, legendStr, varargin)
         [figObj] = plotSTSBER(obj, lineStyle, lineWidth, flagSNR, partLegendStr, varargin)
+        [figObj] = plotSpectrOFDM(obj, sampleRate_Hz)
         
         % Симуляция     
         simulate(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation)

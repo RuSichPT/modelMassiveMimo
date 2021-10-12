@@ -24,6 +24,7 @@ function [numErrors, numBits] = simulateOneSNR(obj, snr)
     [precodData, ~] = obj.applyPrecod(inpModData, H_estim_zond);
     %% Модулятор OFDM  
     dataOFDM = ofdmmod(precodData, lenFFT, cycPrefLen, nullCarrInd);  
+    obj.dataOFDM = dataOFDM;
     %% Прохождение канала
     channelData = obj.passChannel(dataOFDM, downChann);
     %% Собственный шум
