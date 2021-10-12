@@ -1,29 +1,16 @@
-function H_estim = simulateUplink(obj, snr)
+function H_estim = estimateUplink (obj, snr)
     % Переопределение переменных 
     numRx = obj.main.numRx;
-    numSubCarr = obj.ofdm.numSubCarriers;
     lenFFT = obj.ofdm.lengthFFT;
     cycPrefLen = obj.ofdm.cyclicPrefixLength;
     nullCarrInd = obj.ofdm.nullCarrierIndices;
     upChann = obj.channel.upChannel;  
-    %% Формируем данные 
-    x = randi([0 1], numSubCarr, 1);
-    %% Модулятор 
-    ltfSC = pskmod(x,2);
-
-    P = helperGetP(numRx);    
-    Pred = P;
-    
-    Nltf = numRx;
-    ltfTx = zeros(numSubCarr, Nltf, numRx);
-    for i = 1:Nltf   
-        ltf = ltfSC*Pred(:, i).';                
-        ltfTx(:,i,:) = ltf;
-    end
+    %% Формируем преамбулу
+    [preambula, ltfSC] = obj.generatePreamble1(numRx);
     %% Модулятор OFDM
-    preambula = ofdmmod(ltfTx, lenFFT, cycPrefLen, nullCarrInd);
+    preambulaOFDM = ofdmmod(preambula, lenFFT, cycPrefLen, nullCarrInd);
     %% Прохождение канала
-    channelPreambula = obj.passChannel(preambula, upChann);
+    channelPreambula = obj.passChannel(preambulaOFDM, upChann);
     %% Собственный шум
     noisePreambula = awgn(channelPreambula, snr, 'measured');
     %% Демодулятор OFDM

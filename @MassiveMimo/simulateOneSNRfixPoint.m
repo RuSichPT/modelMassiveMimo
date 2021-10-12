@@ -12,7 +12,7 @@ function [numErrors, numBits] = simulateOneSNRfixPoint(obj, snr, numFixPoint, ro
     downChann = obj.channel.downChannel;
     %% Зондирование канала
     % Формируем преамбулу
-    [preambulaOFDMZond,zondLtfSC] = obj.generatePreamble(numTx);
+    [preambulaOFDMZond, zondLtfSC] = obj.generatePreambleOFDM(numTx);
     preambulaOFDMZond = round(preambulaOFDMZond, numFixPoint, roundingType);
     % Прохождение канала
     channelPreambulaZond = obj.passChannel(preambulaOFDMZond, downChann);
@@ -38,7 +38,7 @@ function [numErrors, numBits] = simulateOneSNRfixPoint(obj, snr, numFixPoint, ro
     precodData = round(precodData, numFixPoint, roundingType);
     precodWeights = round(precodWeights, numFixPoint, roundingType);
     %% Модулятор пилотов  
-    [inpPreambula, ltfSC] = obj.generatePreamble(numSTS, precodWeights);
+    [inpPreambula, ltfSC] = obj.generatePreambleOFDM(numSTS, precodWeights);
     %% Модулятор OFDM
     tmpdataOFDM = ofdmmod(precodData, lenFFT, cycPrefLen, nullCarrInd);                            
     dataOFDM = [inpPreambula ; tmpdataOFDM];

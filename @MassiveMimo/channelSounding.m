@@ -6,14 +6,16 @@ function H_estim = channelSounding(obj, snr)
     nullCarrInd = obj.ofdm.nullCarrierIndices;    
     downChann = obj.channel.downChannel;  
     %% Формируем преамбулу
-    [preambulaOFDM, ltfSC] = obj.generatePreamble(numTx);
+    [preamble, ltfSC] = obj.generatePreamble(numTx);
+    %% Модулятор OFDM  
+    preambleOFDM = ofdmmod(preamble, lenFFT, cycPrefLen, nullCarrInd);  
     %% Прохождение канала
-    channelPreambula = obj.passChannel(preambulaOFDM, downChann);
-    %% Собственный  шум
-    noisePreambula = awgn(channelPreambula, snr, 'measured');
+    channelPreamble = obj.passChannel(preambleOFDM, downChann);
+    %% Собственный шум
+    noisePreamble = awgn(channelPreamble, snr, 'measured');
     %% Демодулятор OFDM
-    outPreambula = ofdmdemod(noisePreambula, lenFFT, cycPrefLen, cycPrefLen, nullCarrInd);
+    outPreamble = ofdmdemod(noisePreamble, lenFFT, cycPrefLen, cycPrefLen, nullCarrInd);
     %% Оценка канала  
-    H_estim = obj.channelEstimate(outPreambula, ltfSC, numTx);
+    H_estim = obj.channelEstimate(outPreamble, ltfSC, numTx);
 end
 

@@ -11,20 +11,19 @@ function [numErrors, numBits] = simulateOneSNR(obj, snr)
     downChann = obj.channel.downChannel;
     %% Зондирование канала
     H_estim_zond = obj.channelSounding(snr);
-%     H_estim_zond = obj.simulateUplink(snr); 
     %% Формируем данные
     numBits = bps * numSymbOFDM * numSubCarr;
     inpData = randi([0 1], numBits, numSTS);
     %% Модулятор 
     tmpModData = qammod(inpData, modulation, 'InputType', 'bit');
     inpModData = reshape(tmpModData, numSubCarr, numSymbOFDM, numSTS);
+    %% Модулятор пилотов
+    [preambula, ltfSC] = obj.generatePreamble(numSTS);
+    inpModData = cat(2, preambula, inpModData);
     %% Прекодирование
-    [precodData, precodWeights] = obj.applyPrecod(inpModData, H_estim_zond);           
-    %% Модулятор пилотов  
-    [inpPreambula, ltfSC] = obj.generatePreamble(numSTS, precodWeights);
-    %% Модулятор OFDM
-    tmpdataOFDM = ofdmmod(precodData, lenFFT, cycPrefLen, nullCarrInd);                            
-    dataOFDM = [inpPreambula ; tmpdataOFDM];
+    [precodData, ~] = obj.applyPrecod(inpModData, H_estim_zond);
+    %% Модулятор OFDM  
+    dataOFDM = ofdmmod(precodData, lenFFT, cycPrefLen, nullCarrInd);  
     %% Прохождение канала
     channelData = obj.passChannel(dataOFDM, downChann);
     %% Собственный шум

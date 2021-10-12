@@ -12,7 +12,7 @@ function [numErrors, numBits] = simulateOneSNRmutCorr(obj, snr, corrMatrix)
     downChann = obj.channel.downChannel;
     %% Зондирование канала
     % Формируем преамбулу
-    [preambulaOFDMZond,zondLtfSC] = obj.generatePreamble(numTx);
+    [preambulaOFDMZond,zondLtfSC] = obj.generatePreambleOFDM(numTx);
     % Добавляем зависимости
     preambulaOFDMZond = preambulaOFDMZond * corrMatrix;
     % Прохождение канала
@@ -33,7 +33,7 @@ function [numErrors, numBits] = simulateOneSNRmutCorr(obj, snr, corrMatrix)
     %% Прекодирование
     [precodData, precodWeights] = obj.applyPrecod(inpModData, H_estim_zond);           
     %% Модулятор пилотов  
-    [inpPreambula, ltfSC] = obj.generatePreamble(numSTS, precodWeights);
+    [inpPreambula, ltfSC] = obj.generatePreambleOFDM(numSTS, precodWeights);
     %% Модулятор OFDM
     tmpdataOFDM = ofdmmod(precodData, lenFFT, cycPrefLen, nullCarrInd);                            
     dataOFDM = [inpPreambula ; tmpdataOFDM];

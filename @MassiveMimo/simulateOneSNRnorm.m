@@ -1,6 +1,5 @@
 function [numErrors, numBits] = simulateOneSNRnorm(obj, snr)
-    %% Переопределение переменных
-    numTx = obj.main.numTx;
+    % Переопределение переменных
     numSTS = obj.main.numSTS;
     modulation = obj.main.modulation;
     bps = obj.main.bps;
@@ -18,13 +17,13 @@ function [numErrors, numBits] = simulateOneSNRnorm(obj, snr)
     %% Модулятор 
     tmpModData = qammod(inpData, modulation, 'InputType', 'bit');
     inpModData = reshape(tmpModData, numSubCarr, numSymbOFDM, numSTS);
+    %% Модулятор пилотов
+    [preambula, ltfSC] = obj.generatePreamble(numSTS);
+    inpModData = cat(2, preambula, inpModData);
     %% Прекодирование
-    [precodData, precodWeights] = obj.applyPrecod(inpModData, H_estim_zond);           
-    %% Модулятор пилотов  
-    [inpPreambula, ltfSC] = obj.generatePreamble(numSTS, precodWeights);
-    %% Модулятор OFDM
-    tmpdataOFDM = ofdmmod(precodData, lenFFT, cycPrefLen, nullCarrInd);                            
-    dataOFDM = [inpPreambula ; tmpdataOFDM];
+    [precodData, ~] = obj.applyPrecod(inpModData, H_estim_zond);
+    %% Модулятор OFDM  
+    dataOFDM = ofdmmod(precodData, lenFFT, cycPrefLen, nullCarrInd);  
     %% Прохождение канала
     channelData = obj.passChannel(dataOFDM, downChann);
     %% Собственный шум
@@ -43,4 +42,3 @@ function [numErrors, numBits] = simulateOneSNRnorm(obj, snr)
     %% Выходные данные  
     numErrors = obj.calculateErrors(inpData, outData);   
 end
-
