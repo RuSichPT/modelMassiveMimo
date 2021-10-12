@@ -42,4 +42,3 @@ function [numErrors, numBits] = simulateOneSNR(obj, snr)
     %% Выходные данные  
     numErrors = obj.calculateErrors(inpData, outData);   
 end
-

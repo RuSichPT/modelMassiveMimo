@@ -6,7 +6,7 @@ function H_estim = estimateUplink (obj, snr)
     nullCarrInd = obj.ofdm.nullCarrierIndices;
     upChann = obj.channel.upChannel;  
     %% Формируем преамбулу
-    [preambula, ltfSC] = obj.generatePreamble1(numRx);
+    [preambula, ltfSC] = obj.generatePreamble(numRx);
     %% Модулятор OFDM
     preambulaOFDM = ofdmmod(preambula, lenFFT, cycPrefLen, nullCarrInd);
     %% Прохождение канала
