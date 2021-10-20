@@ -17,8 +17,13 @@ function simulate(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation)
             allNumErrors = 0;
             allNumBits = 0; 
             condition = 1;
-            while ( condition && (indSim < maxNumSimulation) )        
-                [numErrors, numBits] = obj.simulateOneSNR(rangeSNR(indSNR));
+            while ( condition && (indSim < maxNumSimulation) )
+                if (obj.main.precoderType == "NOT")
+                    [numErrors, numBits] = obj.simulateOneSNRphased(rangeSNR(indSNR));
+                else
+                    [numErrors, numBits] = obj.simulateOneSNR(rangeSNR(indSNR));
+                end
+
                 allNumErrors = allNumErrors + numErrors;
                 allNumBits = allNumBits + numBits;
 
@@ -38,4 +43,6 @@ function simulate(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation)
             fprintf('Complete indSNR = %d dB, simulations = %d \n', indSNR, indSim);
         end
     end
+    str = ['Complete ' obj.main.precoderType '\n'];
+    fprintf(str);
 end

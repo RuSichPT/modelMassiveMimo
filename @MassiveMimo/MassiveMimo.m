@@ -12,7 +12,7 @@ classdef MassiveMimo < matlab.mixin.Copyable
                 "numSTSVec",        0, ...  % Кол-во независимых потоков данных на одного пользователя / [2 1 3 2]
                 "numSTS",           0, ...  % Кол-во потоков данных; должно быть степени 2: /2/4/8/16/32/64
                 "bps",              0, ...  % Кол-во бит на символ в секунду
-                "precoderType",     "" )    % Тип прекодера                   
+                "precoderType",     'NOT' ) % Тип прекодера                   
         %% Параметры OFDM
         ofdm = struct(...
                 "numSubCarriers",       0, ...  % Кол-во поднессущих
@@ -40,8 +40,8 @@ classdef MassiveMimo < matlab.mixin.Copyable
         function obj = MassiveMimo(main, ofdm, channel, simulation)
             % Параметры системы
             if (nargin > 0)
-                obj.main.numPhasedElemTx = main.numPhasedElemTx;
-                obj.main.numPhasedElemRx = main.numPhasedElemRx;
+                obj.main.numTx = main.numTx;
+                obj.main.numRx = main.numRx;
                 obj.main.numUsers = main.numUsers;
                 obj.main.modulation = main.modulation;
                 obj.main.freqCarrier = main.freqCarrier;
@@ -49,8 +49,8 @@ classdef MassiveMimo < matlab.mixin.Copyable
 
                 obj.main.numSTSVec = main.numSTSVec;                  
                 obj.main.numSTS = sum(obj.main.numSTSVec);
-                obj.main.numTx = obj.main.numPhasedElemTx * obj.main.numSTS;
-                obj.main.numRx = obj.main.numPhasedElemRx * obj.main.numSTS; 
+                obj.main.numPhasedElemTx = obj.main.numTx / obj.main.numSTS;
+                obj.main.numPhasedElemRx = obj.main.numRx / obj.main.numSTS; 
                 obj.main.bps = log2(obj.main.modulation);
             end
             % Параметры OFDM
@@ -84,6 +84,7 @@ classdef MassiveMimo < matlab.mixin.Copyable
         [preambleOFDM, ltfSC] = generatePreambleOFDM(obj, numSTS, varargin)
         [ltfTx, ltfSC] = generatePreamble(obj, numSTS)
         [H_estim] = channelSounding(obj, snr)
+        [H_estim] = channelSoundingPhased(obj, snr)
         [H_estim] = estimateUplink(obj, snr)
         [outputData] = passChannel(obj, inputData, channel)        
         [estimH] = channelEstimate(obj, rxData, ltfSC, numSTS)  
@@ -104,7 +105,8 @@ classdef MassiveMimo < matlab.mixin.Copyable
         simulateMutCorr(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation, corrMatrix)
         simulateNorm(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation)
         
-        [numErrors, numBits] = simulateOneSNR(obj, snr)        
+        [numErrors, numBits] = simulateOneSNR(obj, snr)       
+        [numErrors, numBits] = simulateOneSNRphased(obj, snr) 
         [numErrors, numBits] = simulateOneSNRfixPoint(obj, snr, numFixPoint, roundingType)
         [numErrors, numBits] = simulateOneSNRmutCorr(obj, snr, corrMatrix)
         [numErrors, numBits] = simulateOneSNRnorm(obj, snr)    

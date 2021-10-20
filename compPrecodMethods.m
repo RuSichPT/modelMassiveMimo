@@ -1,12 +1,12 @@
 clc;clear;
 %% Параметры системы
+main.numTx = 8;                                        % Кол-во передающих антен
 main.numUsers = 4;                                      % Кол-во пользователей
+main.numRx = main.numUsers;                             % Кол-во приемных антен
 main.numSTSVec = ones(1, main.numUsers);                % Кол-во независимых потоков данных на одного пользователя / [2 1 3 2]
-main.numPhasedElemTx = 2;                               % Кол-во антенных элементов в 1 решетке на передачу
-main.numPhasedElemRx = 1;                               % Кол-во антенных элементов в 1 решетке на прием
 main.modulation = 4;                                    % Порядок модуляции
 main.freqCarrier = 28e9;                                % Частота несущей 28 GHz system                               
-main.precoderType = 'MF';                               % Тип прекодера
+main.precoderType = 'ZF';                               % Тип прекодера
 %% Параметры OFDM
 ofdm.numSubCarriers = 450;                           % Кол-во поднессущих
 ofdm.lengthFFT = 512;                                % Длина FFT для OFDM
@@ -27,15 +27,19 @@ switch channel.channelType
         channel.seed = 95;
 end
 %% Создание моделей 
-modelMF = MassiveMimo(main, ofdm, channel);
-modelZF = copy(modelMF);
-modelEBM = copy(modelMF);
-modelRZF = copy(modelMF);
-modelZF.main.precoderType = 'ZF';
+modelZF = MassiveMimo(main, ofdm, channel);
+modelMF = copy(modelZF);
+modelEBM = copy(modelZF);
+modelRZF = copy(modelZF);
+modelPhased = copy(modelZF);
+modelBDA = copy(modelZF);
+modelMF.main.precoderType = 'MF';
 modelEBM.main.precoderType = 'EBM';
 modelRZF.main.precoderType = 'RZF';
+modelPhased.main.precoderType = 'NOT';
+modelBDA.main.precoderType = 'BDA';
 %% Симуляция
-SNR = 0:30;                             % Диапазон SNR 
+SNR = 0:40;                             % Диапазон SNR 
 minNumErrs = 100;                       % Порог ошибок для цикла 
 maxNumSimulation = 5;                   % Максимальное число итераций в цикле while 50
 maxNumZeroBER = 1;                      % Максимальное кол-во измерений с нулевым кол-вом 
@@ -44,6 +48,8 @@ modelMF.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
 modelZF.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
 modelEBM.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
 modelRZF.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
+modelPhased.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
+modelBDA.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
 %% Построение графиков
 str0 = 'Mean ';
 str1 = [str0 num2str(modelMF.main.precoderType) ' ' num2str(modelMF.main.numTx) 'x'  num2str(modelMF.main.numRx)];
@@ -56,4 +62,10 @@ str3 = [str0 num2str(modelEBM.main.precoderType) ' ' num2str(modelEBM.main.numTx
 modelEBM.plotMeanBER('-.k', 2, 'SNR', str3, fig);
 
 str4 = [str0 num2str(modelRZF.main.precoderType) ' ' num2str(modelRZF.main.numTx) 'x'  num2str(modelRZF.main.numRx)];
-modelRZF.plotMeanBER(':k', 2, 'SNR', str4, fig);
+modelRZF.plotMeanBER('*k', 2, 'SNR', str4, fig);
+
+str5 = [str0 num2str(modelPhased.main.precoderType) ' ' num2str(modelPhased.main.numTx) 'x'  num2str(modelPhased.main.numRx)];
+modelPhased.plotMeanBER('*k', 2, 'SNR', str5, fig);
+
+str6 = [str0 num2str(modelBDA.main.precoderType) ' ' num2str(modelBDA.main.numTx) 'x'  num2str(modelBDA.main.numRx)];
+modelBDA.plotMeanBER(':k', 2, 'SNR', str6, fig);
