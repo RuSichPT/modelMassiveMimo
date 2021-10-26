@@ -28,6 +28,7 @@ end
 %% Создание моделей 
 model = MassiveMimo(main, ofdm, channel);
 modelNorm = MassiveMimo(main, ofdm, channel);
+modelNorm.main.precoderType = 'MFnorm';
 %% Симуляция
 SNR = 0:30;                             % Диапазон SNR 
 minNumErrs = 100;                       % Порог ошибок для цикла 

@@ -16,9 +16,9 @@ function figObj = plotESD(masIQ, sampleRate_Hz)
     figObj = figure;
     dataFFT = fftshift(fft(masIQ, Nfft));
     ESD = 20*log10(abs(dataFFT)); 
-    ESD_norm = ESD - max(ESD);
+%     ESD_norm = ESD - max(ESD);
     freq = (-Nfft/2 : 1 : Nfft/2-1)'/Nfft*sampleRate_Hz/1000;   
-    plot(freq, ESD_norm);
+    plot(freq, ESD);
     
     title('Спектральная плотность энергии');
     grid on;

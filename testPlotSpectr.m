@@ -13,7 +13,7 @@ ofdm.lengthFFT = 512;                                % Длина FFT для OFDM
 ofdm.numSymbOFDM = 10;                               % Кол-во символов OFDM от каждой антенны
 ofdm.cyclicPrefixLength = 64;                        % Длина защитных интервалов = 2*Ngi
 %% Параметры канала
-channel.channelType = 'STATIC';    % PHASED_ARRAY_STATIC, PHASED_ARRAY_DYNAMIC STATIC 
+channel.channelType = 'PHASED_ARRAY_STATIC';    % PHASED_ARRAY_STATIC, PHASED_ARRAY_DYNAMIC STATIC 
 channel.numUsers = main.numUsers;
 switch channel.channelType
     case {'PHASED_ARRAY_STATIC', 'PHASED_ARRAY_DYNAMIC'}
@@ -29,3 +29,5 @@ end
 sampleRate = 40e6;
 model = MassiveMimo(main, ofdm, channel);
 model.plotSpectrOFDM(sampleRate);
+
+plotImpulseFrequencyResponses(2, 2, model.channel.downChannel, sampleRate)
