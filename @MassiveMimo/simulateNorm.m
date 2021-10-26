@@ -5,6 +5,7 @@ function simulateNorm(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation
     % minNumErrs - минимальное кол-во ошибок
     % maxNumSimulation - максимальное кол-во симуляций
     
+    addpath("functions");    
     coefConfInt = obj.simulation.coefConfInterval;
     
     numZeroBER = 0;

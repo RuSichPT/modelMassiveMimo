@@ -5,6 +5,7 @@ function simulateMutCorr(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulat
     % minNumErrs - минимальное кол-во ошибок
     % maxNumSimulation - максимальное кол-во симуляций
     
+    addpath("functions");
     coefConfInt = obj.simulation.coefConfInterval;
     
     numZeroBER = 0;

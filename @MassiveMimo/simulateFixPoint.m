@@ -5,6 +5,7 @@ function simulateFixPoint(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimula
     % minNumErrs - минимальное кол-во ошибок
     % maxNumSimulation - максимальное кол-во симуляций
     
+    addpath("functions");
     coefConfInt = obj.simulation.coefConfInterval;
     
     numZeroBER = 0;
