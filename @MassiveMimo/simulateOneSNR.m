@@ -35,6 +35,7 @@ function [numErrors, numBits] = simulateOneSNR(obj, snr)
     outPreambula = modDataOut(:,1:numSTS,:);
     modDataOut = modDataOut(:,(1 + numSTS):end,:);
     H_estim = obj.channelEstimate(outPreambula, ltfSC, numSTS);
+%     equalizeData1 = reshape(modDataOut, numSubCarr * numSymbOFDM, numSTS);
     %% Эквалайзер
     tmpEqualizeData = obj.equalizerZFnumSC(modDataOut, H_estim);
     equalizeData = reshape(tmpEqualizeData, numSubCarr * numSymbOFDM, numSTS);

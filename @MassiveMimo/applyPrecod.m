@@ -23,7 +23,7 @@ function [outputData, precodWeights, combWeights] = applyPrecod(obj, inputData, 
             [outputData, precodWeights] = applyPrecodZF(inputData, estimateChannel);
             combWeights = 0;
         case {'RZF'}
-            [outputData, precodWeights] = applyPrecodRZF(inputData, estimateChannel,0,5);
+            [outputData, precodWeights] = applyPrecodRZF(inputData, estimateChannel, 0, 5);
             combWeights = 0;
         case {'EBM'}
             [outputData, precodWeights, combWeights] = applyPrecodEBM(inputData, estimateChannel);
@@ -31,6 +31,9 @@ function [outputData, precodWeights, combWeights] = applyPrecod(obj, inputData, 
             [outputData, precodWeights, combWeights] = applyPrecodNot(inputData, estimateChannel);
         case {'BDA'}
             [outputData, precodWeights, combWeights] = applyPrecodBDA(inputData, estimateChannel, obj.main.numSTSVec);
+        case {'TPE'}
+            [outputData, precodWeights] = applyPrecodTPE(inputData, estimateChannel, 4);
+            combWeights = 0;
     end    
     
 end
