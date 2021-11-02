@@ -10,6 +10,10 @@ function [figObj] = plotMeanBER(obj, lineStyle, lineWidth, flagSNR, legendStr, v
     snr = obj.simulation.snr;
     ber = obj.simulation.ber;
     
+    if isscalar(ber)
+        error("Нет данных для графика, вызовите simulate")
+    end
+    
     set(0, 'DefaultAxesFontName', 'Times New Roman');
     set(0, 'DefaultTextFontName', 'Times New Roman');
 %     set(0, 'CurrentFigure', figureHandle)
