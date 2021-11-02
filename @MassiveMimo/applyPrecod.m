@@ -23,7 +23,7 @@ function [outputData, precodWeights, combWeights] = applyPrecod(obj, inputData, 
             [outputData, precodWeights] = applyPrecodZF(inputData, estimateChannel);
             combWeights = 0;
         case {'RZF'}
-            [outputData, precodWeights] = applyPrecodRZF(inputData, estimateChannel, 0, 5);
+            [outputData, precodWeights] = applyPrecodRZF(inputData, estimateChannel, 0, 0.01);
             combWeights = 0;
         case {'EBM'}
             [outputData, precodWeights, combWeights] = applyPrecodEBM(inputData, estimateChannel);
@@ -32,7 +32,18 @@ function [outputData, precodWeights, combWeights] = applyPrecod(obj, inputData, 
         case {'BDA'}
             [outputData, precodWeights, combWeights] = applyPrecodBDA(inputData, estimateChannel, obj.main.numSTSVec);
         case {'TPE'}
-            [outputData, precodWeights] = applyPrecodTPE(inputData, estimateChannel, 4);
+            [outputData, precodWeights] = applyPrecodTPE(inputData, estimateChannel, 3);
+            combWeights = 0;
+        case {'NSA'}
+            % K = 1:3; K = 3 max в таком случае выч сложность == ZF => K = 2 
+            [outputData, precodWeights] = applyPrecodNSA(inputData, estimateChannel, 2); 
+            combWeights = 0;
+        case {'NI'}
+            % K = 1:2; K = 2 max в таком случае выч сложность == ZF => K = 1 (тк использует 1 итерацию NSA)
+            [outputData, precodWeights] = applyPrecodNI(inputData, estimateChannel, 1);  
+            combWeights = 0;
+        case {'NI-NSA'}
+            [outputData, precodWeights] = applyPrecodNI_NSA(inputData, estimateChannel, 2);  
             combWeights = 0;
     end    
     

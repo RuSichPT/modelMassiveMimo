@@ -103,13 +103,11 @@ classdef MassiveMimo < matlab.mixin.Copyable
         simulate(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation)
         simulateFixPoint(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation, numFixPoint, roundingType)
         simulateMutCorr(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation, corrMatrix)
-        simulateNorm(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation)
         
         [numErrors, numBits] = simulateOneSNR(obj, snr)       
         [numErrors, numBits] = simulateOneSNRphased(obj, snr) 
         [numErrors, numBits] = simulateOneSNRfixPoint(obj, snr, numFixPoint, roundingType)
         [numErrors, numBits] = simulateOneSNRmutCorr(obj, snr, corrMatrix)
-        [numErrors, numBits] = simulateOneSNRnorm(obj, snr)    
 
     end
 end

@@ -41,7 +41,7 @@ function simulate(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation)
             if (berconf == 0)
                 numZeroBER = numZeroBER + 1;
             end 
-            fprintf('Complete indSNR = %d dB, simulations = %d \n', indSNR, indSim);
+            fprintf('Complete SNR = %d dB, simulations = %d \n', rangeSNR(indSNR), indSim);
         end
     end
     str = ['Complete ' obj.main.precoderType '\n'];

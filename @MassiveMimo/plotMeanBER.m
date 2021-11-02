@@ -37,7 +37,7 @@ function [figObj] = plotMeanBER(obj, lineStyle, lineWidth, flagSNR, legendStr, v
     end
     hold on;
     grid on;
-    xlim([0 snr(end)]);
+    xlim([snr(1) snr(end)]);
     ylim([10^-6 10^0]);
     if (flagSNR == "SNR")
         xlabel('ќтношение сигнал/шум, дЅ');
