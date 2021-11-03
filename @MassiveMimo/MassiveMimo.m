@@ -33,52 +33,48 @@ classdef MassiveMimo < matlab.mixin.Copyable
                 "confidenceLevel",  0.95,   ...  % Уровень достоверности
                 "coefConfInterval", 1/15 )     % ???
         dataOFDM = 0;
-    end
-    
+    end    
     methods
         %% Конструктор
-        function obj = MassiveMimo(main, ofdm, channel, simulation)
-            % Параметры системы
-            if (nargin > 0)
-                obj.main.numTx = main.numTx;
-                obj.main.numRx = main.numRx;
-                obj.main.numUsers = main.numUsers;
-                obj.main.modulation = main.modulation;
-                obj.main.freqCarrier = main.freqCarrier;
-                obj.main.precoderType = main.precoderType;           
-
-                obj.main.numSTSVec = main.numSTSVec;                  
-                obj.main.numSTS = sum(obj.main.numSTSVec);
-                obj.main.numPhasedElemTx = obj.main.numTx / obj.main.numSTS;
-                obj.main.numPhasedElemRx = obj.main.numRx / obj.main.numSTS; 
-                obj.main.bps = log2(obj.main.modulation);
-            end
-            % Параметры OFDM
-            if (nargin > 1)
-                obj.ofdm.numSubCarriers = ofdm.numSubCarriers;                           
-                obj.ofdm.lengthFFT = ofdm.lengthFFT;                                
-                obj.ofdm.numSymbOFDM = ofdm.numSymbOFDM;                               
-                obj.ofdm.cyclicPrefixLength = ofdm.cyclicPrefixLength;                        
-
-                tmpNCI = obj.ofdm.lengthFFT - obj.ofdm.numSubCarriers;
-                lengthFFT = obj.ofdm.lengthFFT;
-                obj.ofdm.nullCarrierIndices = [1:(tmpNCI / 2) (1 + lengthFFT - tmpNCI / 2):lengthFFT]';
-            end
-            % Параметры канала                
-            if (nargin > 2)
-                obj.channel.channelType = channel.channelType;
-                obj.channel.downChannel = obj.createChannel(channel);
-                
-                if ~isobject(obj.channel.downChannel)
-                    obj.channel.upChannel = obj.channel.downChannel';
+        function obj = MassiveMimo(varargin)            
+            if (mod(length(varargin),2) ~= 0)
+                error("Кол-во параметров констуктора дб четным")
+            end            
+            for i = 1:length(varargin)/2 
+                switch varargin{2*i-1}
+                    case 'Main'
+                        main = varargin{2*i};
+                    case 'Ofdm'
+                        ofdm = varargin{2*i};
+                    case 'Channel'
+                        channel = varargin{2*i};
                 end
+            end            
+            %% Параметры системы
+            if (exist('main','var') == 1)
+                obj.initMainParam(main)
+            else
+                obj.initMainParam()
             end
-            % Параметры симуляции                 
-            if (nargin > 3)
+            %% Параметры OFDM
+            if (exist('ofdm','var') == 1)
+                obj.initOFDMParam(ofdm)
+            else
+                obj.initOFDMParam()
+            end
+            %% Параметры канала                
+            if (exist('channel','var') == 1)
+                obj.initChannelParam(channel)
+            else
+                obj.initChannelParam()
+            end
+            %% Параметры симуляции                 
+            if (nargin > 6)
                 obj.simulation.confidenceLevel = simulation.confidenceLevel;
                 obj.simulation.coefConfInterval = simulation.coefConfInterval;
             end
-            
+            %% Расчет вычисляемых параметров
+            obj.calculateParam();
         end
         %% Методы
         [preambleOFDM, ltfSC] = generatePreambleOFDM(obj, numSTS, varargin)
@@ -91,8 +87,14 @@ classdef MassiveMimo < matlab.mixin.Copyable
         [outputData, precodWeights, combWeights] = applyPrecod(obj, inputData, estimateChannel)        
         [outputData] = equalizerZFnumSC(obj, inputData, H_estim)         
         [numErrors] = calculateErrors(obj, inpData, outData)     
-        [berconf, lenConfInterval] = calculateBER(obj, allNumErrors, allNumBits);
-        [channel] = createChannel(obj, prm)
+        [berconf, lenConfInterval] = calculateBER(obj, allNumErrors, allNumBits)
+        [channel] = createChannel(obj)
+        calculateParam(obj)
+        
+        % Инициализация
+        initMainParam(obj, varargin)
+        initOFDMParam(obj, varargin)
+        initChannelParam(obj, varargin)
 
         % Графики  
         [figObj] = plotMeanBER(obj, lineStyle, lineWidth, flagSNR, legendStr, varargin)

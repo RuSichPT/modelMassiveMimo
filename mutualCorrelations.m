@@ -19,10 +19,8 @@ ofdm.numSymbOFDM = 10;                               % Кол-во символов OFDM от к
 ofdm.cyclicPrefixLength = 64;                        % Длина защитных интервалов = 2*Ngi
 %% Параметры канала
 channel.channelType = 'STATIC';    % PHASED_ARRAY_STATIC, PHASED_ARRAY_DYNAMIC STATIC 
-channel.numUsers = main.numUsers;
 switch channel.channelType
     case {'PHASED_ARRAY_STATIC', 'PHASED_ARRAY_DYNAMIC'}
-        channel.numTx = 8; %12
         channel.numDelayBeams = 3;       % Кол-во задержанных сигналов (размерность канального тензора)
         channel.txAng = {0,90,180,270};
     case 'RAYL'

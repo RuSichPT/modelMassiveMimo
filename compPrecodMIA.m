@@ -1,6 +1,6 @@
 clc;clear;
 %% Параметры системы
-main.numTx = 32;                                        % Кол-во передающих антен
+main.numTx = 8;                                        % Кол-во передающих антен
 main.numUsers = 4;                                      % Кол-во пользователей
 main.numRx = main.numUsers;                             % Кол-во приемных антен
 main.numSTSVec = ones(1, main.numUsers);                % Кол-во независимых потоков данных на одного пользователя / [2 1 3 2]
@@ -14,12 +14,10 @@ ofdm.numSymbOFDM = 10;                               % Кол-во символов OFDM от к
 ofdm.cyclicPrefixLength = 64;                        % Длина защитных интервалов = 2*Ngi
 %% Параметры канала
 channel.channelType = 'RAYL_SPECIAL';    % PHASED_ARRAY_STATIC, PHASED_ARRAY_DYNAMIC STATIC 
-channel.numUsers = main.numUsers;
 switch channel.channelType
     case {'PHASED_ARRAY_STATIC', 'PHASED_ARRAY_DYNAMIC'}
-        channel.numTx = 8; %12
         channel.numDelayBeams = 3;       % Кол-во задержанных сигналов (размерность канального тензора)
-        channel.txAng = {0,90,180,270};
+        channel.txAng = {0, 90, 180, 270};
     case {'RAYL','RAYL_SPECIAL'}
         channel.sampleRate = 40e6;
         channel.tau = [2 5 7] * (1 / channel.sampleRate);
