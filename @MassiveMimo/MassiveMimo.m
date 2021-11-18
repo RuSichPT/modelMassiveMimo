@@ -23,7 +23,7 @@ classdef MassiveMimo < matlab.mixin.Copyable
         %% Параметры канала
         % PHASED_ARRAY_STATIC, PHASED_ARRAY_DYNAMIC
         channel = struct(...           
-                "channelType",      "", ... % Тип канала 
+                "type",             "", ... % Тип канала 
                 "downChannel",      0, ...  % Нисходящий канал
                 "upChannel",        0 )     % Восходящий канал            
         %% Параметры симуляции
@@ -103,12 +103,10 @@ classdef MassiveMimo < matlab.mixin.Copyable
         
         % Симуляция     
         simulate(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation)
-        simulateFixPoint(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation, numFixPoint, roundingType)
         simulateMutCorr(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation, corrMatrix)
         
         [numErrors, numBits] = simulateOneSNR(obj, snr)       
         [numErrors, numBits] = simulateOneSNRphased(obj, snr) 
-        [numErrors, numBits] = simulateOneSNRfixPoint(obj, snr, numFixPoint, roundingType)
         [numErrors, numBits] = simulateOneSNRmutCorr(obj, snr, corrMatrix)
 
     end

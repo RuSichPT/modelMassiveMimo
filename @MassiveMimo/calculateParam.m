@@ -13,9 +13,12 @@ function calculateParam(obj)
     
     % Параметры канала               
     obj.channel.downChannel = obj.createChannel();
-    if ~isobject(obj.channel.downChannel)
+%     if ~isobject(obj.channel.downChannel)
+%         obj.channel.upChannel = obj.channel.downChannel';
+%     end
+
+    if (obj.channel.type == "STATIC")
         obj.channel.upChannel = obj.channel.downChannel';
     end
-
 end
 

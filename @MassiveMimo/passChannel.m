@@ -1,11 +1,12 @@
 function outputData = passChannel(obj, inputData, channel)
 
-    chanType = obj.channel.channelType;
+    chanType = obj.channel.type;
 
     switch chanType
         case {'PHASED_ARRAY_STATIC', 'PHASED_ARRAY_DYNAMIC'}
             outputData = toPassChannelMIMO(inputData, channel);
         case {'RAYL', 'RAYL_SPECIAL'}
+%             channel.Visualization = 'Impulse and frequency responses';
             outputData = channel(inputData);
         otherwise                  
             outputData = inputData*channel;

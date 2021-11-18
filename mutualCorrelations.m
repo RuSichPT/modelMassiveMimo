@@ -1,22 +1,17 @@
 clc;clear;
 %% Параметры системы
+main.numTx = 8;                                        % Кол-во передающих антен
 main.numUsers = 4;                                      % Кол-во пользователей
+main.numRx = main.numUsers;                             % Кол-во приемных антен
 main.numSTSVec = ones(1, main.numUsers);                % Кол-во независимых потоков данных на одного пользователя / [2 1 3 2]
-main.numPhasedElemTx = 2;                               % Кол-во антенных элементов в 1 решетке на передачу
-main.numPhasedElemRx = 1;                               % Кол-во антенных элементов в 1 решетке на прием
 main.modulation = 4;                                    % Порядок модуляции
 main.freqCarrier = 28e9;                                % Частота несущей 28 GHz system                               
-main.precoderType = 'MF';                               % Тип прекодера
-corrMatrix = zeros(main.numPhasedElemTx*main.numUsers);
+main.precoderType = 'ZF';                               % Тип прекодера
+corrMatrix = zeros(main.numTx);
 corrMatrix(:,:) = 0.2;
-for i = 1:main.numPhasedElemTx*main.numUsers
+for i = 1:main.numTx
     corrMatrix(i,i) = 1;
 end
-%% Параметры OFDM
-ofdm.numSubCarriers = 450;                           % Кол-во поднессущих
-ofdm.lengthFFT = 512;                                % Длина FFT для OFDM
-ofdm.numSymbOFDM = 10;                               % Кол-во символов OFDM от каждой антенны
-ofdm.cyclicPrefixLength = 64;                        % Длина защитных интервалов = 2*Ngi
 %% Параметры канала
 channel.channelType = 'STATIC';    % PHASED_ARRAY_STATIC, PHASED_ARRAY_DYNAMIC STATIC 
 switch channel.channelType
@@ -29,9 +24,9 @@ switch channel.channelType
         channel.pdB = [-3 -9 -12];
 end
 %% Создание моделей 
-modelMF = MassiveMimo(main, ofdm, channel);
+modelMF = MassiveMimo('Main', main,'Channel', channel);
 modelMFmutCorr = copy(modelMF);
-modelZF = MassiveMimo(main, ofdm, channel);
+modelZF = MassiveMimo('Main', main,'Channel', channel);
 modelZF.main.precoderType = 'ZF';
 modelZFmutCorr = copy(modelZF);
 %% Симуляция

@@ -4,9 +4,7 @@ function [channel] = createChannel(obj)
     numTx = obj.main.numTx;
     numRx = obj.main.numRx;
     numUsers = obj.main.numUsers;
-    chanType = obj.channel.channelType;    
-%     delete obj.channel    
-    obj.channel.channelType = chanType;    
+    chanType = obj.channel.type;
 
     % ѕроверка
     if (numTx ~= 12 && numTx ~= 8 && (chanType == "PHASED_ARRAY_STATIC" || chanType == "PHASED_ARRAY_DYNAMIC"))
@@ -55,8 +53,10 @@ function [channel] = createChannel(obj)
     switch chanType
         case 'PHASED_ARRAY_STATIC'
             channel = CreateChannelByDN_static(numUsers, numDelayBeams, txAng, da, dp); % дл€ статичных углов
+            obj.channel = clearStructExcept(obj.channel, "type","numUsers", "numDelayBeams", "txAng", "da", "dp");
         case 'PHASED_ARRAY_DYNAMIC'
             channel = CreateChannelByDN(numUsers, numDelayBeams, da, dp); % случайные углы
+            obj.channel = clearStructExcept(obj.channel, "type","numUsers", "numDelayBeams", "da", "dp");
         case 'STATIC'
             rng(168)
             channel = zeros(numTx, numRx);
@@ -65,6 +65,7 @@ function [channel] = createChannel(obj)
                     channel(i,j) = (randn(1)+1i*randn(1))/sqrt(2);
                 end
             end
+            obj.channel = clearStructExcept(obj.channel,"type");
         case 'RAYL'
             channel = comm.MIMOChannel(...
                         'SampleRate',                       sampleRate,     ...
@@ -77,6 +78,7 @@ function [channel] = createChannel(obj)
                         'PathGainsOutputPort',              true);
 %                 'TransmitCorrelationMatrix', cat(3, eye(2), [1 0.01;0.01 1]),...
 %                 'ReceiveCorrelationMatrix',  cat(3, [1 0.1;0.1 1], eye(2)),...
+            obj.channel = clearStructExcept(obj.channel, "type", "sampleRate", "tau", "pdB");
         case 'RAYL_SPECIAL'
             channel = comm.MIMOChannel(...
                         'SampleRate',                       sampleRate,             ...
@@ -89,6 +91,7 @@ function [channel] = createChannel(obj)
                         'RandomStream',                     'mt19937ar with seed',  ...
                         'Seed',                             seed,                   ... 
                         'PathGainsOutputPort',              true);
+            obj.channel = clearStructExcept(obj.channel, "type","sampleRate", "tau", "pdB", "seed");
     end
 
 end
