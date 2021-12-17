@@ -1,6 +1,8 @@
 function calculateParam(obj)
 
-    % Параметры системы 
+    % Параметры системы
+    obj.main.numRx = obj.main.numUsers;  
+    obj.main.numSTSVec = ones(1, obj.main.numUsers); 
     obj.main.numSTS = sum(obj.main.numSTSVec);
     obj.main.numPhasedElemTx = obj.main.numTx / obj.main.numSTS;
     obj.main.numPhasedElemRx = obj.main.numRx / obj.main.numSTS; 

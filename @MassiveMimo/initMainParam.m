@@ -10,9 +10,7 @@ function initMainParam(obj, varargin)
         obj.main.numSTSVec = main.numSTSVec;
     else % По умолчанию
         obj.main.numTx = 8;
-        obj.main.numUsers = 4;
-        obj.main.numRx = obj.main.numUsers;  
-        obj.main.numSTSVec = ones(1, obj.main.numUsers);             
+        obj.main.numUsers = 4;            
         obj.main.modulation = 4;                                   
         obj.main.freqCarrier = 28e9;                                                              
         obj.main.precoderType = 'ZF'; 

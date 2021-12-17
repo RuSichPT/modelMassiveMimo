@@ -77,19 +77,20 @@ classdef MassiveMimo < matlab.mixin.Copyable
             obj.calculateParam();
         end
         %% Методы
-        [preambleOFDM, ltfSC] = generatePreambleOFDM(obj, numSTS, varargin)
-        [ltfTx, ltfSC] = generatePreamble(obj, numSTS)
-        [H_estim] = channelSounding(obj, snr)
-        [H_estim] = channelSoundingPhased(obj, snr)
-        [H_estim] = estimateUplink(obj, snr)
-        [outputData] = passChannel(obj, inputData, channel)        
-        [estimH] = channelEstimate(obj, rxData, ltfSC, numSTS)  
-        [outputData, precodWeights, combWeights] = applyPrecod(obj, inputData, estimateChannel)        
-        [outputData] = equalizerZFnumSC(obj, inputData, H_estim)         
-        [numErrors] = calculateErrors(obj, inpData, outData)     
-        [berconf, lenConfInterval] = calculateBER(obj, allNumErrors, allNumBits)
-        [channel] = createChannel(obj)
-        calculateParam(obj)
+        [preambleOFDM, ltfSC]                    = generatePreambleOFDM(obj, numSTS, varargin)
+        [ltfTx, ltfSC]                           = generatePreamble(obj, numSTS)
+        [H_estim]                                = channelSounding(obj, snr)
+        [H_estim]                                = channelSoundingPhased(obj, snr)
+        [H_estim]                                = estimateUplink(obj, snr)
+        [outputData]                             = passChannel(obj, inputData, channel)        
+        [estimH]                                 = channelEstimate(obj, rxData, ltfSC, numSTS)  
+        [outputData, precodWeights, combWeights] = applyPrecod(obj, inputData, estimateChannel)
+        [outputData, Frf]                        = applyPrecodHybrid(obj, inputData, estimateChannel) 
+        [outputData]                             = equalizerZFnumSC(obj, inputData, H_estim)         
+        [numErrors]                              = calculateErrors(obj, inpData, outData)     
+        [berconf, lenConfInterval]               = calculateBER(obj, allNumErrors, allNumBits)
+        [channel]                                = createChannel(obj)
+                                                   calculateParam(obj)
         
         % Инициализация
         initMainParam(obj, varargin)
@@ -104,10 +105,12 @@ classdef MassiveMimo < matlab.mixin.Copyable
         % Симуляция     
         simulate(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation)
         simulateMutCorr(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation, corrMatrix)
+        simulateHybrid(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation)
         
         [numErrors, numBits] = simulateOneSNR(obj, snr)       
         [numErrors, numBits] = simulateOneSNRphased(obj, snr) 
         [numErrors, numBits] = simulateOneSNRmutCorr(obj, snr, corrMatrix)
+        [numErrors, numBits] = simulateOneSNRhybrid(obj, snr)
 
     end
 end

@@ -22,7 +22,7 @@ function [numErrors, numBits] = simulateOneSNRphased(obj, snr)
     [preambula, ltfSC] = obj.generatePreamble(numSTS);
     inpModData = cat(2, preambula, inpModData);
     %% Прекодирование
-    [precodData, ~] = obj.applyPrecod(inpModData, H_estim_zond);
+    [precodData, ~, ~] = obj.applyPrecod(inpModData, H_estim_zond);
     %% Модулятор OFDM  
     dataSTS_OFDM = ofdmmod(precodData, lenFFT, cycPrefLen, nullCarrInd);  
     %% Повторяем на каждую антенну Tx

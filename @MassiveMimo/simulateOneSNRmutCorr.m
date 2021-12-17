@@ -31,7 +31,7 @@ function [numErrors, numBits] = simulateOneSNRmutCorr(obj, snr, corrMatrix)
     tmpModData = qammod(inpData, modulation, 'InputType', 'bit');
     inpModData = reshape(tmpModData, numSubCarr, numSymbOFDM, numSTS);
     %% Прекодирование
-    [precodData, precodWeights] = obj.applyPrecod(inpModData, H_estim_zond);           
+    [precodData, precodWeights, ~] = obj.applyPrecod(inpModData, H_estim_zond);           
     %% Модулятор пилотов  
     [inpPreambula, ltfSC] = obj.generatePreambleOFDM(numSTS, precodWeights);
     %% Модулятор OFDM
