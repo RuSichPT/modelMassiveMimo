@@ -16,9 +16,6 @@ function [outputData, precodWeights, combWeights] = applyPrecod(obj, inputData, 
         case {'MF'}
             [outputData, precodWeights] = applyPrecodMF(inputData, estimateChannel);
             combWeights = 0;
-        case {'MFnorm'}
-            [outputData, precodWeights] = applyPrecodMFnorm(inputData, estimateChannel);
-            combWeights = 0;
         case {'ZF'}
             [outputData, precodWeights] = applyPrecodZF(inputData, estimateChannel);
             combWeights = 0;

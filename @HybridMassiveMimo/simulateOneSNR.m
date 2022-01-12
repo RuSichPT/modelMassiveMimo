@@ -1,4 +1,4 @@
-function [numErrors, numBits] = simulateOneSNRhybrid(obj, snr)
+function [numErrors, numBits] = simulateOneSNR(obj, snr)
     % Переопределение переменных
     numSTS = obj.main.numSTS;
     modulation = obj.main.modulation;
@@ -20,16 +20,24 @@ function [numErrors, numBits] = simulateOneSNRhybrid(obj, snr)
     %% Модулятор пилотов
     [preambula, ltfSC] = obj.generatePreamble(numSTS);
     inpModData = cat(2, preambula, inpModData);
-    %% Прекодирование
-    [precodData,Frf] = obj.applyPrecodHybrid(inpModData, H_estim_zond);
+    %% Цифровое прекодирование BB beamforming
+    [precodData,Frf] = obj.applyPrecod(inpModData, H_estim_zond);
     %% Модулятор OFDM  
-    dataOFDM = ofdmmod(precodData, lenFFT, cycPrefLen, nullCarrInd);  
-    obj.dataOFDM = dataOFDM;
-    %% RF beamforming: Apply Frf to the digital signal
+    dataOFDMbb = ofdmmod(precodData, lenFFT, cycPrefLen, nullCarrInd);  
+    obj.dataOFDM = dataOFDMbb;
+    %% Аналоговое прекодирование RF beamforming: Apply Frf to the digital signal
     %   Each antenna element is connected to each data stream
-    dataOFDM = dataOFDM*Frf;
+    dataOFDMrf = [];
+    subsetNumTx = obj.main.numTx/obj.main.numSubArray;
+    subsetNumSTS = obj.main.numSTS/obj.main.numSubArray;
+    for i = 1:obj.main.numSubArray
+        tmpDataOFDMbb = dataOFDMbb(:,1+(i-1)*subsetNumSTS:i*subsetNumSTS);
+        tmpFrf = Frf(1+(i-1)*subsetNumSTS:i*subsetNumSTS,1+(i-1)*subsetNumTx:i*subsetNumTx);
+        tmpDataOFDMrf = tmpDataOFDMbb*tmpFrf;
+        dataOFDMrf = cat(2,dataOFDMrf,tmpDataOFDMrf);
+    end
     %% Прохождение канала
-    channelData = obj.passChannel(dataOFDM, downChann);
+    channelData = obj.passChannel(dataOFDMrf, downChann);
     %% Собственный шум
     noiseData = awgn(channelData, snr, 'measured');
     %% Демодулятор OFDM

@@ -85,7 +85,6 @@ classdef MassiveMimo < matlab.mixin.Copyable
         [outputData]                             = passChannel(obj, inputData, channel)        
         [estimH]                                 = channelEstimate(obj, rxData, ltfSC, numSTS)  
         [outputData, precodWeights, combWeights] = applyPrecod(obj, inputData, estimateChannel)
-        [outputData, Frf]                        = applyPrecodHybrid(obj, inputData, estimateChannel) 
         [outputData]                             = equalizerZFnumSC(obj, inputData, H_estim)         
         [numErrors]                              = calculateErrors(obj, inpData, outData)     
         [berconf, lenConfInterval]               = calculateBER(obj, allNumErrors, allNumBits)
@@ -105,12 +104,10 @@ classdef MassiveMimo < matlab.mixin.Copyable
         % Симуляция     
         simulate(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation)
         simulateMutCorr(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation, corrMatrix)
-        simulateHybrid(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation)
         
         [numErrors, numBits] = simulateOneSNR(obj, snr)       
         [numErrors, numBits] = simulateOneSNRphased(obj, snr) 
         [numErrors, numBits] = simulateOneSNRmutCorr(obj, snr, corrMatrix)
-        [numErrors, numBits] = simulateOneSNRhybrid(obj, snr)
 
     end
 end

@@ -1,4 +1,4 @@
-function [digitalData, Frf] = applyPrecodHybrid(obj, inputData, estimateChannel)
+function [digitalData, Frf] = applyPrecod(obj, inputData, estimateChannel)
 
     % inputData - входные данные размерностью [numSC,numOFDM,numSTS]
     % numSC - кол-во поднессущих
