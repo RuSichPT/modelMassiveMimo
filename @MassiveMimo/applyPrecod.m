@@ -26,8 +26,8 @@ function [outputData, precodWeights, combWeights] = applyPrecod(obj, inputData, 
             [outputData, precodWeights, combWeights] = applyPrecodEBM(inputData, estimateChannel);
         case {'NOT'}
             [outputData, precodWeights, combWeights] = applyPrecodNot(inputData, estimateChannel);
-        case {'BDA'}
-            [outputData, precodWeights, combWeights] = applyPrecodBDA(inputData, estimateChannel, obj.main.numSTSVec);
+        case {'BD'}
+            [outputData, precodWeights, combWeights] = applyPrecodBD(inputData, estimateChannel, obj.main.numSTSVec);
         case {'TPE'}
             [outputData, precodWeights] = applyPrecodTPE(inputData, estimateChannel, 3);
             combWeights = 0;

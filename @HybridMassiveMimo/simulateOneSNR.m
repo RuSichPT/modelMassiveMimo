@@ -1,6 +1,9 @@
 function [numErrors, numBits] = simulateOneSNR(obj, snr)
     % Переопределение переменных
+    numTx = obj.main.numTx;
     numSTS = obj.main.numSTS;
+    numRF = obj.main.numRF;
+    hybridType = obj.main.hybridType; 
     modulation = obj.main.modulation;
     bps = obj.main.bps;
     lenFFT = obj.ofdm.lengthFFT;
@@ -27,15 +30,16 @@ function [numErrors, numBits] = simulateOneSNR(obj, snr)
     obj.dataOFDM = dataOFDMbb;
     %% Аналоговое прекодирование RF beamforming: Apply Frf to the digital signal
     %   Each antenna element is connected to each data stream
-    dataOFDMrf = [];
-    subsetNumTx = obj.main.numTx/obj.main.numSubArray;
-    subsetNumSTS = obj.main.numSTS/obj.main.numSubArray;
-    for i = 1:obj.main.numSubArray
-        tmpDataOFDMbb = dataOFDMbb(:,1+(i-1)*subsetNumSTS:i*subsetNumSTS);
-        tmpFrf = Frf(1+(i-1)*subsetNumSTS:i*subsetNumSTS,1+(i-1)*subsetNumTx:i*subsetNumTx);
-        tmpDataOFDMrf = tmpDataOFDMbb*tmpFrf;
-        dataOFDMrf = cat(2,dataOFDMrf,tmpDataOFDMrf);
+    if (hybridType == "sub")
+        subNumTx = numTx/numRF;
+        subNumSTS = numSTS/numRF;
+        tmpFrf = cell(1,numRF);
+        for i = 1:numRF
+            tmpFrf{i} = Frf(1+(i-1)*subNumSTS:i*subNumSTS, 1+(i-1)*subNumTx:i*subNumTx);
+        end
+        Frf = blkdiag(tmpFrf{:});
     end
+    dataOFDMrf = dataOFDMbb*Frf;
     %% Прохождение канала
     channelData = obj.passChannel(dataOFDMrf, downChann);
     %% Собственный шум

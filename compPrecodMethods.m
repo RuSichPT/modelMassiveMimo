@@ -1,13 +1,18 @@
 clc;clear;
 %% Создание моделей 
 modelZF = MassiveMimo();
+modelZF.main.numTx = 8;
+modelZF.main.numUsers = 4;
+modelZF.calculateParam();
+
 modelMF = copy(modelZF);
 modelEBM = copy(modelZF);
 modelRZF = copy(modelZF);
+modelBDA = copy(modelZF);
 modelMF.main.precoderType = 'MF';
 modelEBM.main.precoderType = 'EBM';
 modelRZF.main.precoderType = 'RZF';
-modelBDA.main.precoderType = 'BDA';
+modelBD.main.precoderType = 'BD';
 %% Симуляция
 SNR = 0:40;                             % Диапазон SNR 
 minNumErrs = 100;                       % Порог ошибок для цикла 
@@ -18,6 +23,7 @@ modelMF.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
 modelZF.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
 modelEBM.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
 modelRZF.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
+modelBD.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
 %% Построение графиков
 str0 = 'Mean ';
 str1 = [str0 num2str(modelMF.main.precoderType) ' ' num2str(modelMF.main.numTx) 'x'  num2str(modelMF.main.numRx)];
@@ -31,3 +37,6 @@ modelEBM.plotMeanBER('-.k', 2, 'SNR', str3, fig);
 
 str4 = [str0 num2str(modelRZF.main.precoderType) ' ' num2str(modelRZF.main.numTx) 'x'  num2str(modelRZF.main.numRx)];
 modelRZF.plotMeanBER(':k', 2, 'SNR', str4, fig);
+
+str5 = [str0 num2str(modelBDA.main.precoderType) ' ' num2str(modelBDA.main.numTx) 'x'  num2str(modelBDA.main.numRx)];
+modelBD.plotMeanBER('*-k', 2, 'SNR', str5, fig);

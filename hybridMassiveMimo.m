@@ -3,15 +3,16 @@ clc;clear;close all;
 modelMM = MassiveMimo();
 modelMM.main.numTx = 8;
 modelMM.main.numUsers = 4;
+modelMM.main.precoderType = 'BD';
 modelMM.calculateParam();
 
 modelHybridFull = HybridMassiveMimo();
-modelHybridFull.main.numTx = 8;
-modelHybridFull.main.numUsers = 4;
+modelHybridFull.main.numTx = modelMM.main.numTx;
+modelHybridFull.main.numUsers = modelMM.main.numUsers;
 modelHybridFull.calculateParam();
 
 modelHybridSub = copy(modelHybridFull);
-modelHybridSub.main.numSubArray = 4;
+modelHybridSub.main.hybridType = 'sub';
 %% Симуляция
 SNR = 0:40;                             % Диапазон SNR 
 minNumErrs = 100;                       % Порог ошибок для цикла 
@@ -24,12 +25,12 @@ modelMM.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
 %% Построение графиков
 str0 = 'Mean ';
 str1 = [str0 num2str(modelHybridFull.main.precoderType) ' ' num2str(modelHybridFull.main.numTx) 'x'  num2str(modelHybridFull.main.numRx)...
-        ' subArr ' num2str(modelHybridFull.main.numSubArray)];
+        ' type ' modelHybridFull.main.hybridType];
 fig = modelHybridFull.plotMeanBER('k', 2, 'SNR', str1);
 
 str2 = [str0 num2str(modelMM.main.precoderType) ' ' num2str(modelMM.main.numTx) 'x'  num2str(modelMM.main.numRx)];
 modelMM.plotMeanBER('--k', 2, 'SNR', str2, fig);
 
 str3 = [str0 num2str(modelHybridSub.main.precoderType) ' ' num2str(modelHybridSub.main.numTx) 'x'  num2str(modelHybridSub.main.numRx)...
-        ' subArr ' num2str(modelHybridSub.main.numSubArray)];
+        ' type ' modelHybridSub.main.hybridType];
 modelHybridSub.plotMeanBER('-.k', 2, 'SNR', str3, fig);
