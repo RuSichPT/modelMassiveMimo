@@ -1,7 +1,11 @@
 function [numErrors, numBits] = simulateOneSNR(obj, snr)
     % Переопределение переменных
     numSTS = obj.main.numSTS;
+    numPhasedElemRx = obj.main.numPhasedElemRx;
+    numSTSVec = obj.main.numSTSVec;
+    numRxVec = numSTSVec*numPhasedElemRx;
     modulation = obj.main.modulation;
+    numUsers = obj.main.numUsers;
     bps = obj.main.bps;
     lenFFT = obj.ofdm.lengthFFT;
     cycPrefLen = obj.ofdm.cyclicPrefixLength;
@@ -29,13 +33,25 @@ function [numErrors, numBits] = simulateOneSNR(obj, snr)
     channelData = obj.passChannel(dataOFDM, downChann);
     %% Собственный шум
     noiseData = awgn(channelData, snr, 'measured');
+%     %% Сумматор на приеме
+%     sumData = cell(numUsers, 1);
+%     for uIdx = 1:numUsers
+%         rxU = numRxVec(uIdx);
+%         rxIdx = sum(numRxVec(1:(uIdx-1)))+(1:rxU);
+%         adder = cell(numSTSVec(uIdx), 1);
+%         for i = 1:numSTSVec(uIdx)
+%             adder{i} = ones(numPhasedElemRx,1);
+%         end
+%         adder = blkdiag(adder{:});
+%         sumData{uIdx} = noiseData(:,rxIdx)*adder;
+%     end
+%     sumData = cat(2,sumData{:});
     %% Демодулятор OFDM
     modDataOut = ofdmdemod(noiseData, lenFFT, cycPrefLen, cycPrefLen, nullCarrInd);           
     %% Оценка канала
     outPreambula = modDataOut(:,1:numSTS,:);
     modDataOut = modDataOut(:,(1 + numSTS):end,:);
     H_estim = obj.channelEstimate(outPreambula, ltfSC, numSTS);
-%     equalizeData1 = reshape(modDataOut, numSubCarr * numSymbOFDM, numSTS);
     %% Эквалайзер
     tmpEqualizeData = obj.equalizerZFnumSC(modDataOut, H_estim);
     equalizeData = reshape(tmpEqualizeData, numSubCarr * numSymbOFDM, numSTS);

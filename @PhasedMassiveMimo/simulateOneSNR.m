@@ -1,5 +1,5 @@
-function [numErrors, numBits] = simulateOneSNRphased(obj, snr)
-    % Переопределение переменных
+function [numErrors, numBits] = simulateOneSNR(obj, snr)
+    % РџРµСЂРµРѕРїСЂРµРґРµР»РµРЅРёРµ РїРµСЂРµРјРµРЅРЅС‹С…
     numSTS = obj.main.numSTS;
     numTx = obj.main.numTx;
     modulation = obj.main.modulation;
@@ -10,43 +10,43 @@ function [numErrors, numBits] = simulateOneSNRphased(obj, snr)
     numSymbOFDM = obj.ofdm.numSymbOFDM;
     numSubCarr = obj.ofdm.numSubCarriers;
     downChann = obj.channel.downChannel;
-    %% Зондирование канала
-    H_estim_zond = obj.channelSoundingPhased(snr);
-    %% Формируем данные
+    %% Р—РѕРЅРґРёСЂРѕРІР°РЅРёРµ РєР°РЅР°Р»Р°
+    H_estim_zond = obj.channelSounding(snr);
+    %% Р¤РѕСЂРјРёСЂСѓРµРј РґР°РЅРЅС‹Рµ
     numBits = bps * numSymbOFDM * numSubCarr;
     inpData = randi([0 1], numBits, numSTS);
-    %% Модулятор 
+    %% РњРѕРґСѓР»СЏС‚РѕСЂ 
     tmpModData = qammod(inpData, modulation, 'InputType', 'bit');
     inpModData = reshape(tmpModData, numSubCarr, numSymbOFDM, numSTS);
-    %% Модулятор пилотов
+    %% РњРѕРґСѓР»СЏС‚РѕСЂ РїРёР»РѕС‚РѕРІ
     [preambula, ltfSC] = obj.generatePreamble(numSTS);
     inpModData = cat(2, preambula, inpModData);
-    %% Прекодирование
+    %% РџСЂРµРєРѕРґРёСЂРѕРІР°РЅРёРµ
     [precodData, ~, ~] = obj.applyPrecod(inpModData, H_estim_zond);
-    %% Модулятор OFDM  
+    %% РњРѕРґСѓР»СЏС‚РѕСЂ OFDM  
     dataSTS_OFDM = ofdmmod(precodData, lenFFT, cycPrefLen, nullCarrInd);  
-    %% Повторяем на каждую антенну Tx
+    %% РџРѕРІС‚РѕСЂСЏРµРј РЅР° РєР°Р¶РґСѓСЋ Р°РЅС‚РµРЅРЅСѓ Tx
     dataOFDM = zeros(size(dataSTS_OFDM,1),numTx);
     expFactorTx = numTx/numSTS;
     for i = 1:numSTS
         dataOFDM(:,(i-1)*expFactorTx+(1:expFactorTx)) = repmat(dataSTS_OFDM(:,i), 1, expFactorTx);
     end
     obj.dataOFDM = dataOFDM;
-    %% Прохождение канала
+    %% РџСЂРѕС…РѕР¶РґРµРЅРёРµ РєР°РЅР°Р»Р°
     channelData = obj.passChannel(dataOFDM, downChann);
-    %% Собственный шум
+    %% РЎРѕР±СЃС‚РІРµРЅРЅС‹Р№ С€СѓРј
     noiseData = awgn(channelData, snr, 'measured');
-    %% Демодулятор OFDM
+    %% Р”РµРјРѕРґСѓР»СЏС‚РѕСЂ OFDM
     modDataOut = ofdmdemod(noiseData, lenFFT, cycPrefLen, cycPrefLen, nullCarrInd);
-    %% Оценка канала
+    %% РћС†РµРЅРєР° РєР°РЅР°Р»Р°
     outPreambula = modDataOut(:,1:numSTS,:);
     modDataOut = modDataOut(:,(1 + numSTS):end,:);
     H_estim = obj.channelEstimate(outPreambula, ltfSC, numSTS);
-    %% Эквалайзер
+    %% Р­РєРІР°Р»Р°Р№Р·РµСЂ
     tmpEqualizeData = obj.equalizerZFnumSC(modDataOut, H_estim);
     equalizeData = reshape(tmpEqualizeData, numSubCarr * numSymbOFDM, numSTS);
-    %% Демодулятор
+    %% Р”РµРјРѕРґСѓР»СЏС‚РѕСЂ
     outData = qamdemod(equalizeData, modulation, 'OutputType', 'bit');
-    %% Выходные данные  
+    %% Р’С‹С…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ  
     numErrors = obj.calculateErrors(inpData, outData);   
 end

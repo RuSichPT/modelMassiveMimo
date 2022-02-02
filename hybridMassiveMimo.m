@@ -1,14 +1,18 @@
 clc;clear;close all;
 %% Создание моделей
 modelMM = MassiveMimo();
-modelMM.main.numTx = 8;
+modelMM.main.numTx = 16;
 modelMM.main.numUsers = 4;
+modelMM.main.numRx = 8;
+modelMM.main.numSTSVec = [1 1 1 1];
 modelMM.main.precoderType = 'BD';
 modelMM.calculateParam();
 
 modelHybridFull = HybridMassiveMimo();
 modelHybridFull.main.numTx = modelMM.main.numTx;
 modelHybridFull.main.numUsers = modelMM.main.numUsers;
+modelHybridFull.main.numRx = modelMM.main.numRx;
+modelHybridFull.main.numSTSVec = modelMM.main.numSTSVec;
 modelHybridFull.calculateParam();
 
 modelHybridSub = copy(modelHybridFull);

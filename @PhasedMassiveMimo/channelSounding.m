@@ -1,4 +1,4 @@
-function H_estim = channelSoundingPhased(obj, snr)
+function H_estim = channelSounding(obj, snr)
     % Переопределение переменных  
     numTx = obj.main.numTx;
     numSTS = obj.main.numSTS;

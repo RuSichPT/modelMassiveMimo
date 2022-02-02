@@ -19,11 +19,7 @@ function simulate(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation)
             allNumBits = 0; 
             condition = 1;
             while ( condition && (indSim < maxNumSimulation) )
-                if (obj.main.precoderType == "NOT")
-                    [numErrors, numBits] = obj.simulateOneSNRphased(rangeSNR(indSNR));
-                else
-                    [numErrors, numBits] = obj.simulateOneSNR(rangeSNR(indSNR));
-                end
+                [numErrors, numBits] = obj.simulateOneSNR(rangeSNR(indSNR));
 
                 allNumErrors = allNumErrors + numErrors;
                 allNumBits = allNumBits + numBits;

@@ -80,7 +80,6 @@ classdef MassiveMimo < matlab.mixin.Copyable
         [preambleOFDM, ltfSC]                    = generatePreambleOFDM(obj, numSTS, varargin)
         [ltfTx, ltfSC]                           = generatePreamble(obj, numSTS)
         [H_estim]                                = channelSounding(obj, snr)
-        [H_estim]                                = channelSoundingPhased(obj, snr)
         [H_estim]                                = estimateUplink(obj, snr)
         [outputData]                             = passChannel(obj, inputData, channel)        
         [estimH]                                 = channelEstimate(obj, rxData, ltfSC, numSTS)  
@@ -106,7 +105,6 @@ classdef MassiveMimo < matlab.mixin.Copyable
         simulateMutCorr(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation, corrMatrix)
         
         [numErrors, numBits] = simulateOneSNR(obj, snr)       
-        [numErrors, numBits] = simulateOneSNRphased(obj, snr) 
         [numErrors, numBits] = simulateOneSNRmutCorr(obj, snr, corrMatrix)
 
     end
