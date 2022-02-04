@@ -2,7 +2,6 @@ function [channel] = createChannel(obj)
     %% Получение параметров
     addpath("functions");
     numTx = obj.main.numTx;
-    numRx = obj.main.numRx;
     numRxUsers = obj.main.numRxUsers;
     numUsers = obj.main.numUsers;
     chanType = obj.channel.type;

@@ -24,8 +24,12 @@ function [outputData, precodWeights, combWeights] = applyPrecod(obj, inputData, 
             combWeights = 0;
         case {'EBM'}
             [outputData, precodWeights, combWeights] = applyPrecodEBM(inputData, estimateChannel);
-        case {'BD'}
-            [outputData, precodWeights, combWeights] = applyPrecodBD(inputData, estimateChannel, obj.main.numSTSVec);
+        case {'DIAG'}
+            if (obj.main.numUsers > 1)
+                [outputData, precodWeights, combWeights] = applyPrecodDiagMU(inputData, estimateChannel, obj.main.numSTSVec);
+            else
+                [outputData, precodWeights, combWeights] = applyPrecodDiagSU(inputData, estimateChannel);
+            end
         case {'TPE'}
             [outputData, precodWeights] = applyPrecodTPE(inputData, estimateChannel, 3);
             combWeights = 0;
@@ -40,6 +44,8 @@ function [outputData, precodWeights, combWeights] = applyPrecod(obj, inputData, 
         case {'NI-NSA'}
             [outputData, precodWeights] = applyPrecodNI_NSA(inputData, estimateChannel, 2);  
             combWeights = 0;
+        otherwise
+            error('Нет такого типа прекодера!');
     end    
     
 end

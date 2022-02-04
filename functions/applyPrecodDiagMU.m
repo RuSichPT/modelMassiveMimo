@@ -1,5 +1,7 @@
-function [outputData, precodWeights, combWeights] = applyPrecodBD(inputData, estimateChannel, numSTSVec)
+function [outputData, precodWeights, combWeights] = applyPrecodDiagMU(inputData, estimateChannel, numSTSVec)
     
+    % For multi users
+
     % inputData - входные данные размерностью [numSC,numOFDM,numSTS]
     % numSC - кол-во поднессущих
     % numOFDM - кол-во символов OFDM от каждой антенны
