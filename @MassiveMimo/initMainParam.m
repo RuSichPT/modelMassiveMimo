@@ -4,6 +4,7 @@ function initMainParam(obj, varargin)
         obj.main.numTx = main.numTx;
         obj.main.numRx = main.numRx;
         obj.main.numUsers = main.numUsers;
+        obj.main.numRxUsers = main.numRxUsers;
         obj.main.modulation = main.modulation;
         obj.main.freqCarrier = main.freqCarrier;
         obj.main.precoderType = main.precoderType;
