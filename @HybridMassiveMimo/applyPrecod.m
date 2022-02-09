@@ -24,13 +24,8 @@ function [digitalData, Frf] = applyPrecod(obj, inputData, estimateChannel)
     prm.numSTSVec = numSTSVec;
     prm.numCarriers = numSC;
     
-    estimateChannelSTS = cell(numSTS,1);          
-    for i = 1:numSTS
-        estimateChannelSTS{i} = estimateChannel(:,:,i);
-    end 
-    
     % Multi-user Joint Spatial Division Multiplexing
-    [FbbCell, Frf] = helperJSDMTransmitWeights(estimateChannelSTS,prm);
+    [FbbCell, Frf] = helperJSDMTransmitWeights(estimateChannel,prm);
     
     % Multi-user baseband precoding
     %   Pack the per user CSI into a matrix (block diagonal)

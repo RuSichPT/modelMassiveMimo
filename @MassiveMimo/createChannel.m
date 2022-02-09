@@ -19,13 +19,14 @@ function [channel] = createChannel(obj)
             obj.channel.da = da;
             obj.channel.dp = dp;            
             if (isfield('obj.channel.numDelayBeams','var') == 0)
-                obj.channel.numDelayBeams = 3;
+                obj.channel.numDelayBeams = 1;
             end
             numDelayBeams = obj.channel.numDelayBeams;
             
             if (chanType == "PHASED_ARRAY_STATIC")
                 if (isfield('obj.channel.txAng','var') == 0)
                     obj.channel.txAng = {0,90,180,270};
+%                     obj.channel.txAng = {[0 2 4],[90 92 94],[180 182 184],[270 272 274]};
                 end
                 txAng = obj.channel.txAng;
             end
@@ -54,7 +55,7 @@ function [channel] = createChannel(obj)
     channel = cell(obj.main.numUsers,1);
     switch chanType
         case 'PHASED_ARRAY_STATIC'
-            channel = CreateChannelByDN_static(numUsers, numDelayBeams, txAng, da, dp); % для статичных углов
+            [~,channel] = CreateChannelByDN_static(numRxUsers,numUsers,numDelayBeams,txAng,da,dp); % для статичных углов
             obj.channel = clearStructExcept(obj.channel, "type","numUsers", "numDelayBeams", "txAng", "da", "dp");
         case 'PHASED_ARRAY_DYNAMIC'
             channel = CreateChannelByDN(numUsers, numDelayBeams, da, dp); % случайные углы

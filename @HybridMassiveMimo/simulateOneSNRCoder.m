@@ -1,4 +1,4 @@
-function [numErrors, numBits] = simulateOneSNR(obj, snr)
+function [numErrors, numBits] = simulateOneSNRCoder(obj, snr)
     % Переопределение переменных
     numTx = obj.main.numTx;
     numSTS = obj.main.numSTS;
@@ -15,12 +15,20 @@ function [numErrors, numBits] = simulateOneSNR(obj, snr)
     numSubCarr = obj.ofdm.numSubCarriers;
     downChann = obj.channel.downChannel;
     %% Зондирование канала
-    [~,H_estim_zond] = obj.channelSounding(snr);
+    H_estim_zond = obj.channelSounding(snr);
     %% Формируем данные
-    numBits = bps * numSymbOFDM * numSubCarr;
+    numBits = bps * numSymbOFDM * numSubCarr * 1/3 - 6;
     inpData = randi([0 1], numBits, numSTS);
+    %% Кодер
+    % Convolutional encoder
+    encoder = comm.ConvolutionalEncoder( ...
+        'TrellisStructure',poly2trellis(7,[133 171 165]), ...
+        'TerminationMethod','Terminated');
+    for stsIdx = 1:numSTS     
+        encodedBits(:,stsIdx) = encoder(inpData(:,stsIdx));
+    end
     %% Модулятор 
-    tmpModData = qammod(inpData, modulation, 'InputType', 'bit');
+    tmpModData = qammod(encodedBits, modulation, 'InputType', 'bit', 'UnitAveragePower',true);
     inpModData = reshape(tmpModData, numSubCarr, numSymbOFDM, numSTS);
     %% Модулятор пилотов
     [preambula, ltfSC] = obj.generatePreamble(numSTS);
@@ -43,7 +51,10 @@ function [numErrors, numBits] = simulateOneSNR(obj, snr)
     end
     dataOFDMrf = dataOFDMbb*Frf;
     %%
-    outData = cell(numUsers,1);
+    decoder = comm.ViterbiDecoder('InputFormat','Unquantized', ...
+    'TrellisStructure',poly2trellis(7, [133 171 165]), ...
+    'TerminationMethod','Terminated','OutputDataType','double');
+    outDataTmp = cell(numUsers,1);
     for uIdx = 1:numUsers
         stsU = numSTSVec(uIdx);
         stsIdx = sum(numSTSVec(1:(uIdx-1)))+(1:stsU);
@@ -61,9 +72,20 @@ function [numErrors, numBits] = simulateOneSNR(obj, snr)
         tmpEqualizeData = obj.equalizerZFnumSC(modDataOut, H_estim(:,stsIdx,:));
         equalizeData = reshape(tmpEqualizeData, numSubCarr * numSymbOFDM, numSTSVec(uIdx));
         %% Демодулятор
-        outData{uIdx} = qamdemod(equalizeData, modulation, 'OutputType', 'bit');
+        % Noise variance calculation for unity average signal power.
+        noiseVar = 10.^(-snr/10);
+        % Soft demodulation
+        outLLR{uIdx} = qamdemod(equalizeData,modulation,'UnitAveragePower',true, ...
+            'OutputType','approxllr','NoiseVariance',noiseVar);
+%         outData{uIdx} = qamdemod(equalizeData, modulation, 'OutputType', 'bit');
+        %% Декодер
+        for stsIdx = 1:numSTSVec(uIdx)
+            % Soft-input channel decoding
+            outDataTmp{uIdx}(:,stsIdx) = decoder(outLLR{uIdx}(:,stsIdx));
+        end
     end
     %% Выходные данные
-    outData = cat(2,outData{:});
+    outDataTmp = cat(2,outDataTmp{:});
+    outData = outDataTmp(1:end-6,:);
     numErrors = obj.calculateErrors(inpData, outData); 
 end
