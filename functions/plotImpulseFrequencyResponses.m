@@ -4,20 +4,25 @@ function plotImpulseFrequencyResponses(numb_TX, numb_RX, H, sampleRate)
     % N_h - кол-во задержанных сигналов (размерность канального тензора)
     % длина импульсной характеристики
 
+    if ~iscell(H)
+        error('Матрица H должна быть cell по пользователям');
+    end    
+    H = cat(2,H{:});
+    N_h = size(H,3);
+    
     % Оси графиков
     N_FFT = 512;
     m = -N_FFT/2+1:N_FFT/2;
     freq = m * sampleRate/N_FFT;
     dt = 1/sampleRate;
-    tau = (0:1:length(H)-1)*dt;
+    tau = (0:1:N_h-1)*dt;
 
-    % Импульсная характеристика
-    h = [];
-    N_h = length(H);
+    % Импульсная характеристика 
+    h_time = [];
     for i = 1:N_h
-        h = [h H{i}(numb_TX,numb_RX)];
+        h_time = cat(2,h_time,H(numb_TX,numb_RX,i));
     end
-    abs_h = abs(h);
+    abs_h = abs(h_time);
     figure();
     stem(tau, abs_h);
     % ylim([0 2])
@@ -27,7 +32,7 @@ function plotImpulseFrequencyResponses(numb_TX, numb_RX, H, sampleRate)
     xlabel('Delay (s)');
 
     % АЧХ
-    h_freq = fft(h', N_FFT);
+    h_freq = fft(h_time', N_FFT);
     figure();
     plot(freq, mag2db(fftshift(abs(h_freq))));
     ylim([-40 20]);

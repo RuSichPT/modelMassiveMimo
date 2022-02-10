@@ -8,7 +8,7 @@ function [Y] = toPassChannelMIMO(X, H)
     % numRx - кол-во rx антенн
     % X_memory - буфер памяти
     
-    numRx = size(H,1);
+    numRx = size(H,2);
     numTx = size(X,2);  
     N_h = size(H,3);
     n = size(X,1);

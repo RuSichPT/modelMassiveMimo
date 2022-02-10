@@ -100,6 +100,7 @@ classdef MassiveMimo < matlab.mixin.Copyable
         [figObj] = plotMeanBER(obj, lineStyle, lineWidth, flagSNR, legendStr, varargin)
         [figObj] = plotSTSBER(obj, lineStyle, lineWidth, flagSNR, partLegendStr, varargin)
         [figObj] = plotSpectrOFDM(obj, sampleRate_Hz)
+        dispChannel(obj)
         
         % Симуляция     
         simulate(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation)

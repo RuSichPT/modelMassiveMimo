@@ -3,10 +3,10 @@ clc;clear;
 modelMM = MassiveMimo();
 modelMM.main.numTx = 8;
 modelMM.main.numUsers = 4;
-modelMM.main.numRx = 8;
+modelMM.main.numRx = 4;
 modelMM.main.numSTSVec = [1 1 1 1];
 modelMM.main.precoderType = 'ZF';
-modelMM.channel.type = 'STATIC';
+% modelMM.channel.type = 'PHASED_ARRAY_STATIC';
 modelMM.calculateParam();
 
 modelMM1 = copy(modelMM);
@@ -18,7 +18,7 @@ modelHybridFull.main.numTx = modelMM.main.numTx;
 modelHybridFull.main.numUsers = modelMM.main.numUsers;
 modelHybridFull.main.numRx = modelMM.main.numRx;
 modelHybridFull.main.numSTSVec = modelMM.main.numSTSVec;
-modelHybridFull.channel.type = 'STATIC';
+% modelHybridFull.channel.type = 'PHASED_ARRAY_STATIC';
 modelHybridFull.calculateParam();
 
 modelHybridSub = copy(modelHybridFull);
@@ -45,6 +45,12 @@ modelMM.plotMeanBER('k', 2, 'SNR', str2, fig);
 str3 = [str0 num2str(modelMM1.main.precoderType) ' ' num2str(modelMM1.main.numTx) 'x'  num2str(modelMM1.main.numRx) 'x'  num2str(modelMM1.main.numSTS)];
 modelMM1.plotMeanBER('*-k', 2, 'SNR', str3, fig);
 
-% str3 = [str0 num2str(modelHybridSub.main.precoderType) ' ' num2str(modelHybridSub.main.numTx) 'x'  num2str(modelHybridSub.main.numRx)...
+% str4 = [str0 num2str(modelHybridSub.main.precoderType) ' ' num2str(modelHybridSub.main.numTx) 'x'  num2str(modelHybridSub.main.numRx)...
 %         'x'  num2str(modelHybridSub.main.numSTS) ' type ' modelHybridSub.main.hybridType];
-% modelHybridSub.plotMeanBER('-.k', 2, 'SNR', str3, fig);
+% modelHybridSub.plotMeanBER('-.k', 2, 'SNR', str4, fig);
+
+modelHybridFull.dispChannel();
+modelMM.dispChannel();
+modelMM1.dispChannel();
+
+% plotImpulseFrequencyResponses(1, 1, modelMM.channel.downChannel, 40e6)

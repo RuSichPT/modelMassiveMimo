@@ -1,11 +1,13 @@
-function [H,Husers] = CreateChannelByDN_static(numRxUsers, numUsers, numBeamDelays, txang, da, dp)
+function [H, Husers] = createChannelByDnStatic(channel, numRxUsers, numUsers)
 %% Описание
 % numRxUsers - кол-во приемных антенн на кждом пользователе(размернность канального тензора)
 % numUsers - кол-во пользователей
-% numBeamDelays - кол-во задержанных сигналов (размерность канального тензора)
+% numDelayBeams - кол-во задержанных сигналов (размерность канального тензора)
 % txang - углы прихода на абонента
 % da - действительная часть(амплитуда) stereeng vector
 % dp - мнимая часть(фаза) stereeng vector
+% power - мощность задержанных лучей
+
 
 % numBeams - кол-во лучей приходящих одновременно на абонента с разных углов 
 % txang - углы прихода N_scatters на передающую антенну
@@ -17,20 +19,27 @@ function [H,Husers] = CreateChannelByDN_static(numRxUsers, numUsers, numBeamDela
 % G - diag(Path_gains)
 
 %% создание канала
+da = channel.da;
+dp = channel.dp;
+pdB = channel.pdB;
+txang = channel.txAng;
+numDelayBeams = length(pdB);
+
 numTx = size(da,2);
 numRx = sum(numRxUsers);
 
-H = zeros(numTx,numRx,numBeamDelays);
+H = zeros(numTx,numRx,numDelayBeams);
 numBeams = cell(numUsers,1);
 pathGains = cell(numUsers,1);
+power = (10.^(pdB/10));
 
 rng(6536);
-for i_BeamsDelays = 1:numBeamDelays
+for iDelay = 1:numDelayBeams
     Ar = cell(numUsers,1); G = cell(numUsers,1); At = cell(numUsers,1);
     H_users = [];
     for uIdx = 1:numUsers
         numBeams{uIdx} = length(txang{uIdx}); 
-        pathGains{uIdx} = 1/sqrt(2)*complex(randn(1,numBeams{uIdx}), randn(1,numBeams{uIdx}));
+        pathGains{uIdx} = 1/sqrt(2)*complex(randn(1,numBeams{uIdx}), randn(1,numBeams{uIdx}));  
         % получение фазирующией матрицы At    
         for i_beam = 1:numBeams{uIdx}
             if txang{uIdx}(i_beam)<=180
@@ -47,7 +56,7 @@ for i_BeamsDelays = 1:numBeamDelays
         H_user = At{uIdx}*G{uIdx}*Ar{uIdx};
         H_users = cat(2,H_users,H_user);
     end
-    H(:,:,i_BeamsDelays) = H_users;
+    H(:,:,iDelay) = H_users*power(iDelay);
 end
 
 Husers = cell(numUsers,1);
