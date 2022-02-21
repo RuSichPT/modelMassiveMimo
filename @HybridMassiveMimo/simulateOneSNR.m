@@ -15,7 +15,7 @@ function [numErrors, numBits] = simulateOneSNR(obj, snr)
     numSubCarr = obj.ofdm.numSubCarriers;
     downChann = obj.channel.downChannel;
     %% Зондирование канала
-    [~,H_estim_zond] = obj.channelSounding(snr);
+    [~, H_estim_zond] = obj.channelSounding(snr);
     %% Формируем данные
     numBits = bps * numSymbOFDM * numSubCarr;
     inpData = randi([0 1], numBits, numSTS);
@@ -26,7 +26,7 @@ function [numErrors, numBits] = simulateOneSNR(obj, snr)
     [preambula, ltfSC] = obj.generatePreamble(numSTS);
     inpModData = cat(2, preambula, inpModData);
     %% Цифровое прекодирование BB beamforming
-    [precodData,Frf] = obj.applyPrecod(inpModData, H_estim_zond);
+    [precodData, Frf] = obj.applyPrecod(inpModData, H_estim_zond);
     %% Модулятор OFDM  
     dataOFDMbb = ofdmmod(precodData, lenFFT, cycPrefLen, nullCarrInd);  
     obj.dataOFDM = dataOFDMbb;

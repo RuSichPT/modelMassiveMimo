@@ -1,46 +1,70 @@
-function [H] = CreateChannelByDN(N_users, N_BeamsDelays, da, dp)
+function [H, Husers] = createChannelByDn(channel, numRxUsers, numUsers)
 %% Описание
-% N_users - кол-во пользователей, (размернность канального тензора)
-% N_BeamsDelays - кол-во задержанных сигналов (размерность канального тензора)
+% numRxUsers - кол-во приемных антенн на кждом пользователе(размернность канального тензора)
+% numUsers - кол-во пользователей
+% numDelayBeams - кол-во задержанных сигналов (размерность канального тензора)
 % txang - углы прихода на абонента
 % da - действительная часть(амплитуда) stereeng vector
 % dp - мнимая часть(фаза) stereeng vector
+% power - мощность задержанных лучей
 
-% N_beams - кол-во лучей приходящих одновременно на абонента с разных углов 
+
+% numBeams - кол-во лучей приходящих одновременно на абонента с разных углов 
 % txang - углы прихода N_scatters на передающую антенну
 % rxang углы прихода N_scatters на приемную антенну (если изотропная на приеме то не нужныы)
-% Path_gains - усиление пути
+% pathGains - усиление пути
 % phi - азимут
 % At  - фазирующиая матрица на передаче 
 % Aк  - фазирующиая матрица на приеме 
 % G - diag(Path_gains)
+
 %% создание канала
-H = [];
-for i_BeamsDelays = 1:N_BeamsDelays
-    Ar = [];G = []; At = [];
+da = channel.da;
+dp = channel.dp;
+pdB = channel.pdB;
+numDelayBeams = length(pdB);
+
+numTx = size(da,2);
+numRx = sum(numRxUsers);
+
+H = zeros(numTx,numRx,numDelayBeams);
+numScatters = cell(numUsers,1);
+txang = cell(numUsers,1);
+pathGains = cell(numUsers,1);
+power = (10.^(pdB/10));
+
+rng(6536);
+for iDelay = 1:numDelayBeams
+    Ar = cell(numUsers,1); G = cell(numUsers,1); At = cell(numUsers,1);
     H_users = [];
-    for i_user = 1:N_users
-        N_beams{i_user} = randi(10);
-        txang{i_user} = round(360*rand(1,N_beams{i_user})-180); 
-        %rxang{ii} = round(360*rand(1,N_scatters)-180); 
-        Path_gains{i_user} = 1/sqrt(2)*complex(randn(1,N_beams{i_user}), randn(1,N_beams{i_user}));
+    for uIdx = 1:numUsers
+        numScatters{uIdx} = randi(10);
+        txang{uIdx} = round(360 * rand(1, numScatters{uIdx}) - 180);
+        pathGains{uIdx} = 1/sqrt(2)*complex(randn(1,numScatters{uIdx}), randn(1,numScatters{uIdx}));  
         % получение фазирующией матрицы At    
-        for i_beam = 1:N_beams{i_user}
-            if txang{i_user}(i_beam)<=180
-                phi = 181 + txang{i_user}(i_beam);
-            elseif txang{i_user}(i_beam) > 180 
-                phi = txang{i_user}(i_beam) - 180;
+        for iScatter = 1:numScatters{uIdx}
+            if txang{uIdx}(iScatter)<=180
+                phi = 181 + txang{uIdx}(iScatter);
+            elseif txang{uIdx}(iScatter) > 180 
+                phi = txang{uIdx}(iScatter) - 180;
             end
-            At{i_user}(:,i_beam) = (da(phi,:).*exp(-1i*dp(phi,:))).'; % с парциальными ДН
+            At{uIdx}(:,iScatter) = (da(phi,:).*exp(-1i*dp(phi,:))).'; % с парциальными ДН
         end
         % получение фазирующией матрицы Ar 
-        Ar{i_user} = ones(N_beams{i_user},1);    
-        G{i_user} = diag(Path_gains{i_user});
-        H_user = At{i_user}*G{i_user}*Ar{i_user};
-        H_users = [H_users H_user];
+        Ar{uIdx} = ones(numScatters{uIdx},numRxUsers(uIdx));
+        % получение канальной матрицы H_user
+        G{uIdx} = diag(pathGains{uIdx});
+        H_user = At{uIdx}*G{uIdx}*Ar{uIdx};
+        H_users = cat(2,H_users,H_user);
     end
-    H{i_BeamsDelays} = H_users;
+    H(:,:,iDelay) = H_users*power(iDelay);
 end
 
+Husers = cell(numUsers,1);
+for uIdx = 1:numUsers
+    rxU = numRxUsers(uIdx);
+    rxIdx = sum(numRxUsers(1:(uIdx-1)))+(1:rxU);
+    Husers{uIdx} = H(:,rxIdx,:);
 end
-
+rng('shuffle')
+end

@@ -29,7 +29,7 @@ numTx = size(da,2);
 numRx = sum(numRxUsers);
 
 H = zeros(numTx,numRx,numDelayBeams);
-numBeams = cell(numUsers,1);
+numScatters = cell(numUsers,1);
 pathGains = cell(numUsers,1);
 power = (10.^(pdB/10));
 
@@ -38,19 +38,19 @@ for iDelay = 1:numDelayBeams
     Ar = cell(numUsers,1); G = cell(numUsers,1); At = cell(numUsers,1);
     H_users = [];
     for uIdx = 1:numUsers
-        numBeams{uIdx} = length(txang{uIdx}); 
-        pathGains{uIdx} = 1/sqrt(2)*complex(randn(1,numBeams{uIdx}), randn(1,numBeams{uIdx}));  
+        numScatters{uIdx} = length(txang{uIdx}); 
+        pathGains{uIdx} = 1/sqrt(2)*complex(randn(1,numScatters{uIdx}), randn(1,numScatters{uIdx}));  
         % получение фазирующией матрицы At    
-        for i_beam = 1:numBeams{uIdx}
-            if txang{uIdx}(i_beam)<=180
-                phi = 181 + txang{uIdx}(i_beam);
-            elseif txang{uIdx}(i_beam) > 180 
-                phi = txang{uIdx}(i_beam) - 180;
+        for iScatter = 1:numScatters{uIdx}
+            if txang{uIdx}(iScatter)<=180
+                phi = 181 + txang{uIdx}(iScatter);
+            elseif txang{uIdx}(iScatter) > 180 
+                phi = txang{uIdx}(iScatter) - 180;
             end
-            At{uIdx}(:,i_beam) = (da(phi,:).*exp(-1i*dp(phi,:))).'; % с парциальными ДН
+            At{uIdx}(:,iScatter) = (da(phi,:).*exp(-1i*dp(phi,:))).'; % с парциальными ДН
         end
         % получение фазирующией матрицы Ar 
-        Ar{uIdx} = ones(numBeams{uIdx},numRxUsers(uIdx));
+        Ar{uIdx} = ones(numScatters{uIdx},numRxUsers(uIdx));
         % получение канальной матрицы H_user
         G{uIdx} = diag(pathGains{uIdx});
         H_user = At{uIdx}*G{uIdx}*Ar{uIdx};

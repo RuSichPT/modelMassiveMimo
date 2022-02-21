@@ -4,6 +4,10 @@ function plotImpulseFrequencyResponses(numb_TX, numb_RX, H, sampleRate)
     % N_h - кол-во задержанных сигналов (размерность канального тензора)
     % длина импульсной характеристики
 
+    if ~isobject(H)
+        error('Матрица H не должна быть объектом');
+    end
+    
     if ~iscell(H)
         error('Матрица H должна быть cell по пользователям');
     end    

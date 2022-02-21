@@ -51,14 +51,16 @@ function [figObj] = plotMeanBER(obj, lineStyle, lineWidth, flagSNR, legendStr, v
     ylabel('Вероятность битовой ошибки');
     title("Massive MIMO");
     
-    if (nargin == 6)
-        legObj = findobj(figObj, 'Type', 'Legend');
+
+    legObj = findobj(figObj, 'Type', 'Legend');
+    if isempty(legObj)
+        legend(legendStr);
+    else
         strLeg = legObj.String;
         numLegends = size(strLeg,2);
         strLeg{numLegends} = legendStr;
         legObj.String = strLeg;
-    else        
-        legend(legendStr);
     end
+
 end
 

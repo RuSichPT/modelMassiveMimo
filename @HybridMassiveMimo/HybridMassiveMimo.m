@@ -14,7 +14,8 @@ classdef HybridMassiveMimo < MassiveMimo
         %% Методы
         [H_estim, H_estimUsers] = channelSounding(obj, snr)
         [digitalData, Frf] = applyPrecod(obj, inputData, estimateChannel)
-        [numErrors, numBits] = simulateOneSNR(obj, snr)  
+        [numErrors, numBits] = simulateOneSNR(obj, snr) 
+        calculateParam(obj)
     end
 end
 

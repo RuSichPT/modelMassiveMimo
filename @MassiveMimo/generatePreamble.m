@@ -6,6 +6,9 @@ function [preamble, ltfSC] = generatePreamble(obj, numSTS)
     %% Модулятор 
     ltfSC = pskmod(x, 2);
 
+    if ~sum(numSTS == [1 2 4 8 16 32 64 128 256 512 1024])
+        error('numSts дб из диапазона 1 2 4 8 16 32 64 128 256 512 1024')
+    end
     P = helperGetP(numSTS);    
     Pred = P;
     

@@ -9,7 +9,7 @@ function [outputData, precodWeights, combWeights] = applyPrecodDiagMU(inputData,
     % numSTSVec - кол-во независимых потоков данных на одного пользователя
     % numUsers - кол-во пользователей
     
-    % estimateChannel - оценка канала размерностью [numSC,numTx,numSTS]
+    % estimateChannel - оценка канала размерностью [numSC,numTx,numRx]
     % numTx - кол-во излучающих антен
     
     % outputData - выходные данные размерностью [numSC,numOFDM,numTx]
@@ -20,23 +20,30 @@ function [outputData, precodWeights, combWeights] = applyPrecodDiagMU(inputData,
     numOFDM = size(inputData,2);
     numSTS = size(inputData,3);
     numTx = size(estimateChannel,2);
+    numRx = size(estimateChannel,3);
     numUsers = size(numSTSVec,2);
+    
+    if (numUsers <= 1)
+        error('Пользователей для этого метода дб > 1');
+    end
+    
+    numRxVec = numSTSVec * numRx/numSTS;
     
     outputData = zeros(numSC,numOFDM,numTx);
     precodWeights = zeros(numSC,numSTS,numTx);
     
     % 1 вариант
-    estimateChannelCell = cell(1,numUsers);
+    estimateChannelCell = cell(numUsers,1);
 
     for i = 1:numSC        
         for uIdx = 1:numUsers
-            stsU = numSTSVec(uIdx);
-            stsIdx = sum(numSTSVec(1:(uIdx-1)))+(1:stsU);
+            rxU = numRxVec(uIdx);
+            rxIdx = sum(numRxVec(1:(uIdx-1)))+(1:rxU);
             
-            if (ismatrix(estimateChannel(i,:,stsIdx)))
-                estimateChannelCell{uIdx} = estimateChannel(i,:,stsIdx).';           
+            if (ismatrix(estimateChannel(i,:,rxIdx)))
+                estimateChannelCell{uIdx} = estimateChannel(i,:,rxIdx).'; 
             else
-                estimateChannelCell{uIdx} = squeeze(estimateChannel(i,:,stsIdx)); 
+                estimateChannelCell{uIdx} = squeeze(estimateChannel(i,:,rxIdx)); 
             end
         end
         [sqPrecodW, combWeights] = blkdiagbfweights(estimateChannelCell, numSTSVec);
@@ -47,9 +54,9 @@ function [outputData, precodWeights, combWeights] = applyPrecodDiagMU(inputData,
 %     % 2 вариант
 %     Hmean = cell(numUsers,1);
 %     for uIdx = 1:numUsers
-%         stsU = numSTSVec(uIdx);
-%         stsIdx = sum(numSTSVec(1:(uIdx-1)))+(1:stsU);
-%         Hmean{uIdx} = mean(permute(estimateChannel(:,:,uIdx),[2 3 1]),3);
+%         rxU = numSTSVec(uIdx);
+%         rxIdx = sum(numSTSVec(1:(uIdx-1)))+(1:rxU);
+%         Hmean{uIdx} = mean(permute(estimateChannel(:,:,rxIdx),[2 3 1]),3);
 %     end
 %     [sqPrecodW, combWeights] = blkdiagbfweights(Hmean, numSTSVec);
 %     for i = 1:numSC       

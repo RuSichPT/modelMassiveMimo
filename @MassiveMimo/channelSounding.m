@@ -19,23 +19,19 @@ function H_estim = channelSounding(obj, snr)
         channelPreamble = obj.passChannel(preambleOFDM, downChann{uIdx});
         %% Собственный шум
         noisePreamble = awgn(channelPreamble, snr, 'measured');
-    
-%         %1 вариант
-%         %% Демодулятор OFDM
-%         outPreamble = ofdmdemod(noisePreamble, lenFFT, cycPrefLen, cycPrefLen, nullCarrInd);
-%         %% Оценка канала  
-%         H_estim{uIdx} = obj.channelEstimate(outPreamble, ltfSC, numTx);
-
-        %2 вариант
-        %% Сумматор на приеме
-        adder = cell(numSTSVec(uIdx), 1);
-        for i = 1:numSTSVec(uIdx)
-            adder{i} = ones(numPhasedElemRx,1);
-        end
-        adder = blkdiag(adder{:});
-        sumPreamble = noisePreamble*adder;
+%         if (obj.main.precoderType ~= "DIAG")
+%             %% Сумматор на приеме
+%             adder = cell(numSTSVec(uIdx), 1);
+%             for i = 1:numSTSVec(uIdx)
+%                 adder{i} = ones(numPhasedElemRx,1);
+%             end
+%             adder = blkdiag(adder{:});
+%             sumPreamble = noisePreamble*adder;
+%         else
+%             sumPreamble = noisePreamble;
+%         end
         %% Демодулятор OFDM
-        outPreamble = ofdmdemod(sumPreamble, lenFFT, cycPrefLen, cycPrefLen, nullCarrInd);
+        outPreamble = ofdmdemod(noisePreamble, lenFFT, cycPrefLen, cycPrefLen, nullCarrInd);
         %% Оценка канала  
         H_estim{uIdx} = obj.channelEstimate(outPreamble, ltfSC, numTx);
     end

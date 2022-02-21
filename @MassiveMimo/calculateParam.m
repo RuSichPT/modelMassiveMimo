@@ -12,6 +12,12 @@ function calculateParam(obj)
     lengthFFT = obj.ofdm.lengthFFT;
     obj.ofdm.nullCarrierIndices = [1:(tmpNCI / 2) (1 + lengthFFT - tmpNCI / 2):lengthFFT]';
     
+    
+    % Проверка
+    if (length(obj.main.numSTSVec) ~= obj.main.numUsers)
+        error("Необходимо выполнение length(numSTSVec) == numUsers");
+    end
+    
     % Параметры канала
     obj.channel.downChannel = obj.createChannel();
 
