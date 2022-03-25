@@ -13,7 +13,8 @@ classdef MassiveMimo < matlab.mixin.Copyable
                 "numSTSVec",        0, ...  % Кол-во независимых потоков данных на одного пользователя / [2 1 3 2]
                 "numSTS",           0, ...  % Кол-во потоков данных; должно быть степени 2: /2/4/8/16/32/64
                 "bps",              0, ...  % Кол-во бит на символ в секунду
-                "precoderType",     'NOT' ) % Тип прекодера                   
+                "precoderType",     'NONE',... % Тип прекодера
+                "combainerType",     'NONE') % Тип комбинера                   
         %% Параметры OFDM
         ofdm = struct(...
                 "numSubCarriers",       0, ...  % Кол-во поднессущих
@@ -85,6 +86,7 @@ classdef MassiveMimo < matlab.mixin.Copyable
         [outputData]                             = passChannel(obj, inputData, channel)        
         [estimH]                                 = channelEstimate(obj, rxData, ltfSC, numSTS)  
         [outputData, precodWeights, combWeights] = applyPrecod(obj, inputData, estimateChannel)
+        [outputData]                             = applyComb(obj, inputData, combWeights);
         [outputData]                             = equalizerZFnumSC(obj, inputData, H_estim)         
         [numErrors]                              = calculateErrors(obj, inpData, outData)     
         [berconf, lenConfInterval]               = calculateBER(obj, allNumErrors, allNumBits)

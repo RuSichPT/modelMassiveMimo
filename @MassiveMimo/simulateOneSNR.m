@@ -23,7 +23,7 @@ function [numErrors, numBits] = simulateOneSNR(obj, snr)
     [preambula, ltfSC] = obj.generatePreamble(numSTS);
     inpModData = cat(2, preambula, inpModData);
     %% Прекодирование
-    [precodData, ~, ~] = obj.applyPrecod(inpModData, H_estim_zond);
+    [precodData, ~, combWeights] = obj.applyPrecod(inpModData, H_estim_zond);
     %% Модулятор OFDM  
     dataOFDM = ofdmmod(precodData, lenFFT, cycPrefLen, nullCarrInd);  
     obj.dataOFDM = dataOFDM;
@@ -37,7 +37,9 @@ function [numErrors, numBits] = simulateOneSNR(obj, snr)
         %% Собственный шум
         noiseData = awgn(channelData, snr, 'measured');
         %% Демодулятор OFDM
-        modDataOut = ofdmdemod(noiseData, lenFFT, cycPrefLen, cycPrefLen, nullCarrInd);           
+        modDataOut = ofdmdemod(noiseData, lenFFT, cycPrefLen, cycPrefLen, nullCarrInd);
+        %% Обьединитель
+        modDataOut = obj.applyComb(modDataOut, combWeights{uIdx});
         %% Оценка канала
         outPreambula = modDataOut(:,1:numSTS,:);
         modDataOut = modDataOut(:,(1 + numSTS):end,:);

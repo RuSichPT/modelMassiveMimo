@@ -1,4 +1,5 @@
 clear;clc;close all;
+cd ..\..;
 load('DataBase/RLNC2022/RAYL_SPECIALflat numSim 5 8x4x4x1111.mat');
 
 hybridFull(1) = modelHybridFull;
@@ -56,7 +57,7 @@ for i = 1:size(hybridFull,2)
 end
 
 %%%%%%
-level = 10e-4;
+level = 1e-2;
 for i = 1:size(hybridFull,2)
     meanBer = mean(hybridFull(i).simulation.ber,1);
     snr = find(meanBer < level);
@@ -92,8 +93,8 @@ hold on;
 grid on;
 plot(Nt,SNRM,'*--k','LineWidth', lineWidth);
 plot(Nt,SNRS,'>--k','LineWidth', lineWidth);
-legend('hFull','mMimo','hSub')
-ylim([10 20]);
+legend('Полностью связанная','Цифровая','Частично связанная')
+ylim([0 hybridFull(1).simulation.snr(end)]);
 ylabel('Отношение сигнал/шум, дБ');
-xlabel('N_t');
+xlabel('Количество антенн на передающей стороне, шт');
 
