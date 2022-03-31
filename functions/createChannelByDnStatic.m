@@ -50,10 +50,10 @@ for iDelay = 1:numDelayBeams
             At{uIdx}(:,iScatter) = (da(phi,:).*exp(-1i*dp(phi,:))).'; % с парциальными ДН
         end
         % получение фазирующией матрицы Ar 
-        Ar{uIdx} = ones(numScatters{uIdx},numRxUsers(uIdx));
+        Ar{uIdx} = ones(numRxUsers(uIdx),numScatters{uIdx});
         % получение канальной матрицы H_user
         G{uIdx} = diag(pathGains{uIdx});
-        H_user = At{uIdx}*G{uIdx}*Ar{uIdx};
+        H_user = At{uIdx}*G{uIdx}*Ar{uIdx}.';
         H_users = cat(2,H_users,H_user);
     end
     H(:,:,iDelay) = H_users*power(iDelay);
