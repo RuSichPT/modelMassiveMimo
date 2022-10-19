@@ -2,9 +2,9 @@ function [numErrors, numBits] = simulateOneSNR(obj, snr)
     % Переопределение переменных
     numTx = obj.main.numTx;
     numSTS = obj.main.numSTS;
-    numRF = obj.main.numRF;
+    numRF = obj.numRF;
     numSTSVec = obj.main.numSTSVec;
-    hybridType = obj.main.hybridType; 
+    hybridType = obj.hybridType; 
     modulation = obj.main.modulation;
     numUsers = obj.main.numUsers;
     bps = obj.main.bps;
@@ -13,7 +13,7 @@ function [numErrors, numBits] = simulateOneSNR(obj, snr)
     nullCarrInd = obj.ofdm.nullCarrierIndices;
     numSymbOFDM = obj.ofdm.numSymbOFDM;
     numSubCarr = obj.ofdm.numSubCarriers;
-    downChann = obj.channel.downChannel;
+    downChann = obj.downChannel;
     %% Зондирование канала
     [~, H_estim_zond] = obj.channelSounding(snr);
     %% Формируем данные
@@ -29,7 +29,6 @@ function [numErrors, numBits] = simulateOneSNR(obj, snr)
     [precodData, Frf] = obj.applyPrecod(inpModData, H_estim_zond);
     %% Модулятор OFDM  
     dataOFDMbb = ofdmmod(precodData, lenFFT, cycPrefLen, nullCarrInd);  
-    obj.dataOFDM = dataOFDMbb;
     %% Аналоговое прекодирование RF beamforming: Apply Frf to the digital signal
     %   Each antenna element is connected to each data stream
     if (hybridType == "sub")
@@ -42,15 +41,15 @@ function [numErrors, numBits] = simulateOneSNR(obj, snr)
         Frf = blkdiag(tmpFrf{:});
     end
     dataOFDMrf = dataOFDMbb*Frf;
+    %% Прохождение канала
+    channelData = downChann.pass(dataOFDMrf);
     %%
     outData = cell(numUsers,1);
     for uIdx = 1:numUsers
         stsU = numSTSVec(uIdx);
         stsIdx = sum(numSTSVec(1:(uIdx-1)))+(1:stsU);
-        %% Прохождение канала
-        channelData = obj.passChannel(dataOFDMrf, downChann{uIdx});
         %% Собственный шум
-        noiseData = awgn(channelData, snr, 'measured');
+        noiseData = awgn(channelData{uIdx,:}, snr, 'measured');
         %% Демодулятор OFDM
         modDataOut = ofdmdemod(noiseData, lenFFT, cycPrefLen, cycPrefLen, nullCarrInd);
         %% Оценка канала

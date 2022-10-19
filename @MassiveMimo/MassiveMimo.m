@@ -35,7 +35,7 @@ classdef MassiveMimo < matlab.System & matlab.mixin.Copyable
                     'averagePathGains',obj.channel.averagePathGains...
                     'tau',obj.channel.tau...
                     };
-            switch obj.channel.channelType
+            switch obj.channel.type
                 case 'RaylSpecialChannel'
                     channel = RaylSpecialChannel(param{:});
                 case 'RaylChannel'

@@ -1,9 +1,9 @@
-classdef ChannelParam < matlab.System    
+classdef ChannelParam   
     properties
-        channelType = 'RaylSpecialChannel'  % Тип канала
-        sampleRate = 40e6;                  % Частота дискретизации
-        averagePathGains = [-3 -9 -12];     % Средние коэффициенты усиления пути в Дб
-        tau = [2 5 7];                      % Точки задержек пути 
+        type;                   % Тип канала
+        sampleRate;             % Частота дискретизации
+        averagePathGains;       % Средние коэффициенты усиления пути в Дб
+        tau;                    % Точки задержек пути 
     end
     properties (Dependent, SetAccess = private)
         pathDelays;         % Задержки пути
@@ -12,8 +12,17 @@ classdef ChannelParam < matlab.System
     %% Constructor, get
     methods
         % Support name-value pair arguments when constructing object
-        function obj = ChannelParam(varargin)
-            setProperties(obj,nargin,varargin{:})
+        function obj = ChannelParam(args)
+            arguments
+                args.type = 'RaylSpecialChannel'         % Тип канала
+                args.sampleRate = 40e6;                  % Частота дискретизации
+                args.averagePathGains = [-3 -9 -12];     % Средние коэффициенты усиления пути в Дб
+                args.tau = [2 5 7];                      % Точки задержек пути 
+            end
+            obj.type = args.type;                  
+            obj.sampleRate = args.sampleRate;             
+            obj.averagePathGains = args.averagePathGains;       
+            obj.tau = args.tau;                     
         end
         function v = get.dt(obj)
             v = 1 / obj.sampleRate;

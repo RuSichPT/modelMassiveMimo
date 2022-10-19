@@ -10,14 +10,12 @@ modelMM.main.precoderType = 'DIAG';
 % modelMM.channel.txAng = {0,30,60,90};
 % modelMM.channel.tau = 0; 
 % modelMM.channel.pdB = 0;
-modelMM.channel.tau = [0 2 5 ] * (1 / modelMM.channel.sampleRate);
-modelMM.channel.pdB = [0 -3 -9];
-modelMM.calculateParam();
+modelMM.channel.tau = [0 2 5 ];
+modelMM.channel.averagePathGains = [0 -3 -9];
 
 modelMM1 = copy(modelMM);
 modelMM1.main.precoderType = 'DIAG';
 modelMM1.main.combainerType = 'DIAG';
-modelMM1.calculateParam();
 
 modelHybridFull = HybridMassiveMimo();
 modelHybridFull.main.numTx = modelMM.main.numTx;
@@ -25,15 +23,15 @@ modelHybridFull.main.numUsers = modelMM.main.numUsers;
 modelHybridFull.main.numRx = modelMM.main.numRx;
 modelHybridFull.main.numSTSVec = modelMM.main.numSTSVec;
 modelHybridFull.channel = modelMM.channel;
-modelHybridFull.calculateParam();
+modelHybridFull.main.precoderType = 'JSDM';
 
 modelHybridSub = copy(modelHybridFull);
-modelHybridSub.main.hybridType = 'sub';
+modelHybridSub.hybridType = 'sub';
 
-modelHybridFull.dispChannel();
-modelMM.dispChannel();
-modelMM1.dispChannel();
-modelHybridSub.dispChannel();
+modelHybridFull.downChannel.dispChannel();
+modelMM.downChannel.dispChannel();
+modelMM1.downChannel.dispChannel();
+modelHybridSub.downChannel.dispChannel();
 %% Симуляция
 SNR = 0:25;                             % Диапазон SNR 
 minNumErrs = 100;                       % Порог ошибок для цикла 
@@ -41,13 +39,13 @@ maxNumSimulation = 1;                   % Максимальное число и
 maxNumZeroBER = 1;                      % Максимальное кол-во измерений с нулевым кол-вом
 
 modelHybridFull.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
-% modelMM.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
+modelMM.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
 modelMM1.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
 modelHybridSub.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
 %% Построение графиков
 str0 = 'Mean ';
 str1 = [str0 modelHybridFull.main.precoderType ' ' num2str(modelHybridFull.main.numTx) 'x'  num2str(modelHybridFull.main.numRx)...
-        'x'  num2str(modelHybridFull.main.numSTS) ' type ' modelHybridFull.main.hybridType];
+        'x'  num2str(modelHybridFull.main.numSTS) ' type ' modelHybridFull.hybridType];
 fig = modelHybridFull.plotMeanBER('--k', 2, 'SNR', str1);
 
 str2 = [str0 modelMM.main.precoderType ' ' num2str(modelMM.main.numTx) 'x'  num2str(modelMM.main.numRx)...
@@ -58,9 +56,9 @@ str3 = [str0 modelMM1.main.precoderType ' ' num2str(modelMM1.main.numTx) 'x'  nu
     'x'  num2str(modelMM1.main.numSTS) ' ' modelMM1.main.combainerType];
 modelMM1.plotMeanBER('*-k', 2, 'SNR', str3, fig);
 
-% str4 = [str0 modelHybridSub.main.precoderType ' ' num2str(modelHybridSub.main.numTx) 'x'  num2str(modelHybridSub.main.numRx)...
-%         'x'  num2str(modelHybridSub.main.numSTS) ' type ' modelHybridSub.main.hybridType];
-% modelHybridSub.plotMeanBER('-.k', 2, 'SNR', str4, fig);
+str4 = [str0 modelHybridSub.main.precoderType ' ' num2str(modelHybridSub.main.numTx) 'x'  num2str(modelHybridSub.main.numRx)...
+        'x'  num2str(modelHybridSub.main.numSTS) ' type ' modelHybridSub.hybridType];
+modelHybridSub.plotMeanBER('-.k', 2, 'SNR', str4, fig);
 
 % plotImpulseFrequencyResponses(1, 1, modelMM.channel.downChannel, modelMM.channel.sampleRate);
 
@@ -71,4 +69,5 @@ else
 end
 str = ['DataBase/RLNC2022/'  channel ' numSim ' num2str(maxNumSimulation) ' ' num2str(modelMM.main.numTx) 'x'...
         num2str(modelMM.main.numRx) 'x'  num2str(modelMM.main.numSTS) 'x'   erase(num2str(modelMM.main.numSTSVec),' ') '.mat'];
+    
 % save(str,'modelHybridFull','modelMM1','modelHybridSub');

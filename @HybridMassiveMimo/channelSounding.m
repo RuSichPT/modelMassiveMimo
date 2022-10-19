@@ -5,18 +5,17 @@ function [H_estim, H_estimUsers] = channelSounding(obj, snr)
     lenFFT = obj.ofdm.lengthFFT;
     cycPrefLen = obj.ofdm.cyclicPrefixLength;
     nullCarrInd = obj.ofdm.nullCarrierIndices;    
-    downChann = obj.channel.downChannel;  
+    downChann = obj.downChannel; 
     %% Формируем преамбулу
     [preamble, ltfSC] = obj.generatePreamble(numTx);
     %% Модулятор OFDM  
     preambleOFDM = ofdmmod(preamble, lenFFT, cycPrefLen, nullCarrInd);
-    
+    %% Прохождение канала
+    channelPreamble = downChann.pass(preambleOFDM);
     H_estimUsers = cell(numUsers, 1);
     for uIdx = 1:numUsers
-        %% Прохождение канала
-        channelPreamble = obj.passChannel(preambleOFDM, downChann{uIdx});
         %% Собственный шум
-        noisePreamble = awgn(channelPreamble, snr, 'measured');
+        noisePreamble = awgn(channelPreamble{uIdx,:}, snr, 'measured');
         %% Демодулятор OFDM
         outPreamble = ofdmdemod(noisePreamble, lenFFT, cycPrefLen, cycPrefLen, nullCarrInd);
         %% Оценка канала  
