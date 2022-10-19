@@ -9,8 +9,8 @@ for indExp = 1:Exp
     prm.numSTS = prm.numTx;
     [H_chan_4x4,H_siso,~] = create_chanel(flag_chanel,prm);
     for indSNR = 1:length(SNR)
-        C_mimo_CU_8x4(indExp,indSNR) = mimo_capacity_CU(H_chan_4x4, indSNR, 8);        
-        C_mimo_CK_8x4(indExp,indSNR) = mimo_capacity_CK(H_chan_4x4, indSNR, 8);
+        C_mimo_CU(indExp,indSNR) = mimo_capacity_CU(H_chan_4x4, SNR(indSNR), prm.numTx);        
+        C_mimo_CK(indExp,indSNR) = mimo_capacity_CK(H_chan_4x4, SNR(indSNR), prm.numTx);
         C_siso(indExp,indSNR) = siso_capacity(H_siso,indSNR);
     end
     disp(indExp);
@@ -20,9 +20,9 @@ end
 set(0,'DefaultAxesFontName','Times New Roman');
 set(0,'DefaultTextFontName','Times New Roman'); 
 figure();
-plot(SNR,mean(C_mimo_CU_8x4,1),'k','LineWidth',1.5);
+plot(SNR,mean(C_mimo_CU,1),'k','LineWidth',1.5);
 hold on;
-plot(SNR,mean(C_mimo_CK_8x4,1),'--k','LineWidth',1.5);
+plot(SNR,mean(C_mimo_CK,1),'--k','LineWidth',1.5);
 plot(SNR,mean(C_siso,1),'-.k','LineWidth',1.5);
 grid on;
 xlim([0 SNR(end)]);
