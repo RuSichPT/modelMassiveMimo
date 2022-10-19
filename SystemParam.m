@@ -1,14 +1,13 @@
-classdef SystemParam < matlab.System
-    
+classdef SystemParam  
     properties
-        numUsers = 4;           % Кол-во пользователей
-        numTx = 8;              % Кол-во передающих антен
-        numRx;                  % Кол-во приемных антен всего
-        numSTSVec;              % Кол-во независимых потоков данных на одного пользователя / [2 1 3 2]        
-        modulation = 4;         % Порядок модуляции        
-        freqCarrier = 28e9;     % Частота несущей GHz 
-        precoderType = 'ZF';    % Тип прекодера
-        combainerType = 'NONE'; % Тип комбинера  
+        numUsers;           % Кол-во пользователей
+        numTx;              % Кол-во передающих антен
+        numRx;              % Кол-во приемных антен всего
+        numSTSVec;          % Кол-во независимых потоков данных на одного пользователя / [2 1 3 2]        
+        modulation;         % Порядок модуляции        
+        freqCarrier;        % Частота несущей GHz 
+        precoderType;       % Тип прекодера
+        combainerType;      % Тип комбинера  
     end    
     properties (Dependent, SetAccess = private)
         numSTS;                 % Кол-во потоков данных; должно быть степени 2: /2/4/8/16/32/64
@@ -20,10 +19,22 @@ classdef SystemParam < matlab.System
     %% Constructor, get
     methods
         % Support name-value pair arguments when constructing object
-        function obj = SystemParam(varargin)
+        function obj = SystemParam(args)
+            arguments
+                args.numUsers = 4;
+                args.numTx = 8;
+                args.modulation = 4;
+                args.freqCarrier = 28e9;
+                args.precoderType = 'ZF';
+                args.combainerType = 'NONE';
+            end
+            obj.numUsers = args.numUsers;
+            obj.numTx = args.numTx;
             obj.numRx = obj.numUsers;
             obj.numSTSVec = ones(1, obj.numUsers);
-            setProperties(obj,nargin,varargin{:})
+            obj.modulation = args.modulation;
+            obj.precoderType = args.precoderType;
+            obj.combainerType = args.combainerType;
         end
         function v = get.numSTS(obj)
             v = sum(obj.numSTSVec);

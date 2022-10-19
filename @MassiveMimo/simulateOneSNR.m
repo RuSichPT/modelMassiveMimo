@@ -10,7 +10,7 @@ function [numErrors, numBits] = simulateOneSNR(obj, snr)
     nullCarrInd = obj.ofdm.nullCarrierIndices;
     numSymbOFDM = obj.ofdm.numSymbOFDM;
     numSubCarr = obj.ofdm.numSubCarriers;
-    downChann = obj.channel.downChannel;
+    downChann = obj.downChannel;
     %% Зондирование канала
     H_estim_zond = obj.channelSounding(snr);
     %% Формируем данные
@@ -25,17 +25,16 @@ function [numErrors, numBits] = simulateOneSNR(obj, snr)
     %% Прекодирование
     [precodData, ~, combWeights] = obj.applyPrecod(inpModData, H_estim_zond);
     %% Модулятор OFDM  
-    dataOFDM = ofdmmod(precodData, lenFFT, cycPrefLen, nullCarrInd);  
-    obj.dataOFDM = dataOFDM;
+    dataOFDM = ofdmmod(precodData, lenFFT, cycPrefLen, nullCarrInd);
+    %% Прохождение канала
+    channelData = downChann.pass(dataOFDM);
     %%
     outData = cell(numUsers,1);
     for uIdx = 1:numUsers
         stsU = numSTSVec(uIdx);
         stsIdx = sum(numSTSVec(1:(uIdx-1)))+(1:stsU);
-        %% Прохождение канала
-        channelData = obj.passChannel(dataOFDM, downChann{uIdx});
         %% Собственный шум
-        noiseData = awgn(channelData, snr, 'measured');
+        noiseData = awgn(channelData{uIdx,:}, snr, 'measured');
         %% Демодулятор OFDM
         modDataOut = ofdmdemod(noiseData, lenFFT, cycPrefLen, cycPrefLen, nullCarrInd);
         %% Обьединитель

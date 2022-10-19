@@ -9,6 +9,7 @@ function [outputData, precodWeights, combWeights] = applyPrecod(obj, inputData, 
     % outputData - выходные данные размерностью [numSC,numOFDM,numTx]
     % precodWeights - веса прекодирования
     % combWeights - веса комбинирования
+    
     combWeights = cell(1,obj.main.numUsers);
     switch obj.main.precoderType
         case {'MF'}

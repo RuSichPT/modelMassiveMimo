@@ -1,5 +1,4 @@
-classdef OfdmParam < matlab.System
-    
+classdef OfdmParam   
     properties
         numSubCarriers = 450;       % Кол-во поднессущих
         lengthFFT = 512;            % Длина FFT для OFDM
@@ -12,8 +11,17 @@ classdef OfdmParam < matlab.System
     %% Constructor, get
     methods
         % Support name-value pair arguments when constructing object
-        function obj = OfdmParam(varargin)
-            setProperties(obj,nargin,varargin{:})            
+        function obj = OfdmParam(args)
+            arguments
+                args.numSubCarriers = 450;
+                args.lengthFFT = 512;
+                args.numSymbOFDM = 10;
+                args.cyclicPrefixLength = 64;
+            end
+            obj.numSubCarriers = args.numSubCarriers;
+            obj.lengthFFT = args.lengthFFT;
+            obj.numSymbOFDM = args.numSymbOFDM;
+            obj.cyclicPrefixLength = args.cyclicPrefixLength;
         end        
         function v = get.nullCarrierIndices(obj) 
             tmpNCI = obj.lengthFFT - obj.numSubCarriers;
