@@ -1,4 +1,4 @@
-% clear;close all;clc;
+clear;close all;clc;
 addpath("functions");
 flag_chanel = 'STATIC';
 Exp = 100;% Кол-во опытов
