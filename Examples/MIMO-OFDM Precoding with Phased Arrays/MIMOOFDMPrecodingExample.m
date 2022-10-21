@@ -54,7 +54,7 @@ s = rng(61);        % Set RNG state for repeatability
 
 % Single-user system with multiple streams
 prm.numUsers = 1;            % Number of users
-prm.numSTS = 4;             % Number of independent data streams, 4/8/16/32/64
+prm.numSTS = 16;             % Number of independent data streams, 4/8/16/32/64
 prm.numTx = 32;              % Number of transmit antennas 
 prm.numRx = 16;              % Number of receive antennas 
 prm.bitsPerSubCarrier = 6;   % 2: QPSK, 4: 16QAM, 6: 64QAM, 8: 256QAM

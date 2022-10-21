@@ -60,11 +60,11 @@ s = rng(67);                  % Set RNG state for repeatability
 % explore their impact on the system.
 
 % Multi-user system with single/multiple streams per user
-prm.numUsers = 1;                 % Number of users
-prm.numSTSVec = 4;%[3 1 2 2];        % Number of independent data streams per user 
+prm.numUsers = 4;                 % Number of users
+prm.numSTSVec = [3 2 1 2];        % Number of independent data streams per user 
 prm.numSTS = sum(prm.numSTSVec);  % Must be a power of 2
 prm.numTx = prm.numSTS*8;         % Number of BS transmit antennas (power of 2)
-prm.numRx = prm.numSTSVec*2;      % Number of receive antennas, per user (any >= numSTSVec)
+prm.numRx = prm.numSTSVec*4;      % Number of receive antennas, per user (any >= numSTSVec)
 
 % Each user has the same modulation
 prm.bitsPerSubCarrier = 4;   % 2: QPSK, 4: 16QAM, 6: 64QAM, 8: 256QAM
@@ -370,9 +370,7 @@ txSigSTS = [preambleSigD;txOFDM];
 % RF beamforming: Apply Frf to the digital signal
 %   Each antenna element is connected to each data stream
 txSig = txSigSTS*mFrf;
-% txSig1 = txSigSTS(:,1:4)*mFrf(1:4,1:32);
-% txSig2 = txSigSTS(:,5:end)*mFrf(5:end,33:end);
-% txSigT = [txSig1 txSig2];
+
 %% 
 % For the selected, fully connected RF architecture, each antenna element
 % uses |prm.numSTS| phase shifters, as given by the individual columns of
@@ -450,18 +448,13 @@ for uIdx = 1:prm.numUsers
         prm.CyclicPrefixLength,prm.CyclicPrefixLength, ...
         prm.NullCarrierIndices,prm.PilotCarrierIndices);
     
-    rxOFDM1{uIdx} = rxOFDM;
-    
     % Channel estimation from the mapped preamble
     hD = helperMIMOChannelEstimate(rxOFDM(:,1:numSTS,:),prm);
-    hD1{uIdx} = hD;
     
     % MIMO equalization
     %   Index into streams for the user of interest
     [rxEq,CSI] = helperMIMOEqualize(rxOFDM(:,numSTS+1:end,:),hD(:,stsIdx,:));
-    rxEq1(:,:,uIdx) = rxEq;
     
-        
     % Soft demodulation
     rxSymbs = rxEq(:)/sqrt(numTx);
     rxLLRBits = qamdemod(rxSymbs,prm.modMode,'UnitAveragePower',true, ...
@@ -506,17 +499,6 @@ for uIdx = 1:prm.numUsers
     fprintf('  BER = %.5f; No. of Bits = %d; No. of errors = %d\n', ...
         measures(1),measures(3),measures(2));
 end
-
-    %%%%%%%%%%%%   
-    % MIMO equalization
-    %   Index into streams for the user of interest
-    rxOFDM2 = cat(3,rxOFDM1{:});
-    hD2 = cat(3,hD1{:});
-    [rxEq2,CSI2] = helperMIMOEqualize(rxOFDM2(:,numSTS+1:end,:),hD2);
-    
-    test1 = squeeze(rxEq1(:,:,1));
-    test2 = squeeze(rxEq2(:,:,1));
-    %%%%%%%%%%%%
 
 %% 
 % For the MIMO system modeled, the displayed receive constellation of the
