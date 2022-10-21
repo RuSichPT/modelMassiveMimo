@@ -34,7 +34,7 @@ classdef MassiveMimo < matlab.System & matlab.mixin.Copyable
 
         % Графики  
         [figObj] = plotMeanBER(obj, lineStyle, lineWidth, flagSNR, legendStr, varargin)
-        [figObj] = plotMeanCapacity(obj,lineStyle,lineWidth,legendStr,varargin)
+        [figObj] = plotCapacity(obj,type,lineStyle,lineWidth,legendStr,varargin)
         [figObj] = plotSTSBER(obj, lineStyle, lineWidth, flagSNR, partLegendStr, varargin)
         [figObj] = plotSpectrOFDM(obj, sampleRate_Hz)
         

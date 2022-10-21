@@ -15,7 +15,7 @@ function simulate(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation)
     
     numZeroBER = 0;
     obj.simulation.ber = zeros(obj.main.numSTS, length(rangeSNR));
-    obj.simulation.C = zeros(obj.main.numSTS, length(rangeSNR));
+    obj.simulation.C = zeros(obj.main.numUsers, length(rangeSNR));
     obj.simulation.snr = rangeSNR;
     
     for indSNR = 1:length(rangeSNR)
@@ -26,9 +26,9 @@ function simulate(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation)
             condition = 1;
             capacity = zeros(maxNumSimulation,numUsers);
             while ( condition && (indSim < maxNumSimulation) )
+                % BER
                 [numErrors,numBits,SINR_dB] = obj.simulateOneSNR(rangeSNR(indSNR));
 
-                % BER
                 allNumErrors = allNumErrors + numErrors;
                 allNumBits = allNumBits + numBits;
 
@@ -36,21 +36,26 @@ function simulate(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation)
                 maxConfidenceInterval = berconf * coefConfInt;
                 
                 condition = max(((lenConfInterval > maxConfidenceInterval)|(numErrors < minNumErrs)));
-
+                
                 % Capacity
-                HeffCell = obj.downChannel.channel;
-%                 for uIdx = 1:numUsers
-%                     capacity(indSim+1,uIdx) = mimoCapacity(HeffCell{uIdx},SINR_dB(uIdx),numSTS);
-%                 end
+                if class(obj) == "HybridMassiveMimo"
+                    Hcell = obj.downChannel.channel;
+                else
+                    Hcell = obj.downChannel.channel;
+                end
+                for uIdx = 1:numUsers
+                    capacity(indSim+1,uIdx) = mimoCapacity(Hcell{uIdx},SINR_dB(uIdx),obj.main.numSTSVec((uIdx)));
+                end
+
                 indSim = indSim + 1;
             end
-
             obj.simulation.ber(:,indSNR) = berconf;
-%             obj.simulation.C(:,indSNR) = mean(capacity,1);
+            obj.simulation.C(:,indSNR) = mean(capacity,1);
             
             if (berconf == 0)
                 numZeroBER = numZeroBER + 1;
             end 
+            
             fprintf('Complete SNR = %d dB, simulations = %d \n', rangeSNR(indSNR), indSim);
         end
     end

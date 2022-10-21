@@ -61,12 +61,12 @@ function [numErrors,numBits,SINR_dB] = simulateOneSNR(obj,snr)
         %% Эквалайзер
         tmpEqualizeData = obj.equalizerZFnumSC(modDataOut, H_estim(:,stsIdx,:));
         equalizeData = reshape(tmpEqualizeData, numSubCarr * numSymbOFDM, numSTSVec(uIdx));
-%         %% sigma (СКО) SNR
-%         inpModDataTmp = squeeze(inpModData(:,:,uIdx));
-%         inpModDataTmp = inpModDataTmp(:,(1 + numSTS):end,:);
-%         A = rms(inpModDataTmp(:));
-%         sigma(uIdx) = rms(equalizeData - inpModDataTmp(:));
-%         SINR_dB(uIdx) = 20*log10(A/sigma(uIdx));
+        %% sigma (СКО) SNR
+        inpModDataTmp = squeeze(inpModData(:,:,uIdx));
+        inpModDataTmp = inpModDataTmp(:,(1 + numSTS):end,:);
+        A = rms(inpModDataTmp(:));
+        sigma(uIdx) = rms(equalizeData - inpModDataTmp(:));
+        SINR_dB(uIdx) = 20*log10(A/sigma(uIdx));
         %% Демодулятор
         outData{uIdx} = qamdemod(equalizeData, modulation, 'OutputType', 'bit');
     end

@@ -2,7 +2,7 @@ classdef (Abstract) Channel < handle
     properties
         numUsers = 4;                   % Кол-во пользователей
         numTx = 32;                     % Кол-во передающих антен
-        numRxUsers = [2 2 2 2];         % Кол-во приемных антен на каждого пользователя
+        numRxUsers = [1 1 1 1];         % Кол-во приемных антен на каждого пользователя
     end
     properties (Dependent, SetAccess = private)
         numRx;                          % Кол-во приемных антен
