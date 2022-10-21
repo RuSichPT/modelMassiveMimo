@@ -33,7 +33,6 @@ classdef StaticChannel < Channel & matlab.System
     end
     %%
     methods (Access = private)
-        % Создает статический канал без замираний  
         function [channel] = createChannel(obj,numRx)
             channel = zeros(obj.numTx, numRx);
             for i = 1:obj.numTx

@@ -8,6 +8,8 @@ static = StaticChannel();
 
 channelNN = ChannelForNeuralNet();
 
+LOS = StaticLOSChannel();
+
 ofdm = OfdmParam();
 ofdm2 = OfdmParam();
 

@@ -5,7 +5,7 @@ classdef SystemParam
         numRx;              % Кол-во приемных антен всего
         numSTSVec;          % Кол-во независимых потоков данных на одного пользователя / [2 1 3 2]        
         modulation;         % Порядок модуляции        
-        freqCarrier;        % Частота несущей GHz 
+%         freqCarrier;        % Частота несущей GHz 
         precoderType;       % Тип прекодера
         combainerType;      % Тип комбинера  
     end    
