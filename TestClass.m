@@ -1,6 +1,9 @@
 clear; clc;
 
 channelParam = ChannelParam();
+static = StaticChannel();
+
+channelNN = ChannelForNeuralNet();
 
 ofdm = OfdmParam();
 ofdm2 = OfdmParam();

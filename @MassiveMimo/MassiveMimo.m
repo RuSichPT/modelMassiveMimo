@@ -1,6 +1,6 @@
 classdef MassiveMimo < matlab.System & matlab.mixin.Copyable
     % Возможные каналы:
-    % RaylSpecialChannel(), RaylChannel()
+    % RaylSpecialChannel(), RaylChannel(), ChannelForNeuralNet(), StaticChannel()
     
     properties        
         main = SystemParam();       	% Параметры системы                
@@ -40,6 +40,15 @@ classdef MassiveMimo < matlab.System & matlab.mixin.Copyable
                     channel = RaylSpecialChannel(param{:});
                 case 'RaylChannel'
                     channel = RaylChannel(param{:});
+                case 'ChannelForNeuralNet'
+                    channel = ChannelForNeuralNet();
+                case 'StaticChannel'
+                    param = {
+                    'numUsers',obj.main.numUsers...
+                    'numTx',obj.main.numTx,...
+                    'numRxUsers',obj.main.numRxUsers...
+                            };
+                    channel = StaticChannel(param{:});
             end
         end
     end
@@ -59,6 +68,7 @@ classdef MassiveMimo < matlab.System & matlab.mixin.Copyable
 
         % Графики  
         [figObj] = plotMeanBER(obj, lineStyle, lineWidth, flagSNR, legendStr, varargin)
+        [figObj] = plotMeanCapacity(obj,lineStyle,lineWidth,legendStr,varargin)
         [figObj] = plotSTSBER(obj, lineStyle, lineWidth, flagSNR, partLegendStr, varargin)
         [figObj] = plotSpectrOFDM(obj, sampleRate_Hz)
         
@@ -66,8 +76,8 @@ classdef MassiveMimo < matlab.System & matlab.mixin.Copyable
         simulate(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation)
         simulateMutCorr(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation, corrMatrix)
         
-        [numErrors, numBits] = simulateOneSNR(obj, snr)       
-        [numErrors, numBits] = simulateOneSNRmutCorr(obj, snr, corrMatrix)
+        [numErrors,numBits,SINR_dB] = simulateOneSNR(obj,snr)       
+        [numErrors,numBits] = simulateOneSNRmutCorr(obj,snr,corrMatrix)
 
     end
 end

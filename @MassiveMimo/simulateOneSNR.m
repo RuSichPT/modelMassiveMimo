@@ -1,4 +1,4 @@
-function [numErrors, numBits] = simulateOneSNR(obj, snr)
+function [numErrors,numBits,SINR_dB] = simulateOneSNR(obj,snr)
     % Переопределение переменных
     numSTS = obj.main.numSTS;
     numSTSVec = obj.main.numSTSVec;
@@ -30,6 +30,8 @@ function [numErrors, numBits] = simulateOneSNR(obj, snr)
     channelData = downChann.pass(dataOFDM);
     %%
     outData = cell(numUsers,1);
+    sigma = zeros(numUsers,1);
+    SINR_dB = zeros(numUsers,1);
     for uIdx = 1:numUsers
         stsU = numSTSVec(uIdx);
         stsIdx = sum(numSTSVec(1:(uIdx-1)))+(1:stsU);
@@ -46,6 +48,12 @@ function [numErrors, numBits] = simulateOneSNR(obj, snr)
         %% Эквалайзер
         tmpEqualizeData = obj.equalizerZFnumSC(modDataOut, H_estim(:,stsIdx,:));
         equalizeData = reshape(tmpEqualizeData, numSubCarr * numSymbOFDM, numSTSVec(uIdx));
+        %% sigma (СКО) SNR
+        inpModDataTmp = squeeze(inpModData(:,:,uIdx));
+        inpModDataTmp = inpModDataTmp(:,(1 + numSTS):end,:);
+        A = rms(inpModDataTmp(:));
+        sigma(uIdx) = rms(equalizeData - inpModDataTmp(:));
+        SINR_dB(uIdx) = 20*log10(A/sigma(uIdx));
         %% Демодулятор
         outData{uIdx} = qamdemod(equalizeData, modulation, 'OutputType', 'bit');
     end

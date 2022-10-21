@@ -15,7 +15,7 @@ classdef (Abstract) Channel < handle
     end    
     %%
     methods (Abstract = true)
-        pass(obj);
+        pass(obj,inputData);
     end
     methods (Abstract = true, Access = protected)
         getStrForDisp(obj);

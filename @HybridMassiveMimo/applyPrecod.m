@@ -17,10 +17,15 @@ function [digitalData, Frf] = applyPrecod(obj, inputData, estimateChannel)
     
     switch obj.main.precoderType
         case {'JSDM'}
-            [digitalData, ~,Frf] = applyPrecodJSDM(inputData, estimateChannel, numSTSVec, numUsers);
+            [digitalData, ~,Frf] = applyPrecodJSDM(inputData,estimateChannel,numSTSVec,numUsers);
         case {'ZF'}
-            [digitalData, ~,Frf] = applyPrecodZF(inputData, estimateChannel);
+            [digitalData, ~,Frf] = applyPrecodZF(inputData,estimateChannel);
+        case {'DRL-NN'}
+            [digitalData, ~,Frf] = applyPrecodDRL(inputData, estimateChannel,numSTSVec,numUsers);
+        otherwise
+            error('Нет такого типа прекодера!');
     end     
 
 end
+
 
