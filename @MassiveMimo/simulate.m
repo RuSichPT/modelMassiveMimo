@@ -5,7 +5,10 @@ function simulate(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation)
     % minNumErrs - минимальное кол-во ошибок
     % maxNumSimulation - максимальное кол-во симул€ций
     
-    addpath("functions");
+    addpath('functions');
+    
+    checkChannel(obj);
+    
     coefConfInt = obj.simulation.coefConfInterval;
     numSTS = obj.main.numSTS;
     numUsers = obj.main.numUsers;
@@ -53,4 +56,26 @@ function simulate(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation)
     end
     str = ['Complete ' obj.main.precoderType '\n'];
     fprintf(str);
+end
+
+function checkChannel(obj)
+    if ~isscalar(obj.downChannel)
+        error(' анал не найден! ”становите канал!');
+    end
+    
+    if obj.downChannel.numTx ~= obj.main.numTx
+        error(' оличество numTx в модели и в канале не совпадает');
+    end
+    
+    if obj.downChannel.numRx ~= obj.main.numRx
+        error(' оличество numRx в модели и в канале не совпадает');
+    end
+    
+    if obj.downChannel.numRxUsers ~= obj.main.numRxUsers
+        error(' оличество numRxUsers в модели и в канале не совпадает');
+    end
+    
+    if obj.downChannel.numUsers ~= obj.main.numUsers
+        error(' оличество numRxUsers в модели и в канале не совпадает');
+    end
 end

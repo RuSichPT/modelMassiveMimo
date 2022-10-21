@@ -5,51 +5,17 @@ classdef MassiveMimo < matlab.System & matlab.mixin.Copyable
     properties        
         main = SystemParam();       	% Параметры системы                
         ofdm = OfdmParam();             % Параметры OFDM
-        channel = ChannelParam();       % Параметры канала
+        downChannel;                    % Нисходящий канал
         simulation = struct(...         % Параметры симуляции
                 "ber",              0,      ...  % Вероятность битовой ошибки
                 "snr",              0,      ...  % Диапазон ОСШ
                 "confidenceLevel",  0.95,   ...  % Уровень достоверности
                 "coefConfInterval", 1/15 )     % ???
     end
-    properties (Dependent, SetAccess = private)
-        downChannel;                        % Нисходящий канал 
-    end
     %% Constructor, get
     methods
         function obj = MassiveMimo(varargin)
             setProperties(obj,nargin,varargin{:})
-        end
-        function v = get.downChannel(obj)
-            v = createChannel(obj);
-        end
-    end
-    %%
-    methods 
-        function channel = createChannel(obj)
-            param = {
-                    'numUsers',obj.main.numUsers...
-                    'numTx',obj.main.numTx,...
-                    'numRxUsers',obj.main.numRxUsers...
-                    'sampleRate',obj.channel.sampleRate...
-                    'averagePathGains',obj.channel.averagePathGains...
-                    'tau',obj.channel.tau...
-                    };
-            switch obj.channel.type
-                case 'RaylSpecialChannel'
-                    channel = RaylSpecialChannel(param{:});
-                case 'RaylChannel'
-                    channel = RaylChannel(param{:});
-                case 'ChannelForNeuralNet'
-                    channel = ChannelForNeuralNet();
-                case 'StaticChannel'
-                    param = {
-                    'numUsers',obj.main.numUsers...
-                    'numTx',obj.main.numTx,...
-                    'numRxUsers',obj.main.numRxUsers...
-                            };
-                    channel = StaticChannel(param{:});
-            end
         end
     end
     %% Методы

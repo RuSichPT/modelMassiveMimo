@@ -1,10 +1,10 @@
 clc;clear;
 %% Создание моделей
 modelMM = MassiveMimo();
-modelMM.main.numTx = 32;
+modelMM.main.numTx = 8;
 modelMM.main.numUsers = 4;
-modelMM.main.numRx = 16;
-modelMM.main.numSTSVec = [2 3 1 2];
+modelMM.main.numRx = 4;
+modelMM.main.numSTSVec = [1 1 1 1];
 modelMM.main.precoderType = 'DIAG';
 % modelMM.channel.type = 'STATIC';
 % modelMM.channel.txAng = {0,30,60,90};

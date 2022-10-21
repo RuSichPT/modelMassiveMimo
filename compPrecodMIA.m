@@ -1,6 +1,10 @@
 clc;clear;
 %% Создание моделей 
 modelZF = MassiveMimo();
+
+channel = RaylSpecialChannel('numTx',modelZF.main.numTx,'numRxUsers',modelZF.main.numRxUsers);
+modelZF.downChannel = channel;
+
 modelTPE = copy(modelZF);
 modelNSA = copy(modelZF);
 modelNI = copy(modelZF);
@@ -9,6 +13,7 @@ modelTPE.main.precoderType = 'TPE';
 modelNSA.main.precoderType = 'NSA';
 modelNI.main.precoderType = 'NI';
 modelNI_NSA.main.precoderType = 'NI-NSA';
+
 %% Симуляция
 SNR = 0:40;                             % Диапазон SNR 
 minNumErrs = 100;                       % Порог ошибок для цикла 

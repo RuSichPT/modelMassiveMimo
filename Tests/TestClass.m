@@ -1,6 +1,6 @@
 clear; clc;
-addpath('..\MyParameters');
-addpath('..\MyChannels');
+addpath('..\Parameters');
+addpath('..\Channels');
 addpath('..\..\modelMassiveMimo');
 
 channelParam = ChannelParam();
@@ -10,6 +10,7 @@ channelNN = ChannelForNeuralNet();
 
 ofdm = OfdmParam();
 ofdm2 = OfdmParam();
+
 ofdm1 = OfdmParam('numSubCarriers',120);
 ofdm.numSubCarriers = 256;
 
@@ -30,14 +31,11 @@ mCh1 = channel2.channel;
 
 mimo = MassiveMimo();
 mimo.main.numTx = 32;
-mimo.channel.type = 'RaylChannel';
-mimo.channel.sampleRate = 40;
 
 mimo1 = MassiveMimo();
 mimo1.main.numTx = 16;
 
 hmimo = HybridMassiveMimo();
-hmimo.channel.type = 'RaylSpecialChannel';
 
 SNR = 0:40;                             % Диапазон SNR 
 minNumErrs = 100;                       % Порог ошибок для цикла 

@@ -4,13 +4,17 @@ param = SystemParam();
 param.numTx = 32;
 param.numUsers = 4;
 param.numRx = 4;
-param.numSTSVec = [1 1 1 1];% 1 1];% 1 2];%ones(1, modelZF.main.numUsers);
+param.numSTSVec = [1 1 1 1];
 
-modelZF = MassiveMimo('main',param);
-modelMF = MassiveMimo('main',param);
-modelEBM = MassiveMimo('main',param);
-modelRZF = MassiveMimo('main',param);
-modelDIAG = MassiveMimo('main',param);
+channel = RaylSpecialChannel();
+channel.numTx = param.numTx;
+channel.numRxUsers = param.numRxUsers;
+
+modelZF = MassiveMimo('main',param,'downChannel',channel);
+modelMF = MassiveMimo('main',param,'downChannel',channel);
+modelEBM = MassiveMimo('main',param,'downChannel',channel);
+modelRZF = MassiveMimo('main',param,'downChannel',channel);
+modelDIAG = MassiveMimo('main',param,'downChannel',channel);
 
 modelMF.main.precoderType = 'MF';
 modelEBM.main.precoderType = 'EBM';
