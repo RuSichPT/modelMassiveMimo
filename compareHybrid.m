@@ -1,4 +1,6 @@
 % clc;clear;
+addpath('Parameters');
+addpath('Channels');
 %% Создание моделей
 hmimo = HybridMassiveMimo();
 hmimo.main.numTx = 64;
