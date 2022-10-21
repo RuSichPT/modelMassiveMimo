@@ -1,4 +1,5 @@
 clear; clc;
+addpath('MyChannels');
 
 channelParam = ChannelParam();
 static = StaticChannel();
