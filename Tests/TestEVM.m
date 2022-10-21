@@ -1,4 +1,4 @@
-clc; clear;addpath("functions");
+clc; clear;
 %%
 numBits = 1e6; % Чем больше бит, тем точнее snr
 data = randi([0 15],numBits,1);

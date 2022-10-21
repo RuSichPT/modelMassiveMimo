@@ -1,4 +1,5 @@
 clear;clc;
+addpath("..\functions");
 
 prm.numUsers = 1;                 % Number of users
 prm.numSTSVec = 4;%[3 1 2 2];        % Number of independent data streams per user 

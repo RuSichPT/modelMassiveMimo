@@ -1,4 +1,5 @@
 clc; clear;
+addpath("..\functions");
 %% Параметры
 N_T = 32;
 K = 2;

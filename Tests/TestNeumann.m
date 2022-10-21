@@ -1,9 +1,10 @@
-clear;clc;addpath("functions");
+clear;clc;
+addpath("..\functions");
 
 numTx = 8;
 numRx = 4;
 k = 0;
-numExp = 1000;
+numExp = 100;
 
 for exp = 1:numExp 
     H = zeros(numRx, numTx);
@@ -14,17 +15,22 @@ for exp = 1:numExp
     end
     Gram = H*H';
 
-    invNewton = invMatrixNewton(Gram, 100);
+    invNeim = invMatrixNeumannSeries(Gram, 100);
+    
     D = diag(diag(Gram)); 
-    if (invNewton == inv(D))
+    if (invNeim == inv(D))
         k = k+1;
         fprintf("Условие сходимости нарушено\n")
     end
 end
 
-invNewton = invMatrixNewton(Gram, 100)
+invNeim = invMatrixNeumannSeries(Gram, 100)
+
+D = diag(diag(Gram));
+invNeim2 = invMatrixNeumannSeries2(Gram, 100, inv(D))
 
 inv(Gram)
 
 % Процент несошедшихся матриц
 EC = k/numExp*100
+

@@ -1,4 +1,5 @@
-clear;clc;addpath("functions");
+clear;clc;
+addpath("..\functions");
 
 numTx = 8;
 numRx = 4;

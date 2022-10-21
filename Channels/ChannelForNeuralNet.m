@@ -7,8 +7,8 @@ classdef ChannelForNeuralNet < Channel & matlab.System
         % Support name-value pair arguments when constructing object
         function obj = ChannelForNeuralNet(varargin)
             setProperties(obj,nargin,varargin{:})
-            load('DataBase/NeuralNetwork/H_I.txt');
-            load('DataBase/NeuralNetwork/H_Q.txt');
+            load('../DataBase/NeuralNetwork/H_I.txt');
+            load('../DataBase/NeuralNetwork/H_Q.txt');
             H = H_I+1i*H_Q;
             H = H';
             channel = cell(obj.numUsers,1);

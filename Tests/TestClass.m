@@ -1,5 +1,7 @@
 clear; clc;
-addpath('MyChannels');
+addpath('..\MyParameters');
+addpath('..\MyChannels');
+addpath('..\..\modelMassiveMimo');
 
 channelParam = ChannelParam();
 static = StaticChannel();
