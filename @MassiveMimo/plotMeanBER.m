@@ -50,7 +50,7 @@ function [figObj] = plotMeanBER(obj, lineStyle, lineWidth, flagSNR, legendStr, v
         xlabel('E_b / N_0 , дБ');
     end
     ylabel('Вероятность битовой ошибки');
-    title("Massive MIMO");
+    title(class(obj.downChannel));
     
 
     legObj = findobj(figObj, 'Type', 'Legend');

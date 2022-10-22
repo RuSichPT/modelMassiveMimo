@@ -4,9 +4,8 @@ classdef StaticLOSChannel < matlab.System
         anglesTx = {[-65;0]; [-25;0]; [37;0]; [70;0];};  %[azimuth;elevation]
         numRows = 8;        
         numColumns = 4;
-    end
-    properties (SetAccess = private)
-        channel;        % Матрица канала
+        posArrayRx = 1;
+        anglesRx = [];
     end
     properties (Dependent, SetAccess = private)
         numUsers;       % Кол-во пользователей
@@ -18,13 +17,17 @@ classdef StaticLOSChannel < matlab.System
         arraySize;      % Размер решетки
         arrayTx;        % Передающая решетка
         posArrayTx;     % Позиции элементов решетки
+        channel;        % Матрица канала
+    end
+    properties(Access = private)
+        seed;
     end
     %% Constructor, get         
     methods
         % Support name-value pair arguments when constructing object        
         function obj = StaticLOSChannel(varargin)
             setProperties(obj,nargin,varargin{:})
-            obj.channel = obj.createChannel();
+            obj.seed = randi(1e6);
         end
         function v = get.numUsers(obj)
             v = size(obj.anglesTx,1);
@@ -56,7 +59,11 @@ classdef StaticLOSChannel < matlab.System
         function v = get.posArrayTx(obj)
             v = getElementPosition(obj.arrayTx)/obj.lambda;
         end
-
+        function v = get.channel(obj)                        
+            rng(obj.seed);
+            v = createChannel(obj);                        
+            rng('shuffle');
+        end
     end
     %%
     methods
@@ -74,10 +81,8 @@ classdef StaticLOSChannel < matlab.System
         function str = getStrForDisp(obj)
             str = '';
         end
-    end
-    %%
-    methods (Access = private)
-        function [channel] = createChannel(obj)
+        
+        function channel = createChannel(obj)
 
             numUsersLoc = obj.numUsers;
             anglesTxLoc = obj.anglesTx;
@@ -99,6 +104,7 @@ classdef StaticLOSChannel < matlab.System
 
                 channel{uIdx} = At{uIdx}*G{uIdx}*Ar{uIdx}.';
             end
+
         end
     end
 end

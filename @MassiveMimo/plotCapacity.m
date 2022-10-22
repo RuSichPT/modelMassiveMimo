@@ -30,6 +30,7 @@ function [figObj] = plotCapacity(obj,type,lineStyle,lineWidth,legendStr,varargin
     xlim([snr(1) snr(end)]);
     xlabel('Отношение сигнал/шум, дБ');
     ylabel('C, бит/с/Гц');
+    title(class(obj.downChannel));
     
     legObj = findobj(figObj, 'Type', 'Legend');
     if isempty(legObj)

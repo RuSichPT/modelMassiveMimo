@@ -9,6 +9,7 @@ static = StaticChannel();
 channelNN = ChannelForNeuralNet();
 
 LOS = StaticLOSChannel();
+multiChan = StaticMultipathChannel();
 
 ofdm = OfdmParam();
 ofdm2 = OfdmParam();
