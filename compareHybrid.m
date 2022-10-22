@@ -1,13 +1,16 @@
-clc;clear;close all;
+clc;clear;%close all;
 addpath('Parameters');
 addpath('Channels');
 %% Создание канала
 numRows = 8;
 numColumns = 8;
-anglesTx = {[2;1]; [91;-1]; [-85;0]; [179;3];};  %[azimuth;elevation]
-channel = StaticLOSChannel('anglesTx',anglesTx,'numRows',numRows,'numColumns',numColumns);
-% channel = StaticMultipathChannel('numRows',numRows,'numColumns',numColumns);
+% anglesTx = {[2;1]; [91;-1]; [-85;0]; [179;3];};  %[azimuth;elevation]
+% channel = StaticLOSChannel('anglesTx',anglesTx,'numRows',numRows,'numColumns',numColumns);
+channel = StaticMultipathChannel('numRows',numRows,'numColumns',numColumns);
+channel.averagePathGains = 0;
+channel.tau = 0;
 % channel = StaticChannel();
+% channel = RaylChannel('averagePathGains',0,'tau',0);
 %% Создание модели
 hmimo = HybridMassiveMimo();
 hmimo.main.numTx = channel.numTx;

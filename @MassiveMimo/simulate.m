@@ -43,8 +43,10 @@ function simulate(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation)
                 else
                     Hcell = obj.downChannel.channel;
                 end
-                for uIdx = 1:numUsers
-                    capacity(indSim+1,uIdx) = mimoCapacity(Hcell{uIdx},SINR_dB(uIdx),obj.main.numSTSVec((uIdx)));
+                if isscalar(obj.downChannel.tau) 
+                    for uIdx = 1:numUsers
+                        capacity(indSim+1,uIdx) = mimoCapacity(Hcell{uIdx},SINR_dB(uIdx),obj.main.numSTSVec((uIdx)));
+                    end
                 end
 
                 indSim = indSim + 1;

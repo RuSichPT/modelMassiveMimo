@@ -10,17 +10,23 @@ classdef RaylChannel < Channel & matlab.System
         dt;                             % Шаг во временной области
         channel;                        % Объект канала
     end
+    properties(Access = private)
+        seed;
+    end
     %% Constructor, get  
     methods
         % Support name-value pair arguments when constructing object
         function obj = RaylChannel(varargin)
             setProperties(obj,nargin,varargin{:})
+            obj.seed = randi(1e6);
         end
         function v = get.dt(obj)
             v = 1 / obj.sampleRate;
         end
         function v = get.channel(obj)
-            v = obj.createMuChannel();
+            rng(obj.seed);
+            v = obj.createMuChannel();                               
+            rng('shuffle');
         end
         function v = get.pathDelays(obj)
             v = obj.tau * obj.dt;
@@ -31,9 +37,10 @@ classdef RaylChannel < Channel & matlab.System
         function outputData = pass(obj,inputData)
             numUsers = obj.numUsers;
             outputData = cell(numUsers,1);
+            H = cell(numUsers,1);
             for i = 1:numUsers
                 channelTmp = obj.channel{i,:};
-                outputData{i,:} = channelTmp(inputData); 
+                [outputData{i,:}, H{i}] = channelTmp(inputData);
             end
         end       
     end

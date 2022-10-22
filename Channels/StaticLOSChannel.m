@@ -61,7 +61,7 @@ classdef StaticLOSChannel < matlab.System
         end
         function v = get.channel(obj)                        
             rng(obj.seed);
-            v = createChannel(obj);                        
+            v = obj.createChannel();                        
             rng('shuffle');
         end
     end
