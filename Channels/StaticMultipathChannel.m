@@ -27,19 +27,19 @@ classdef StaticMultipathChannel < StaticLOSChannel
         end
     end
     methods
-%         function outputData = pass(obj,inputData)
-%             numUsers = obj.numUsers;
-%             outputData = cell(numUsers,1);
-%             numPath = length(obj.pathDelays);      
-%             
-%             channelTmp = cat(2,obj.channel{:});
-%             channelTmp = permute(channelTmp, [2,1,3]); % obj.channel{i} = numTx, numRx, numPath
-%             g = reshape(channelTmp, [], obj.numRx, obj.numTx, numPath);
-%             outputDataTmp = step(obj.filter, inputData, g);
-%             for i = 1:numUsers
-%                 outputData{i,:} = outputDataTmp(:,i);
-%             end
-%         end
+        function outputData = pass(obj,inputData)
+            numUsers = obj.numUsers;
+            outputData = cell(numUsers,1);
+            numPath = length(obj.pathDelays);      
+            
+            channelTmp = cat(2,obj.channel{:});
+            channelTmp = permute(channelTmp, [2,1,3]); % obj.channel{i} = numTx, numRx, numPath
+            g = reshape(channelTmp, [], obj.numRx, obj.numTx, numPath);
+            outputDataTmp = step(obj.filter, inputData, g);
+            for i = 1:numUsers
+                outputData{i,:} = outputDataTmp(:,i);
+            end
+        end
     end
     %%
     methods (Access = protected)

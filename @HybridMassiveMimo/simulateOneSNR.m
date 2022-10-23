@@ -27,6 +27,7 @@ function [numErrors,numBits,SINR_dB] = simulateOneSNR(obj,snr)
     inpModData = cat(2, preambula, inpModData);
     %% Цифровое прекодирование BB beamforming
     [precodData, Frf] = obj.applyPrecod(inpModData, H_estim_zond);
+    obj.Frf = Frf;
     %% Модулятор OFDM  
     dataOFDMbb = ofdmmod(precodData, lenFFT, cycPrefLen, nullCarrInd);  
     %% Аналоговое прекодирование RF beamforming: Apply Frf to the digital signal

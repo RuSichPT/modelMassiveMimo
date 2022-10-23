@@ -2,14 +2,16 @@ clc;clear;%close all;
 addpath('Parameters');
 addpath('Channels');
 %% Создание канала
-numRows = 8;
-numColumns = 8;
-% anglesTx = {[2;1]; [91;-1]; [-85;0]; [179;3];};  %[azimuth;elevation]
-% channel = StaticLOSChannel('anglesTx',anglesTx,'numRows',numRows,'numColumns',numColumns);
-channel = StaticMultipathChannel('numRows',numRows,'numColumns',numColumns);
-channel.averagePathGains = 0;
-channel.tau = 0;
+rng(67)
+numRows = 4;
+numColumns = 4;
+anglesTx = {[2;1]; [91;-1]; [-85;0]; [179;3];};  %[azimuth;elevation]
+channel = StaticLOSChannel('anglesTx',anglesTx,'numRows',numRows,'numColumns',numColumns);
+% channel = StaticMultipathChannel('numRows',numRows,'numColumns',numColumns);
+% channel.averagePathGains = 0;
+% channel.tau = 0;
 % channel = StaticChannel();
+% channel.numTx = 16;
 % channel = RaylChannel('averagePathGains',0,'tau',0);
 %% Создание модели
 hmimo = HybridMassiveMimo();
@@ -20,7 +22,7 @@ mimo.main.numTx = channel.numTx;
 mimo.downChannel = channel;
 mimo.main.precoderType = 'DIAG';
 %% Симуляция
-SNR = 0:25;                             % Диапазон SNR 
+SNR = 0:35;                             % Диапазон SNR 
 minNumErrs = 100;                       % Порог ошибок для цикла 
 maxNumSimulation = 1;                   % Максимальное число итераций в цикле while 50
 maxNumZeroBER = 1000;                      % Максимальное кол-во измерений с нулевым кол-вом

@@ -23,7 +23,8 @@ function [numErrors,numBits,SINR_dB] = simulateOneSNR(obj,snr)
     [preambula, ltfSC] = obj.generatePreamble(numSTS);
     inpModData = cat(2, preambula, inpModData);
     %% Прекодирование
-    [precodData, ~, combWeights] = obj.applyPrecod(inpModData, H_estim_zond);
+    [precodData, precodWeights, combWeights] = obj.applyPrecod(inpModData, H_estim_zond);
+    obj.F = precodWeights;
     %% Модулятор OFDM  
     dataOFDM = ofdmmod(precodData, lenFFT, cycPrefLen, nullCarrInd);
     %% Прохождение канала

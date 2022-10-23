@@ -44,7 +44,8 @@ for uIdx = 1:numUsers
     Hmean{uIdx} = mean(permute(H{uIdx},[2 3 1]),3);
 end
 mFrf = blkdiagbfweights(Hmean,numSTSVec); % Analog precoder for all users, B
-Frf = angle(mFrf);
+theta = angle(mFrf);
+mFrf = exp(1i*theta);
 
 % Assuming receive side does not employ a hybrid architecture
 %   Get W
@@ -60,7 +61,7 @@ for uIdx = 1:numUsers
     for i = 1:prm.numCarriers
         % Need Wgi as well, if Rx end adopts hybrid arch
         %   Here use the analog precoder (mFrf) only
-        [~,~,Vg(i,:,:)] = svd(hk(:,:,i)*Frf(stsIdx,:).','econ');
+        [~,~,Vg(i,:,:)] = svd(hk(:,:,i)*mFrf(stsIdx,:).','econ');
     end
     Fbb{uIdx} = Vg;
 end

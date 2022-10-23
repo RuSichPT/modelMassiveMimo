@@ -5,6 +5,9 @@ classdef HybridMassiveMimo < MassiveMimo
     properties (Dependent, SetAccess = private)
         numRF                           % Кол-во RF цепочек
     end
+    properties (SetAccess = private)
+        Frf;
+    end
     %% Constructor, get     
     methods
         % Support name-value pair arguments when constructing object

@@ -12,6 +12,9 @@ classdef MassiveMimo < matlab.System & matlab.mixin.Copyable
                 "confidenceLevel",  0.95,   ...  % Уровень достоверности
                 "coefConfInterval", 1/15 )     % ???
     end
+    properties (SetAccess = private)
+        F;
+    end
     %% Constructor, get
     methods
         function obj = MassiveMimo(varargin)
