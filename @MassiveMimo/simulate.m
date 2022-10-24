@@ -38,19 +38,19 @@ function simulate(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation)
                 condition = max(((lenConfInterval > maxConfidenceInterval)|(numErrors < minNumErrs)));
                 
                 % Capacity
-                Hcell = obj.downChannel.channel;
-                for uIdx = 1:numUsers
-                    Hcell{uIdx} = Hcell{uIdx}';
-                end
-                if class(obj) == "HybridMassiveMimo"
-%                     Frf = obj.Frf';
-%                     for uIdx = 1:numUsers
-%                         Hcell{uIdx} = Hcell{uIdx}*Frf; % Heff
-%                     end
-                end
+%                 Hcell = obj.downChannel.channel;
+%                 for uIdx = 1:numUsers
+%                     Hcell{uIdx} = Hcell{uIdx}';
+%                 end
+%                 if class(obj) == "HybridMassiveMimo"
+% %                     Frf = obj.Frf';
+% %                     for uIdx = 1:numUsers
+% %                         Hcell{uIdx} = Hcell{uIdx}*Frf; % Heff
+% %                     end
+%                 end
 %                 if isscalar(obj.downChannel.tau) 
                     for uIdx = 1:numUsers
-                        capacity(indSim+1,uIdx) = mimoCapacity(Hcell{uIdx},SINR_dB(uIdx),obj.main.numSTSVec((uIdx)));
+                        capacity(indSim+1,uIdx) = mimoCapacitySINR(SINR_dB(uIdx));
                     end
 %                 end
 
