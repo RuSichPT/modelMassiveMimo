@@ -1,7 +1,9 @@
 clc;clear;
+addpath('Parameters');
+addpath('Channels');
 %% Создание моделей
 modelMM = MassiveMimo();
-numTx = 256;
+numTx = 512;
 numUsers = 4;
 numRx = 4;
 numSTSVec = [1 1 1 1];
@@ -41,7 +43,7 @@ modelHybridSub.downChannel.dispChannel();
 %% Симуляция
 SNR = 0:25;                             % Диапазон SNR 
 minNumErrs = 100;                       % Порог ошибок для цикла 
-maxNumSimulation = 5;                   % Максимальное число итераций в цикле while 50
+maxNumSimulation = 1;                   % Максимальное число итераций в цикле while 50
 maxNumZeroBER = 100;                      % Максимальное кол-во измерений с нулевым кол-вом
 
 modelHybridFull.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
