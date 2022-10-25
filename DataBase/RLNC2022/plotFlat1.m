@@ -1,5 +1,4 @@
 clear;clc;close all;
-cd ..\..;
 load('DataBase/RLNC2022/RAYL_SPECIALflat numSim 5 8x4x4x1111.mat');
 
 hybridFull(1) = modelHybridFull;
@@ -53,7 +52,7 @@ end
 ylim([10^-4 10^0]);
 fig3 = figure();
 for i = 1:size(hybridFull,2)
-    str3 = [str0 num2str(hybridSub(i).main.precoderType) ' ' num2str(hybridSub(i).main.numTx) 'x'  num2str(hybridSub(i).main.numRx)...
+    str3 = [str0 'Гибридное' ' ' num2str(hybridSub(i).main.numTx) 'x'  num2str(hybridSub(i).main.numRx)...
         'x'  num2str(hybridSub(i).main.numSTS) ' type ' hybridSub(i).main.hybridType];
     hybridSub(i).plotMeanBER(lineStyle(i), 1.5, 'SNR', str3, fig3);
 end
