@@ -1,41 +1,45 @@
 clear;clc;close all;
 addpath('Parameters');
 addpath('Channels');
-load('DataBase/Теория и техника радиосвязи 2022/RaylSpecialChannelflat numSim 5 8x4x4x1111.mat');
+load('DataBase/Теория и техника радиосвязи 2022/RaylSpecialChannel numSim 5 8x4x4x1111.mat');
 
 hybridFull{1} = modelHybridFull;
 mMimo{1} = modelMM;
 hybridSub{1} = modelHybridSub;
 %%%%%%
-load('DataBase/Теория и техника радиосвязи 2022/RaylSpecialChannelflat numSim 5 16x4x4x1111.mat');
+load('DataBase/Теория и техника радиосвязи 2022/RaylSpecialChannel numSim 5 16x4x4x1111.mat');
 
 hybridFull{2} = modelHybridFull;
 mMimo{2} = modelMM;
 hybridSub{2} = modelHybridSub;
 %%%%%%
-load('DataBase/Теория и техника радиосвязи 2022/RaylSpecialChannelflat numSim 5 32x4x4x1111.mat');
+load('DataBase/Теория и техника радиосвязи 2022/RaylSpecialChannel numSim 5 32x4x4x1111.mat');
 
 hybridFull{3} = modelHybridFull;
 mMimo{3} = modelMM;
 hybridSub{3} = modelHybridSub;
 %%%%%%
-load('DataBase/Теория и техника радиосвязи 2022/RaylSpecialChannelflat numSim 5 64x4x4x1111.mat');
+load('DataBase/Теория и техника радиосвязи 2022/RaylSpecialChannel numSim 5 64x4x4x1111.mat');
 
 hybridFull{4} = modelHybridFull;
 mMimo{4} = modelMM;
 hybridSub{4} = modelHybridSub;
 %%%%%%
-load('DataBase/Теория и техника радиосвязи 2022/RaylSpecialChannelflat numSim 5 128x4x4x1111.mat');
+load('DataBase/Теория и техника радиосвязи 2022/RaylSpecialChannel numSim 5 128x4x4x1111.mat');
 
 hybridFull{5} = modelHybridFull;
 mMimo{5} = modelMM;
 hybridSub{5} = modelHybridSub;
 %%%%%%
-load('DataBase/Теория и техника радиосвязи 2022/RaylSpecialChannelflat numSim 5 256x4x4x1111.mat');
+load('DataBase/Теория и техника радиосвязи 2022/RaylSpecialChannel numSim 5 256x4x4x1111.mat');
 
 hybridFull{6} = modelHybridFull;
 mMimo{6} = modelMM;
 hybridSub{6} = modelHybridSub;
+%%%%%%
+load('DataBase/Теория и техника радиосвязи 2022/RaylSpecialChannel numSim 1 512x4x4x1111.mat');
+
+hybridSub{7} = modelHybridSub;
 %% BER
 str0 = 'Mean ';
 fig1 = figure();
@@ -75,7 +79,8 @@ for i = 1:size(hybridFull,2)
     else
         SNRM(i) = snr(1);
     end
-    
+end
+for i = 1:size(hybridSub,2)
     meanBer = mean(hybridSub{i}.simulation.ber,1);
     snr = find(meanBer < level);
     if isempty(snr)
@@ -85,8 +90,13 @@ for i = 1:size(hybridFull,2)
     end
 end
 
+% костыль
+SNRF(7) = SNRF(6);
+SNRM(7) = SNRM(6);
+%
+
 lineWidth = 1.5;
-n = 3:8;
+n = 3:9;
 Nt = 2.^n;
 figure();
 plot(Nt,SNRF,'+-k','LineWidth', lineWidth);
