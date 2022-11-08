@@ -5,7 +5,6 @@ classdef SystemParam
         numRx;              % Кол-во приемных антен всего
         numSTSVec;          % Кол-во независимых потоков данных на одного пользователя / [2 1 3 2]        
         modulation;         % Порядок модуляции        
-%         freqCarrier;        % Частота несущей GHz 
         precoderType;       % Тип прекодера
         combainerType;      % Тип комбинера  
     end    
@@ -22,9 +21,8 @@ classdef SystemParam
         function obj = SystemParam(args)
             arguments
                 args.numUsers = 4;
-                args.numTx = 8;
+                args.numTx = 32;
                 args.modulation = 4;
-                args.freqCarrier = 28e9;
                 args.precoderType = 'ZF';
                 args.combainerType = 'NONE';
             end
