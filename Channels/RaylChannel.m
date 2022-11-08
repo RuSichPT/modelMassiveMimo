@@ -24,9 +24,7 @@ classdef RaylChannel < Channel & matlab.System
             v = 1 / obj.sampleRate;
         end
         function v = get.channel(obj)
-            rng(obj.seed);
-            v = obj.createMuChannel();                               
-            rng('shuffle');
+            v = obj.createMuChannel();
         end
         function v = get.pathDelays(obj)
             v = obj.tau * obj.dt;
@@ -47,7 +45,7 @@ classdef RaylChannel < Channel & matlab.System
     %%
     methods (Access = protected)
         % Создание канала 
-        function channel = createChannel(obj, numRx) 
+        function channel = createChannel(obj,numRx,seed) 
             channel = comm.MIMOChannel(...
                     'SampleRate',                       obj.sampleRate,         ...
                     'PathDelays',                       obj.pathDelays,         ...
@@ -56,6 +54,8 @@ classdef RaylChannel < Channel & matlab.System
                     'SpatialCorrelationSpecification',  'None',                 ... 
                     'NumTransmitAntennas',              obj.numTx,              ...
                     'NumReceiveAntennas',               numRx,                  ...
+                    'RandomStream',                     'mt19937ar with seed',  ...
+                    'Seed',                             seed,               ... 
                     'PathGainsOutputPort',              true);
         end
         
@@ -64,8 +64,10 @@ classdef RaylChannel < Channel & matlab.System
             numUsers = obj.numUsers;
             numRxUsers = obj.numRxUsers;
             muChannel = cell(numUsers,1);
+            seedTmp = obj.seed;
             for i = 1:numUsers
-                muChannel{i} = obj.createChannel(numRxUsers(i));
+                muChannel{i} = obj.createChannel(numRxUsers(i),seedTmp);
+                seedTmp = seedTmp + 1;
             end
         end
         
