@@ -3,8 +3,8 @@ classdef MassiveMimo < matlab.System & matlab.mixin.Copyable
     % RaylSpecialChannel(), RaylChannel(), ChannelForNeuralNet(), StaticChannel()
     
     properties        
-        main = SystemParam();       	% Параметры системы                
-        ofdm = OfdmParam();             % Параметры OFDM
+        main;                           % Параметры системы                
+        ofdm;                           % Параметры OFDM
         downChannel;                    % Нисходящий канал
         simulation = struct(...         % Параметры симуляции
                 "ber",              0,      ...  % Вероятность битовой ошибки
@@ -18,6 +18,8 @@ classdef MassiveMimo < matlab.System & matlab.mixin.Copyable
     %% Constructor, get
     methods
         function obj = MassiveMimo(varargin)
+            obj.main = SystemParam();
+            obj.ofdm = OfdmParam();
             setProperties(obj,nargin,varargin{:})
         end
     end
