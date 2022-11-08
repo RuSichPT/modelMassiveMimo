@@ -1,43 +1,43 @@
 clear;clc;close all;
 addpath('Parameters');
 addpath('Channels');
-load('DataBase/Теория и техника радиосвязи 2022/RaylSpecialChannel numSim 5 8x4x4x1111.mat');
+load('RaylSpecialChannel numSim 5 8x4x4x1111.mat');
 
 hybridFull{1} = modelHybridFull;
 mMimo{1} = modelMM;
 hybridSub{1} = modelHybridSub;
 %%%%%%
-load('DataBase/Теория и техника радиосвязи 2022/RaylSpecialChannel numSim 5 16x4x4x1111.mat');
+load('RaylSpecialChannel numSim 5 16x4x4x1111.mat');
 
 hybridFull{2} = modelHybridFull;
 mMimo{2} = modelMM;
 hybridSub{2} = modelHybridSub;
 %%%%%%
-load('DataBase/Теория и техника радиосвязи 2022/RaylSpecialChannel numSim 5 32x4x4x1111.mat');
+load('RaylSpecialChannel numSim 5 32x4x4x1111.mat');
 
 hybridFull{3} = modelHybridFull;
 mMimo{3} = modelMM;
 hybridSub{3} = modelHybridSub;
 %%%%%%
-load('DataBase/Теория и техника радиосвязи 2022/RaylSpecialChannel numSim 5 64x4x4x1111.mat');
+load('RaylSpecialChannel numSim 5 64x4x4x1111.mat');
 
 hybridFull{4} = modelHybridFull;
 mMimo{4} = modelMM;
 hybridSub{4} = modelHybridSub;
 %%%%%%
-load('DataBase/Теория и техника радиосвязи 2022/RaylSpecialChannel numSim 5 128x4x4x1111.mat');
+load('RaylSpecialChannel numSim 5 128x4x4x1111.mat');
 
 hybridFull{5} = modelHybridFull;
 mMimo{5} = modelMM;
 hybridSub{5} = modelHybridSub;
 %%%%%%
-load('DataBase/Теория и техника радиосвязи 2022/RaylSpecialChannel numSim 5 256x4x4x1111.mat');
+load('RaylSpecialChannel numSim 5 256x4x4x1111.mat');
 
 hybridFull{6} = modelHybridFull;
 mMimo{6} = modelMM;
 hybridSub{6} = modelHybridSub;
 %%%%%%
-load('DataBase/Теория и техника радиосвязи 2022/RaylSpecialChannel numSim 1 512x4x4x1111.mat');
+load('RaylSpecialChannel numSim 1 512x4x4x1111.mat');
 
 hybridSub{7} = modelHybridSub;
 %% BER
@@ -61,7 +61,7 @@ for i = 1:size(hybridFull,2)
     hybridSub{i}.plotMeanBER(lineStyle(i), 1.5, 'SNR', str3, fig3);
 end
 
-%% Общий
+%% Общий BER
 level = 1e-2;
 for i = 1:size(hybridFull,2)
     meanBer = mean(hybridFull{i}.simulation.ber,1);
@@ -130,3 +130,13 @@ for i = 1:size(hybridFull,2)
     hybridSub{i}.plotCapacity('mean',lineStyle(i),1.5,str3,fig3);
 end
 ylim([0 9]);
+%% Общий Capacity
+numTx = 128;
+n = log2(numTx)-2;
+str1 = 'Полностью связанная';
+str2 = 'Цифровая';
+str3 = 'Частично связанная';
+fig1 = hybridFull{n}.plotCapacity('all','--k',2,str1);
+mMimo{n}.plotCapacity('all','k',2,str2,fig1);
+hybridSub{n}.plotCapacity('all','-.k',2,str3,fig1);
+title('');
