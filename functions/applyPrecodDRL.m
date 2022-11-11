@@ -20,8 +20,13 @@ function [digitalData, Fbb, Frf] = applyPrecodDRL(inputData,estimateChannel,numS
     numSTS = size(inputData,3);
     digitalData = zeros(numSC,numOFDM,numSTS);
     
-    load('DataBase/NeuralNetwork/F_rf_I.txt')
-    load('DataBase/NeuralNetwork/F_rf_Q.txt')
+%     load('DataBase/NeuralNetwork/F_rf_I.txt');
+%     load('DataBase/NeuralNetwork/F_rf_Q.txt');
+    load('DataBase/Verification/F_rf_real.txt');
+    load('DataBase/Verification/F_rf_imag.txt');
+    F_rf_I = F_rf_real;
+    F_rf_Q = F_rf_imag;
+    
     Frf = F_rf_I+1i*F_rf_Q;
     Frf = Frf';
     
