@@ -5,10 +5,10 @@ addpath('Channels');
 mimo = MassiveMimo();
 mimo.main.numUsers = 4;
 mimo.main.numTx = 16;
-mimo.main.numRxUsers = [2 2 2 2]; 
+mimo.main.numRxUsers = [4 4 4 4]; 
 mimo.main.numSTSVec = [2 2 2 2];
 mimo.main.modulation = 4;
-mimo.main.precoderType = 'ZF';
+mimo.main.precoderType = 'DIAG';
 %% Создание канала
 channel = RaylSpecialChannel();
 channel.numUsers = mimo.main.numUsers;
