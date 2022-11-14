@@ -13,9 +13,7 @@ classdef StaticChannel < Channel & matlab.System
             obj.seed = randi(1e6);
         end
         function v = get.channel(obj)                        
-            rng(obj.seed);
             v = obj.createMuChannel();                      
-            rng('shuffle');
         end
     end
     %%
@@ -37,10 +35,11 @@ classdef StaticChannel < Channel & matlab.System
         
         % Создание канала 
         function [channel] = createChannel(obj,numRx)
+            s = RandStream('mt19937ar','Seed',obj.seed);
             channel = zeros(obj.numTx, numRx);
             for i = 1:obj.numTx
                 for j = 1:numRx           
-                    channel(i,j) = (randn(1)+1i*randn(1))/sqrt(2);
+                    channel(i,j) = (randn(s,1)+1i*randn(s,1))/sqrt(2);
                 end
             end
         end

@@ -44,6 +44,8 @@ classdef StaticMultipathChannel < StaticLOSChannel
     %%
     methods (Access = protected)
         function channel = createChannel(obj)            
+            s = RandStream('mt19937ar','Seed',obj.seed);
+            
             numUsersLoc = obj.numUsers;
             
             channel = cell(numUsersLoc,1);
@@ -53,29 +55,30 @@ classdef StaticMultipathChannel < StaticLOSChannel
             numScatters = cell(numUsersLoc,1);
             
             power = (10.^(obj.averagePathGains/10));
-            numPath = length(obj.pathDelays);   
+            numPath = length(obj.pathDelays);
+            
 
             for pIdx = 1:numPath
                 Ar = cell(numUsersLoc,1); G = cell(numUsersLoc,1); At = cell(numUsersLoc,1);
                 % H = At*G*Ar.'
                 for uIdx = 1:numUsersLoc
-                    numScatters{uIdx} = randi(obj.maxNumScatters);
+                    numScatters{uIdx} = randi(s,obj.maxNumScatters);
                     % At        
                     if isscalar(obj.posArrayTx)
                         At{uIdx} = ones(1,numScatters{uIdx});
                     else
-                        obj.anglesTx{uIdx} = [360*rand(1,numScatters{uIdx})-180;180*rand(1,numScatters{uIdx})-90];
+                        obj.anglesTx{uIdx} = [360*rand(s,1,numScatters{uIdx})-180;180*rand(s,1,numScatters{uIdx})-90];
                         At{uIdx} = steervec(obj.posArrayTx,obj.anglesTx{uIdx});
                     end
                     % Ar
                     if isscalar(obj.posArrayRx)
                         Ar{uIdx} = ones(1,numScatters{uIdx});
                     else
-                        obj.anglesRx{uIdx} = [360*rand(1,numScatters{uIdx})-180;180*rand(1,numScatters{uIdx})-90];
+                        obj.anglesRx{uIdx} = [360*rand(s,1,numScatters{uIdx})-180;180*rand(s,1,numScatters{uIdx})-90];
                         Ar{uIdx} = steervec(obj.posArrayRx,obj.anglesRx{uIdx});  
                     end
                     % G
-                    g = 1/sqrt(2)*complex(randn(1,numScatters{uIdx}),randn(1,numScatters{uIdx}));
+                    g = 1/sqrt(2)*complex(randn(s,1,numScatters{uIdx}),randn(s,1,numScatters{uIdx}));
                     G{uIdx} = diag(g)*power(pIdx);
 
                     channel{uIdx}(:,:,pIdx) = At{uIdx}*G{uIdx}*Ar{uIdx}.';

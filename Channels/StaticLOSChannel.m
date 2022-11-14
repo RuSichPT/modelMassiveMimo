@@ -19,7 +19,7 @@ classdef StaticLOSChannel < matlab.System
         posArrayTx;     % Позиции элементов решетки
         channel;        % Матрица канала
     end
-    properties(Access = private)
+    properties(Access = protected)
         seed;
     end
     %% Constructor, get         
@@ -60,9 +60,7 @@ classdef StaticLOSChannel < matlab.System
             v = getElementPosition(obj.arrayTx)/obj.lambda;
         end
         function v = get.channel(obj)                        
-            rng(obj.seed);
             v = obj.createChannel();                        
-            rng('shuffle');
         end
     end
     %%
@@ -83,7 +81,8 @@ classdef StaticLOSChannel < matlab.System
         end
         
         function channel = createChannel(obj)
-
+            s = RandStream('mt19937ar','Seed',obj.seed);
+            
             numUsersLoc = obj.numUsers;
             anglesTxLoc = obj.anglesTx;
 
@@ -99,7 +98,7 @@ classdef StaticLOSChannel < matlab.System
                 % Ar
                 Ar{uIdx} = ones(1,numScatters{uIdx});
                 % G
-                g = 1/sqrt(2)*complex(randn(1,numScatters{uIdx}),randn(1,numScatters{uIdx}));
+                g = 1/sqrt(2)*complex(randn(s,1,numScatters{uIdx}),randn(s,1,numScatters{uIdx}));
                 G{uIdx} = diag(g);
 
                 channel{uIdx} = At{uIdx}*G{uIdx}*Ar{uIdx}.';

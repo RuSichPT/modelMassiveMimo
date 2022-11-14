@@ -1,15 +1,23 @@
 clear; clc;
 addpath('..\Parameters');
 addpath('..\Channels');
+addpath('..\DataBase');
 addpath('..\..\modelMassiveMimo');
+
 
 channelParam = ChannelParam();
 static = StaticChannel();
+static.channel{1}()
+static.channel{1}()
 
 channelNN = ChannelForNeuralNet();
 
 LOS = StaticLOSChannel();
+LOS.channel{1}()
+LOS.channel{1}()
 multiChan = StaticMultipathChannel();
+multiChan.channel{1}(:,:,1)
+multiChan.channel{1}(:,:,1)
 
 ofdm = OfdmParam();
 ofdm2 = OfdmParam();
