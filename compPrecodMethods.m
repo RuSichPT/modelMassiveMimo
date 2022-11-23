@@ -1,13 +1,17 @@
 clc;clear;
+addpath('Parameters');
+addpath('Channels')
+rng(122);
 %% Создание моделей
 param = SystemParam();
-param.numTx = 32;
-param.numUsers = 4;
-param.numRx = 4;
-param.numSTSVec = [1 1 1 1];
+param.numTx = 8;
+param.numUsers = 1;
+param.numRxUsers = 4; 
+param.numSTSVec = 2;
 
 channel = RaylSpecialChannel();
 channel.numTx = param.numTx;
+channel.numUsers = param.numUsers;
 channel.numRxUsers = param.numRxUsers;
 
 modelZF = MassiveMimo('main',param,'downChannel',channel);
@@ -28,24 +32,30 @@ maxNumZeroBER = 1;                      % Максимальное кол-во измерений с нулевы
 
 modelMF.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
 modelZF.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
-% modelEBM.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
-% modelRZF.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
+modelEBM.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
+modelRZF.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
 modelDIAG.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
 %% Построение графиков
 str0 = 'Mean ';
-str1 = [str0 num2str(modelMF.main.precoderType) ' ' num2str(modelMF.main.numTx) 'x'  num2str(modelMF.main.numRx) 'x'  num2str(modelMF.main.numSTS)];
-fig = modelMF.plotMeanBER('k', 2, 'SNR', str1);
+fig = figure();
+str1 = [str0 num2str(modelMF.main.precoderType) ' ' num2str(modelMF.main.numTx) 'x'  num2str(modelMF.main.numRx) 'x'...
+    num2str(modelMF.main.numSTS) ' u' num2str(modelMF.main.numUsers)];
+modelMF.plotMeanBER('k', 2, 'SNR', str1, fig);
 
-str2 = [str0 num2str(modelZF.main.precoderType) ' ' num2str(modelZF.main.numTx) 'x'  num2str(modelZF.main.numRx) 'x'  num2str(modelZF.main.numSTS)];
+str2 = [str0 num2str(modelZF.main.precoderType) ' ' num2str(modelZF.main.numTx) 'x'  num2str(modelZF.main.numRx) 'x'...
+    num2str(modelZF.main.numSTS) ' u' num2str(modelZF.main.numUsers)];
 modelZF.plotMeanBER('--k', 2, 'SNR', str2, fig);
 
-% str3 = [str0 num2str(modelEBM.main.precoderType) ' ' num2str(modelEBM.main.numTx) 'x'  num2str(modelEBM.main.numRx) 'x'  num2str(modelEBM.main.numSTS)];
-% modelEBM.plotMeanBER('-.k', 2, 'SNR', str3, fig);
+str3 = [str0 num2str(modelEBM.main.precoderType) ' ' num2str(modelEBM.main.numTx) 'x'  num2str(modelEBM.main.numRx) 'x'...
+    num2str(modelEBM.main.numSTS) ' u' num2str(modelEBM.main.numUsers)];
+modelEBM.plotMeanBER('-.k', 2, 'SNR', str3, fig);
 
-% str4 = [str0 num2str(modelRZF.main.precoderType) ' ' num2str(modelRZF.main.numTx) 'x'  num2str(modelRZF.main.numRx) 'x'  num2str(modelRZF.main.numSTS)];
-% modelRZF.plotMeanBER(':k', 2, 'SNR', str4, fig);
+str4 = [str0 num2str(modelRZF.main.precoderType) ' ' num2str(modelRZF.main.numTx) 'x'  num2str(modelRZF.main.numRx) 'x'...
+    num2str(modelRZF.main.numSTS) ' u' num2str(modelRZF.main.numUsers)];
+modelRZF.plotMeanBER(':k', 2, 'SNR', str4, fig);
 
-str5 = [str0 num2str(modelDIAG.main.precoderType) ' ' num2str(modelDIAG.main.numTx) 'x'  num2str(modelDIAG.main.numRx) 'x'  num2str(modelDIAG.main.numSTS)];
+str5 = [str0 num2str(modelDIAG.main.precoderType) ' ' num2str(modelDIAG.main.numTx) 'x'  num2str(modelDIAG.main.numRx) 'x'...
+    num2str(modelDIAG.main.numSTS) ' u' num2str(modelDIAG.main.numUsers)];
 modelDIAG.plotMeanBER('*-k', 2, 'SNR', str5, fig);
 
 modelMF.downChannel.dispChannel();

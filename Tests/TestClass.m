@@ -1,23 +1,36 @@
 clear; clc;
 addpath('..\Parameters');
 addpath('..\Channels');
-addpath('..\DataBase');
+addpath('..\Precoders');
+addpath('..\DataBase\Verification');
 addpath('..\..\modelMassiveMimo');
 
 
 channelParam = ChannelParam();
 static = StaticChannel();
-static.channel{1}()
-static.channel{1}()
+if static.channel{1}() == static.channel{1}()
+    disp('ok')
+end
+if static.channel{2}() == static.channel{2}()
+    disp('ok')
+end
 
 channelNN = ChannelForNeuralNet();
 
 LOS = StaticLOSChannel();
-LOS.channel{1}()
-LOS.channel{1}()
+if LOS.channel{1}() == LOS.channel{1}()
+    disp('ok')
+end
+if LOS.channel{2}() == LOS.channel{2}()
+    disp('ok')
+end
 multiChan = StaticMultipathChannel();
-multiChan.channel{1}(:,:,1)
-multiChan.channel{1}(:,:,1)
+if multiChan.channel{1}(:,:,1) == multiChan.channel{1}(:,:,1)
+    disp('ok')
+end
+if multiChan.channel{2}(:,:,1) == multiChan.channel{2}(:,:,1)
+    disp('ok')
+end
 
 ofdm = OfdmParam();
 ofdm2 = OfdmParam();
@@ -28,6 +41,9 @@ ofdm.numSubCarriers = 256;
 main = SystemParam();
 main.numTx = 32;
 main1 = SystemParam('modulation', 16);
+
+Hest = zeros(ofdm.numSubCarriers,main.numTx,main.numRx);
+precoder = Precoder('MF',Hest,main);
 
 channel = RaylChannel('numTx',16);
 channel.sampleRate = 20e6;

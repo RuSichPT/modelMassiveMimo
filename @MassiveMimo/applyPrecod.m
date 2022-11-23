@@ -28,7 +28,10 @@ function [outputData, precodWeights, combWeights] = applyPrecod(obj, inputData, 
                 combWeights{uIdx} = 1;
             end
         case {'EBM'}
-            [outputData, precodWeights, combWeights] = applyPrecodEBM(inputData, estimateChannel);
+            [outputData, precodWeights, combWeightsTmp] = applyPrecodEBM(inputData, estimateChannel);
+            for uIdx = 1:obj.main.numUsers
+                combWeights{uIdx} = 1;
+            end
         case {'DIAG'}
             if (obj.main.numUsers > 1)
                 [outputData, precodWeights, combWeights] = applyPrecodDiagMU(inputData, estimateChannel, obj.main.numSTSVec);

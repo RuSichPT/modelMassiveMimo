@@ -1,9 +1,11 @@
 clc;clear;
 addpath('Parameters');
 addpath('Channels');
+addpath('DataBase/Verification');
 %% Создание моделей
 hmimo = HybridMassiveMimo();
 hmimo.main.numUsers = 1;
+hmimo.main.modulation = 16;
 hmimo.main.numTx = 16;
 hmimo.main.numRxUsers = [4]; 
 hmimo.main.numSTSVec = [4];
@@ -11,6 +13,7 @@ hmimo.main.numSTSVec = [4];
 mimo = MassiveMimo();
 mimo.main.numUsers = hmimo.main.numUsers;
 mimo.main.numTx = hmimo.main.numTx;
+mimo.main.modulation = hmimo.main.modulation;
 mimo.main.numRxUsers = hmimo.main.numRxUsers; 
 mimo.main.numSTSVec = hmimo.main.numSTSVec;
 

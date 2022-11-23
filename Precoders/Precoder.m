@@ -1,51 +1,46 @@
 classdef Precoder < handle
     
-    properties
+    properties(SetAccess = private)
         type;               % Тип прекодера
         F;                  % Коэффициенты прекодирования 
-    end
-    
-    properties(Access = private)
-        numSTSVec;          % Кол-во независимых потоков данных на одного пользователя / [2 1 3 2] 
-        numUsers;           % Кол-во пользователей
-        numSC;              % Кол-во поднессущих
-        numTx;              % Кол-во передающих антен
-        numSTS;             % Кол-во потоков данных
-        numOFDM;            % Кол-во символов OFDM от каждой антенны
+        system;             % Системные параметры
     end
     
     %% Constructor, get
     methods
-        % Hest - оценка канала размерностью [numSC,numTx,numSTS]
-        function obj = Precoder(type,numSTSVec,Hest)
-            obj.numSTSVec = numSTSVec;
-            obj.numUsers = length(numSTSVec);
+        % Hest - оценка канала размерностью [numSC,numTx,numRx]
+        function obj = Precoder(type,Hest,system)
             obj.type = type;
-            obj.numSC = size(Hest,1);
-            obj.numTx = size(Hest,2);
-            obj.numSTS = size(Hest,3);
-            obj.calcPrecodWeights(Hest);
+            obj.system = system;
+            obj.F = obj.calcPrecodWeights(Hest);
         end    
     end
     %%
     methods
         function outData = apply(obj,inData)            
             % inData - входные данные размерностью [numSC,numOFDM,numSTS]
-            % outData - выходные данные размерностью [numSC,numOFDM,numTx]              
-            obj.numOFDM = size(inData, 2);
-            outData = zeros(obj.numSC, obj.numOFDM, obj.numTx);
-
-            for i = 1:obj.numSC 
-                outData(i,:,:) = squeeze(inData(i,:,:))*squeeze(obj.F(i,:,:));       
+            % outData - выходные данные размерностью [numSC,numOFDM,numTx]
+            numSC = size(inData,1);     % кол-во поднессущих
+            numOFDM = size(inData,2);   % кол-во символов OFDM от каждой антенны
+            
+            outData = zeros(numSC,numOFDM,size(obj.F,3));
+            
+            % Кодируем
+            for i = 1:numSC
+                sqF = reshape(obj.F(i,:,:),size(obj.F,2),size(obj.F,3));
+                sqData = reshape(inData(i,:,:),size(inData,2),size(inData,3));
+                outData(i,:,:) = sqData*sqF;       
             end             
         end
     end
     %%
-    methods (Access = private)
-        function calcPrecodWeights(obj,Hest)
-            precodWeights = zeros(obj.numSC, obj.numSTS, obj.numTx);
-            for i = 1:obj.numSC 
-                sqHest = squeeze(Hest(i,:,:));
+    methods (Access = protected)
+        function precodWeights = calcPrecodWeights(obj,Hest)
+            numSC = size(Hest,1);     % кол-во поднессущих
+            precodWeights = getSizePrecodWeights(obj.type,numSC,obj.system);
+                        
+            for i = 1:numSC 
+                sqHest = reshape(Hest(i,:,:),size(Hest(i,:,:),2),size(Hest(i,:,:),3));
                 switch obj.type
                     case {'MF'}
                         precodWeights(i,:,:) = getMF(sqHest);
@@ -55,19 +50,19 @@ classdef Precoder < handle
                         precodWeights(i,:,:) = getRZF(sqHest,0,0.01);
                     case {'EBM'}
                         precodWeights(i,:,:) = getEBM(sqHest);
-%                     case {'DIAG'}
-%                         if (obj.numUsers > 1)
-%                             precodWeights(i,:,:) = getDIAG_MU(Hest);
-%                         else
-%                             precodWeights(i,:,:) = getDIAG_SU(Hest);
-%                         end
+                    case {'DIAG'}
+                        if (obj.system.numUsers == 1)
+                            precodWeights(i,:,:) = getDIAG_SU(sqHest);
+                        else
+                            numRxVec = obj.system.numSTSVec * obj.system.numRx/obj.system.numSTS;
+                            precodWeights(i,:,:) = getDIAG_MU(sqHest,obj.system.numSTSVec,numRxVec);
+                        end
                 end
             end
-            obj.F = precodWeights;
         end
     end
 end
-% Hest - оценка канала размерностью [numTx,numSTS]
+% Hest - оценка канала размерностью [numTx,numRx]
 function precodWeights = getMF(Hest)
     precodWeights = Hest(:,:)'; 
 end
@@ -81,21 +76,35 @@ end
 function precodWeights = getEBM(Hest)
     numSTS = size(Hest,2);
     [precodWeights, ~] = diagbfweights(Hest);
-    precodWeights = precodWeights(:,1:numSTS,:);
+    precodWeights = precodWeights(1:numSTS,:);
 end
-% % Hest - оценка канала размерностью Cell{1:numUsers}[numTx,numSTS]
-% function precodWeights = getDIAG_MU(HestCell)
-%     [precodWeights, ~] = blkdiagbfweights(HestCell, numSTSVec);
-% end
-% function converter
-%     for uIdx = 1:numUsers
-%         rxU = numRxVec(uIdx);
-%         rxIdx = sum(numRxVec(1:(uIdx-1)))+(1:rxU);
-% 
-%         if (ismatrix(estimateChannel(iSC,:,rxIdx)))
-%             estimateChannelCell{uIdx} = estimateChannel(iSC,:,rxIdx).'; 
-%         else
-%             estimateChannelCell{uIdx} = squeeze(estimateChannel(iSC,:,rxIdx)); 
-%         end
-%     end
-% end
+function precodWeights = getDIAG_SU(Hest)
+    [precodWeights, ~] = diagbfweights(Hest);
+end
+function precodWeights = getDIAG_MU(Hest,numSTSVec,numRxVec)
+    numUsers = size(numSTSVec,2);
+    HestCell = converterToCell(numUsers,numRxVec,Hest);
+    [precodWeights, ~] = blkdiagbfweights(HestCell,numSTSVec);
+end
+%%
+function HestCell = converterToCell(numUsers,numRxVec,Hest)
+    HestCell = cell(1,numUsers);
+    for uIdx = 1:numUsers
+        rxU = numRxVec(uIdx);
+        rxIdx = sum(numRxVec(1:(uIdx-1)))+(1:rxU);
+
+        HestCell{uIdx} = Hest(:,rxIdx);
+    end
+end
+function precodWeights = getSizePrecodWeights(type,numSC,system)
+    
+    if type == "DIAG"
+        if (system.numUsers == 1)
+            precodWeights = zeros(numSC,system.numSTS,system.numSTS);
+        else
+            precodWeights = zeros(numSC,system.numSTS,system.numTx);
+        end
+    else                           
+        precodWeights = zeros(numSC,system.numRx,system.numTx); 
+    end
+end
