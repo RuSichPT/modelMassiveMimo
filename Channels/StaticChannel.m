@@ -12,8 +12,9 @@ classdef StaticChannel < Channel & matlab.System
             setProperties(obj,nargin,varargin{:})
             obj.seed = randi(1e6);
         end
-        function v = get.channel(obj)                        
-            v = obj.createMuChannel();                      
+        function v = get.channel(obj)
+            s = RandStream('mt19937ar','Seed',obj.seed);
+            v = obj.createMuChannel(s);                      
         end
     end
     %%
@@ -34,8 +35,7 @@ classdef StaticChannel < Channel & matlab.System
         end      
         
         % Создание канала 
-        function [channel] = createChannel(obj,numRx)
-            s = RandStream('mt19937ar','Seed',obj.seed);
+        function [channel] = createChannel(obj,numRx,s)
             channel = zeros(obj.numTx, numRx);
             for i = 1:obj.numTx
                 for j = 1:numRx           
@@ -45,12 +45,12 @@ classdef StaticChannel < Channel & matlab.System
         end
         
         % Создание многопользовательского канала 
-        function muChannel = createMuChannel(obj)
+        function muChannel = createMuChannel(obj,s)
             numUsers = obj.numUsers;
             numRxUsers = obj.numRxUsers;
             muChannel = cell(numUsers,1);
             for i = 1:numUsers
-                muChannel{i} = obj.createChannel(numRxUsers(i));
+                muChannel{i} = obj.createChannel(numRxUsers(i),s);
             end
         end
     end

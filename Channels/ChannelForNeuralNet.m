@@ -9,8 +9,8 @@ classdef ChannelForNeuralNet < Channel & matlab.System
             setProperties(obj,nargin,varargin{:})
 %             load('DataBase/NeuralNetwork/H_I.txt'); %pwd
 %             load('DataBase/NeuralNetwork/H_Q.txt');
-            load('Verification/H_real.txt', 'H_real');
-            load('Verification/H_imag.txt', 'H_imag');
+            load('H_real.txt', 'H_real');
+            load('H_imag.txt', 'H_imag');
             H_I = H_real;
             H_Q = H_imag;
             
