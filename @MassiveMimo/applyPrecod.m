@@ -33,7 +33,10 @@ function [outputData, precodWeights, combWeights] = applyPrecod(obj, inputData, 
             if (obj.main.numUsers > 1)
                 [outputData, precodWeights, combWeights] = applyPrecodDiagMU(inputData, estimateChannel, obj.main.numSTSVec);
             else
-                [outputData, precodWeights, combWeights] = applyPrecodDiagSU(inputData, estimateChannel);
+                [outputData, precodWeights, combWeightsTmp] = applyPrecodDiagSU(inputData, estimateChannel);
+                for uIdx = 1:obj.main.numUsers
+                    combWeights{uIdx} = combWeightsTmp;
+                end
             end
         case {'TPE'}
             [outputData, precodWeights] = applyPrecodTPE(inputData, estimateChannel, 3);

@@ -19,7 +19,7 @@ function [outputData] = applyComb(obj, inputData, combWeights)
             outputData = inputData;
         case {'DIAG'}
             for iSC = 1:numSC
-                outputData(iSC,:,:) = squeeze(inputData(iSC,:,:))*squeeze(combWeights(:,:,iSC));
+                outputData(iSC,:,:) = squeeze(inputData(iSC,:,:))*squeeze(combWeights(iSC,:,:));
             end
         otherwise
             error('Нет такого типа прекодера!');
