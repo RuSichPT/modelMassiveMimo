@@ -27,7 +27,6 @@ classdef MassiveMimo < matlab.System & matlab.mixin.Copyable
     methods
         [preambleOFDM, ltfSC]                    = generatePreambleOFDM(obj, numSTS, varargin)
         [ltfTx, ltfSC]                           = generatePreamble(obj, numSTS)
-        [H_estim]                                = channelSounding(obj, snr)
         [H_estim]                                = estimateUplink(obj, snr)
         [outputData]                             = passChannel(obj, inputData, channel)        
         [estimH]                                 = channelEstimate(obj, rxData, ltfSC, numSTS)  

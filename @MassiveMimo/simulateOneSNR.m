@@ -16,7 +16,12 @@ function [numErrors,numBits,SINR_dB] = simulateOneSNR(obj,snr)
     numSubCarr = obj.ofdm.numSubCarriers;
     downChann = obj.downChannel;
     %% Зондирование канала
-    H_estim_zond = obj.channelSounding(snr);
+    if (obj.main.precoderType == "DIAG") && (numUsers == 1)
+        soundAllChannels = 0; 
+    else
+        soundAllChannels = 1; % Зондированеи всех каналов 
+    end
+    H_estim_zond = channelSounding(obj,snr,soundAllChannels);
     %% Формируем данные
     numBits = bps * numSymbOFDM * numSubCarr;
     inpData = randi([0 1], numBits, numSTS);
@@ -76,7 +81,45 @@ function [numErrors,numBits,SINR_dB] = simulateOneSNR(obj,snr)
     outData = cat(2,outData{:});
     numErrors = obj.calculateErrors(inpData, outData); 
 end
+function [H_estim, H_estimUsers] = channelSounding(o,snr,soundAllChannels)
+    % Переопределение переменных
+    numTx = o.main.numTx;
+    numSTS = o.main.numSTS;
+    numUsers = o.main.numUsers;
+    lenFFT = o.ofdm.lengthFFT;
+    cycPrefLen = o.ofdm.cyclicPrefixLength;
+    nullCarrInd = o.ofdm.nullCarrierIndices;
+    downChan = o.downChannel; 
+    %% Формируем преамбулу
+    if soundAllChannels
+        numSTS = numTx; % Гнерируем преамбулу по всем каналам
+        [preamble, ltfSC] = o.generatePreamble(numSTS);
+    else
+        [preambleSTS, ltfSC] = o.generatePreamble(numSTS);
 
+        % Повторяем данные на каждую антенну
+        expFactorTx = numTx/numSTS;        
+        preamble = zeros(size(preambleSTS,1),size(preambleSTS,2),numTx);
+        for i = 1:numSTS
+            preamble(:,:,(i-1)*expFactorTx+(1:expFactorTx)) = repmat(preambleSTS(:,:,i),1,1,expFactorTx);
+        end
+    end
+    %% Модулятор OFDM  
+    preambleOFDM = ofdmmod(preamble,lenFFT,cycPrefLen,nullCarrInd);
+    %% Прохождение канала
+    channelPreamble = downChan.pass(preambleOFDM);
+    H_estimUsers = cell(numUsers,1);
+    for uIdx = 1:numUsers
+        %% Собственный шум
+        noisePreamble = awgn(channelPreamble{uIdx,:},snr,'measured');
+        %% Демодулятор OFDM
+        outPreamble = ofdmdemod(noisePreamble,lenFFT,cycPrefLen,cycPrefLen,nullCarrInd);
+        %% Оценка канала  
+        H_estimUsers{uIdx} = o.channelEstimate(outPreamble,ltfSC,numSTS);
+    end
+    H_estim = cat(3,H_estimUsers{:});
+end
+%%
 function newInData = repeatDataSC(inData,numRx,numSTS)
     newInData = zeros(size(inData,1),size(inData,2),numRx);
     

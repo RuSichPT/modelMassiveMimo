@@ -25,6 +25,12 @@ classdef Precoder < handle
             
             outData = zeros(numSC,numOFDM,size(obj.F,3));
             
+            if size(obj.F,2) ~= size(inData,3)
+                str = ['Не совпадают размерности данных и прекодирующих коэффициентов '...
+                    num2str(size(obj.F,2)) '!=' num2str(size(inData,3))];
+                error(str);
+            end
+            
             % Кодируем
             for i = 1:numSC
                 sqF = reshape(obj.F(i,:,:),size(obj.F,2),size(obj.F,3));
@@ -37,27 +43,29 @@ classdef Precoder < handle
     methods (Access = protected)
         function precodWeights = calcPrecodWeights(obj,Hest)
             numSC = size(Hest,1);     % кол-во поднессущих
-            precodWeights = getSizePrecodWeights(obj.type,numSC,obj.system);
+            precodWeights = [];
                         
             for i = 1:numSC 
                 sqHest = reshape(Hest(i,:,:),size(Hest(i,:,:),2),size(Hest(i,:,:),3));
                 switch obj.type
                     case {'MF'}
-                        precodWeights(i,:,:) = getMF(sqHest);
+                        f = getMF(sqHest);
                     case {'ZF'}
-                        precodWeights(i,:,:) = getZF(sqHest);
+                        f = getZF(sqHest);
                     case {'RZF'}
-                        precodWeights(i,:,:) = getRZF(sqHest,0,0.01);
+                        f = getRZF(sqHest,0,0.01);
                     case {'EBM'}
-                        precodWeights(i,:,:) = getEBM(sqHest);
+                        f = getEBM(sqHest);
                     case {'DIAG'}
                         if (obj.system.numUsers == 1)
-                            precodWeights(i,:,:) = getDIAG_SU(sqHest);
+                            f = getDIAG_SU(sqHest);
                         else
                             numRxVec = obj.system.numSTSVec * obj.system.numRx/obj.system.numSTS;
-                            precodWeights(i,:,:) = getDIAG_MU(sqHest,obj.system.numSTSVec,numRxVec);
+                            f = getDIAG_MU(sqHest,obj.system.numSTSVec,numRxVec);
                         end
                 end
+                precodWeightsTmp(1,:,:) = f;
+                precodWeights = cat(1,precodWeights,precodWeightsTmp);
             end
         end
     end
@@ -94,17 +102,5 @@ function HestCell = converterToCell(numUsers,numRxVec,Hest)
         rxIdx = sum(numRxVec(1:(uIdx-1)))+(1:rxU);
 
         HestCell{uIdx} = Hest(:,rxIdx);
-    end
-end
-function precodWeights = getSizePrecodWeights(type,numSC,system)
-    
-    if type == "DIAG"
-        if (system.numUsers == 1)
-            precodWeights = zeros(numSC,system.numSTS,system.numSTS);
-        else
-            precodWeights = zeros(numSC,system.numSTS,system.numTx);
-        end
-    else                           
-        precodWeights = zeros(numSC,system.numRx,system.numTx); 
     end
 end
