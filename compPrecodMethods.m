@@ -9,7 +9,7 @@ param.numUsers = 1;
 param.numRxUsers = 4; 
 param.numSTSVec = 2;
 
-channel = RaylSpecialChannel();
+channel = StaticChannel(); % StaticChannel % RaylSpecialChannel
 channel.numTx = param.numTx;
 channel.numUsers = param.numUsers;
 channel.numRxUsers = param.numRxUsers;

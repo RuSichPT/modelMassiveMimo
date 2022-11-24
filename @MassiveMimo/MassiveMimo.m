@@ -51,4 +51,3 @@ classdef MassiveMimo < matlab.System & matlab.mixin.Copyable
 
     end
 end
-

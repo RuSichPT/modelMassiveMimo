@@ -33,7 +33,8 @@ function [numErrors,numBits,SINR_dB] = simulateOneSNR(obj,snr)
     inpModData = cat(2, preambula, inpModData);
     %% Повторяем данные на каждую антенну
     if (precoderType ~= "DIAG") && (numRx ~= numSTS)
-        inpModData = repeatDataSC(inpModData,numRx,numSTS);
+        expFactorRx = numRx/numSTS;
+        inpModData = repeatDataSC(inpModData,numSTS,expFactorRx);
     end
     %% Прекодирование
 %     [precodData, precodWeights, combWeights] = obj.applyPrecod(inpModData, H_estim_zond);
@@ -44,7 +45,8 @@ function [numErrors,numBits,SINR_dB] = simulateOneSNR(obj,snr)
     dataOFDM = ofdmmod(precodData, lenFFT, cycPrefLen, nullCarrInd);
     %% Повторяем данные на каждую антенну (можно и до OFDM - не влияет)
     if (precoderType == "DIAG") && (numUsers == 1)
-        dataOFDM = repeatData(dataOFDM,numTx,numSTS);
+        expFactorTx = numTx/numSTS;
+        dataOFDM = repeatData(dataOFDM,numSTS,expFactorTx);
     end
     %% Прохождение канала
     channelData = downChann.pass(dataOFDM);
@@ -120,19 +122,17 @@ function [H_estim, H_estimUsers] = channelSounding(obj,snr,soundAllChannels)
     H_estim = cat(3,H_estimUsers{:});
 end
 %%
-function newInData = repeatDataSC(inData,numRx,numSTS)
-    newInData = zeros(size(inData,1),size(inData,2),numRx);
+function newInData = repeatDataSC(inData,numSTS,expFactor)
+    newInData = zeros(size(inData,1),size(inData,2),numSTS*expFactor);
     
-    expFactorRx = numRx/numSTS;
     for i = 1:numSTS
-        newInData(:,:,(i-1)*expFactorRx+(1:expFactorRx)) = repmat(inData(:,:,i),1,1,expFactorRx);
+        newInData(:,:,(i-1)*expFactor+(1:expFactor)) = repmat(inData(:,:,i),1,1,expFactor);
     end
 end
-function newInData = repeatData(inData,numTx,numSTS)
-    newInData = zeros(size(inData,1),numTx);
+function newInData = repeatData(inData,numSTS,expFactor)
+    newInData = zeros(size(inData,1),numSTS*expFactor);
     
-    expFactorTx = numTx/numSTS;
     for i = 1:numSTS
-        newInData(:,(i-1)*expFactorTx+(1:expFactorTx)) = repmat(inData(:,i),1,expFactorTx);
+        newInData(:,(i-1)*expFactor+(1:expFactor)) = repmat(inData(:,i),1,expFactor);
     end
 end
