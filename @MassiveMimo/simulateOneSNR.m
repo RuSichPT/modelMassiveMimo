@@ -81,21 +81,21 @@ function [numErrors,numBits,SINR_dB] = simulateOneSNR(obj,snr)
     outData = cat(2,outData{:});
     numErrors = obj.calculateErrors(inpData, outData); 
 end
-function [H_estim, H_estimUsers] = channelSounding(o,snr,soundAllChannels)
+function [H_estim, H_estimUsers] = channelSounding(obj,snr,soundAllChannels)
     % Переопределение переменных
-    numTx = o.main.numTx;
-    numSTS = o.main.numSTS;
-    numUsers = o.main.numUsers;
-    lenFFT = o.ofdm.lengthFFT;
-    cycPrefLen = o.ofdm.cyclicPrefixLength;
-    nullCarrInd = o.ofdm.nullCarrierIndices;
-    downChan = o.downChannel; 
+    numTx = obj.main.numTx;
+    numSTS = obj.main.numSTS;
+    numUsers = obj.main.numUsers;
+    lenFFT = obj.ofdm.lengthFFT;
+    cycPrefLen = obj.ofdm.cyclicPrefixLength;
+    nullCarrInd = obj.ofdm.nullCarrierIndices;
+    downChan = obj.downChannel; 
     %% Формируем преамбулу
     if soundAllChannels
         numSTS = numTx; % Гнерируем преамбулу по всем каналам
-        [preamble, ltfSC] = o.generatePreamble(numSTS);
+        [preamble, ltfSC] = obj.generatePreamble(numSTS);
     else
-        [preambleSTS, ltfSC] = o.generatePreamble(numSTS);
+        [preambleSTS, ltfSC] = obj.generatePreamble(numSTS);
 
         % Повторяем данные на каждую антенну
         expFactorTx = numTx/numSTS;        
@@ -115,7 +115,7 @@ function [H_estim, H_estimUsers] = channelSounding(o,snr,soundAllChannels)
         %% Демодулятор OFDM
         outPreamble = ofdmdemod(noisePreamble,lenFFT,cycPrefLen,cycPrefLen,nullCarrInd);
         %% Оценка канала  
-        H_estimUsers{uIdx} = o.channelEstimate(outPreamble,ltfSC,numSTS);
+        H_estimUsers{uIdx} = obj.channelEstimate(outPreamble,ltfSC,numSTS);
     end
     H_estim = cat(3,H_estimUsers{:});
 end
