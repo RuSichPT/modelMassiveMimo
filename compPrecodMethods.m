@@ -8,6 +8,7 @@ param.numTx = 8;
 param.numUsers = 1;
 param.numRxUsers = 4; 
 param.numSTSVec = 2;
+param.modulation = 4;
 
 channel = StaticChannel(); % StaticChannel % RaylSpecialChannel
 channel.numTx = param.numTx;
