@@ -30,7 +30,6 @@ classdef MassiveMimo < matlab.System & matlab.mixin.Copyable
         [H_estim]                                = estimateUplink(obj, snr)
         [outputData]                             = passChannel(obj, inputData, channel)        
         [estimH]                                 = channelEstimate(obj, rxData, ltfSC, numSTS)  
-        [outputData, precodWeights, combWeights] = applyPrecod(obj, inputData, estimateChannel)
         [outputData]                             = applyComb(obj, inputData, combWeights)
         [outputData]                             = equalizerZFnumSC(obj, inputData, H_estim)         
         [numErrors]                              = calculateErrors(obj, inpData, outData)     

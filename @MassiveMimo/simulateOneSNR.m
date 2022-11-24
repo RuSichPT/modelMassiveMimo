@@ -37,8 +37,6 @@ function [numErrors,numBits,SINR_dB] = simulateOneSNR(obj,snr)
         inpModData = repeatDataSC(inpModData,numSTS,expFactorRx);
     end
     %% Прекодирование
-%     [precodData, precodWeights, combWeights] = obj.applyPrecod(inpModData, H_estim_zond);
-%     obj.F = precodWeights;
     precoder = Precoder(precoderType,H_estim_zond,obj.main);
     precodData = precoder.apply(inpModData);
     %% Модулятор OFDM
