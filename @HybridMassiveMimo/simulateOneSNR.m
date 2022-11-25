@@ -1,12 +1,13 @@
 function [numErrors,numBits,SINR_dB] = simulateOneSNR(obj,snr)
+    addpath('Precoders');
     % Переопределение переменных
-    numTx = obj.main.numTx;
     numSTS = obj.main.numSTS;
     numRF = obj.numRF;
     numSTSVec = obj.main.numSTSVec;
     hybridType = obj.hybridType; 
     modulation = obj.main.modulation;
     numUsers = obj.main.numUsers;
+    precoderType = obj.main.precoderType;
     bps = obj.main.bps;
     lenFFT = obj.ofdm.lengthFFT;
     cycPrefLen = obj.ofdm.cyclicPrefixLength;
@@ -15,7 +16,8 @@ function [numErrors,numBits,SINR_dB] = simulateOneSNR(obj,snr)
     numSubCarr = obj.ofdm.numSubCarriers;
     downChann = obj.downChannel;
     %% Зондирование канала
-    [~, H_estim_zond] = obj.channelSounding(snr);
+    soundAllChannels = 1; % Зондированеи всех каналов     
+    [~,HestimZondCell] = obj.channelSounding(snr,soundAllChannels);
     %% Формируем данные
     numBits = bps * numSymbOFDM * numSubCarr;
     inpData = randi([0 1], numBits, numSTS);
@@ -26,22 +28,12 @@ function [numErrors,numBits,SINR_dB] = simulateOneSNR(obj,snr)
     [preambula, ltfSC] = obj.generatePreamble(numSTS);
     inpModData = cat(2, preambula, inpModData);
     %% Цифровое прекодирование BB beamforming
-    [precodData, Frf] = obj.applyPrecod(inpModData, H_estim_zond);
-    obj.Frf = Frf;
+    precoder = HybridPrecoder(precoderType,obj.main,HestimZondCell,hybridType);
+    precodData = precoder.applyFbb(inpModData);
     %% Модулятор OFDM  
     dataOFDMbb = ofdmmod(precodData, lenFFT, cycPrefLen, nullCarrInd);  
     %% Аналоговое прекодирование RF beamforming: Apply Frf to the digital signal
-    %   Each antenna element is connected to each data stream
-    if (hybridType == "sub")
-        subNumTx = numTx/numRF;
-        subNumSTS = numSTS/numRF;
-        tmpFrf = cell(1,numRF);
-        for i = 1:numRF
-            tmpFrf{i} = Frf(1+(i-1)*subNumSTS:i*subNumSTS, 1+(i-1)*subNumTx:i*subNumTx);
-        end
-        Frf = blkdiag(tmpFrf{:});
-    end
-    dataOFDMrf = dataOFDMbb*Frf;
+    dataOFDMrf = precoder.applyFrf(dataOFDMbb);
     %% Прохождение канала
     channelData = downChann.pass(dataOFDMrf);
     %%

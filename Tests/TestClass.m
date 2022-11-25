@@ -42,8 +42,12 @@ main = SystemParam();
 main.numTx = 32;
 main1 = SystemParam('modulation', 16);
 
-Hest = zeros(ofdm.numSubCarriers,main.numTx,main.numRx);
-precoder = Precoder('MF',Hest,main);
+HestCell = cell(main.numUsers,1);
+for i = 1:main.numUsers
+    HestCell{i} = randn(ofdm.numSubCarriers,main.numTx,main.numRxUsers(i));
+end
+digPrecoder = DigitalPrecoder('DIAG',main,HestCell);
+hybPrecoder = HybridPrecoder('JSDM',main,HestCell,'full');
 
 channel = RaylChannel('numTx',16);
 channel.sampleRate = 20e6;

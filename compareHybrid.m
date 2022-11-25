@@ -1,29 +1,32 @@
 clc;clear;%close all;
 addpath('Parameters');
 addpath('Channels');
-%% Создание канала
 rng(67)
-numRows = 4;
-numColumns = 4;
+% numRows = 4;
+% numColumns = 4;
 % anglesTx = {[2;1]; [91;-1]; [-85;0]; [179;3];};  %[azimuth;elevation]
 % channel = StaticLOSChannel('anglesTx',anglesTx,'numRows',numRows,'numColumns',numColumns);
 % channel = StaticMultipathChannel('numRows',numRows,'numColumns',numColumns);
 % channel.averagePathGains = 0;
 % channel.tau = 0;
-% channel = StaticChannel();
-% channel.numTx = 16;
-% channel = RaylChannel('averagePathGains',0,'tau',0);
-channel = RaylSpecialChannel();
-channel.averagePathGains = 0;
-channel.tau = 0;
-%% Создание модели
-hmimo = HybridMassiveMimo();
-hmimo.main.numTx = channel.numTx;
-hmimo.downChannel = channel;
-mimo = MassiveMimo();
-mimo.main.numTx = channel.numTx;
-mimo.downChannel = channel;
+%% Создание Параметров
+param = SystemParam();
+param.numTx = 16;
+param.numUsers = 2;
+param.numRxUsers = [4 4]; 
+param.numSTSVec = [2 2];
+param.modulation = 4;
+%% Создание канала
+channel = StaticChannel(); % StaticChannel % RaylSpecialChannel
+channel.numTx = param.numTx;
+channel.numUsers = param.numUsers;
+channel.numRxUsers = param.numRxUsers;
+%% Создание моделей
+hmimo = HybridMassiveMimo('main',param,'downChannel',channel);
+mimo = MassiveMimo('main',param,'downChannel',channel);
 mimo.main.precoderType = 'DIAG';
+hmimo.main.precoderType = 'JSDM';
+hmimo.hybridType = 'full';
 %% Симуляция
 SNR = 0:35;                             % Диапазон SNR 
 minNumErrs = 100;                       % Порог ошибок для цикла 

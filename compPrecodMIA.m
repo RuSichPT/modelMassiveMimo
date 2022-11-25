@@ -2,7 +2,7 @@ clc;clear;
 addpath('Parameters');
 addpath('Channels')
 rng(122);
-%% Создание моделей
+%% Создание параметров
 param = SystemParam();
 param.numTx = 8;
 param.numUsers = 1;
@@ -10,11 +10,13 @@ param.numRxUsers = 4;
 param.numSTSVec = 2;
 param.modulation = 4;
 
+%% Создание канала
 channel = StaticChannel(); % StaticChannel % RaylSpecialChannel
 channel.numTx = param.numTx;
 channel.numUsers = param.numUsers;
 channel.numRxUsers = param.numRxUsers;
 
+%% Создание моделей
 modelZF = MassiveMimo('main',param,'downChannel',channel);
 modelTPE = MassiveMimo('main',param,'downChannel',channel);
 modelNSA = MassiveMimo('main',param,'downChannel',channel);
