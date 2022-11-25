@@ -1,12 +1,12 @@
 function figObj = plotESD(masIQ, sampleRate_Hz)
 
-   % Определяем размерность IQ_mas:
+   % РћРїСЂРµРґРµР»СЏРµРј СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ IQ_mas:
    dims = size(masIQ);
    if (length(dims) == 1)
       dims = [dims 1];
    end
   
-   % Определяем, сколько точек рисовать
+   % РћРїСЂРµРґРµР»СЏРµРј, СЃРєРѕР»СЊРєРѕ С‚РѕС‡РµРє СЂРёСЃРѕРІР°С‚СЊ
    if (2^nextpow2(dims(1)) == dims(1))
       Nfft = dims(1);
    else
@@ -20,9 +20,8 @@ function figObj = plotESD(masIQ, sampleRate_Hz)
     freq = (-Nfft/2 : 1 : Nfft/2-1)'/Nfft*sampleRate_Hz/1000;   
     plot(freq, ESD);
     
-    title('Спектральная плотность энергии');
+    title('РЎРїРµРєС‚СЂР°Р»СЊРЅР°СЏ РїР»РѕС‚РЅРѕСЃС‚СЊ СЌРЅРµСЂРіРёРё');
     grid on;
-    xlabel('\deltaf, кГц');
-    ylabel('{|S(\omega)|}^2_{норм}, дБ');
+    xlabel('\deltaf, РєР“С†');
+    ylabel('{|S(\omega)|}^2_{РЅРѕСЂРј}, РґР‘');
 end
-

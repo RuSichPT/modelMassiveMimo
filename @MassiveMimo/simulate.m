@@ -10,7 +10,6 @@ function simulate(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation)
     checkChannel(obj);
     
     coefConfInt = obj.simulation.coefConfInterval;
-    numSTS = obj.main.numSTS;
     numUsers = obj.main.numUsers;
     
     numZeroBER = 0;
@@ -38,22 +37,9 @@ function simulate(obj, rangeSNR, maxNumZeroBER, minNumErrs, maxNumSimulation)
                 condition = max(((lenConfInterval > maxConfidenceInterval)|(numErrors < minNumErrs)));
                 
                 % Capacity
-%                 Hcell = obj.downChannel.channel;
-%                 for uIdx = 1:numUsers
-%                     Hcell{uIdx} = Hcell{uIdx}';
-%                 end
-%                 if class(obj) == "HybridMassiveMimo"
-% %                     Frf = obj.Frf';
-% %                     for uIdx = 1:numUsers
-% %                         Hcell{uIdx} = Hcell{uIdx}*Frf; % Heff
-% %                     end
-%                 end
-%                 if isscalar(obj.downChannel.tau) 
-                    for uIdx = 1:numUsers
-                        capacity(indSim+1,uIdx) = mimoCapacitySINR(SINR_dB(uIdx));
-                    end
-%                 end
-
+                for uIdx = 1:numUsers
+                    capacity(indSim+1,uIdx) = mimoCapacitySINR(SINR_dB(uIdx));
+                end
                 indSim = indSim + 1;
             end
             obj.simulation.ber(:,indSNR) = berconf;
@@ -90,4 +76,10 @@ function checkChannel(obj)
     if obj.downChannel.numUsers ~= obj.main.numUsers
         error('Количество numRxUsers в модели и в канале не совпадает');
     end
+end
+function C = mimoCapacitySINR(SINR_dB)
+    % SINR - в дБ
+    SINR = 10^(SINR_dB/10);
+
+    C = log2(1+SINR);
 end

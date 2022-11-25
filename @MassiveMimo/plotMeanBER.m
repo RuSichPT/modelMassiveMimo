@@ -1,11 +1,10 @@
 function [figObj] = plotMeanBER(obj, lineStyle, lineWidth, flagSNR, legendStr, varargin)
-
     % lineStyle - цвет графика, lineWidth - ширина линии
     % 'k','r','g','b','c'
     % '-', '--', ':', '-.'
     % varargin{1}; figObj строим график на этой figObj 
     % varargin{2}; цвет
-    % flagSNR =  SNR Eb/N0
+    % flagSNR = SNR Eb/N0
     
     bps = obj.main.bps;
     snr = obj.simulation.snr;
@@ -62,6 +61,5 @@ function [figObj] = plotMeanBER(obj, lineStyle, lineWidth, flagSNR, legendStr, v
         strLeg{numLegends} = legendStr;
         legObj.String = strLeg;
     end
-
 end
 

@@ -59,8 +59,6 @@ function [numErrors,numBits,SINR_dB] = simulateOneSNR(obj,snr)
         noiseData = awgn(channelData{uIdx,:}, snr, 'measured');
         %% Демодулятор OFDM
         modDataOut = ofdmdemod(noiseData, lenFFT, cycPrefLen, cycPrefLen, nullCarrInd);
-        %% Обьединитель
-%         modDataOut = obj.applyComb(modDataOut, combWeights{uIdx});
         %% Оценка канала
         outPreambula = modDataOut(:,1:numSTS,:);
         modDataOut = modDataOut(:,(1 + numSTS):end,:);

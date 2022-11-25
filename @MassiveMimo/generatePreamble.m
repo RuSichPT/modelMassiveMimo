@@ -19,5 +19,3 @@ function [preamble, ltfSC] = generatePreamble(obj, numSTS)
         preamble(:,i,:) = ltf;
     end
 end
-
-

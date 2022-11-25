@@ -1,9 +1,9 @@
 function [figObj] = plotSTSBER(obj, lineStyle, lineWidth, flagSNR, partLegendStr, varargin)
-
     % lineStyle - цвет графика, lineWidth - ширина линии
     % 'k','r','g','b','c'
-    % flagFigure = 1 создается новый график, flag = 0 не создается
-    % flagSNR =  SNR Eb/N0
+    % varargin{1}; figObj строим график на этой figObj 
+    % varargin{2}; цвет
+    % flagSNR = SNR Eb/N0 
     
     % lineStyle = {'r';'b';'g';'c';'m';'y';'k';'w'};
     % lineStyle = {'k';'--k';'-.k';':k';};
@@ -39,7 +39,6 @@ function [figObj] = plotSTSBER(obj, lineStyle, lineWidth, flagSNR, partLegendStr
         end       
         hold on;
         legendStr{sts} = [partLegendStr num2str(sts) ' stream'];
-
     end
     
     grid on;
