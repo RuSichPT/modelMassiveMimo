@@ -19,7 +19,7 @@ function [numErrors,numBits,SINR_dB] = simulateOneSNR(obj,snr)
     if (obj.main.precoderType == "DIAG") && (numUsers == 1)
         soundAllChannels = 0; 
     else
-        soundAllChannels = 1; % Зондированеи всех каналов 
+        soundAllChannels = 1; % Зондирование всех каналов 
     end
     [~,HestimZondCell] = obj.channelSounding(snr,soundAllChannels);
     %% Формируем данные

@@ -1,9 +1,9 @@
 clc; clear;
 addpath("..\functions");
 %% Параметры
-N_T = 32;
-K = 2;
-L = 2;
+N_T = 32;   % num Tx antennas
+K = 2;      % num Users
+L = 2;      % num paths
 N_RF = K;
 Psi = 1:K*L;
 %% Инициализация At
@@ -82,9 +82,10 @@ for i = 1:N_RF
     tempAt(:,k) = [];
 end
 %% Проверяем результат
-func(F_RF0)
-func(F_RF1)
-func(F_RF2)
+disp('Min func:');
+disp(['Orig:' num2str(func(F_RF0))]);
+disp(['ZF:' num2str(func(F_RF1))]);
+disp(['One column:' num2str(func(F_RF2))]);
 %%
 function [F_RF,F_BB] = getCoeff_RF_BB(At,H,N_RF)
 

@@ -7,7 +7,7 @@ classdef StaticLOSChannel < matlab.System
         posArrayRx = 1;
         anglesRx = [];
     end
-    properties (Dependent, SetAccess = private)
+    properties(Dependent, SetAccess = private)
         numUsers;       % Кол-во пользователей
         numTx;          % Кол-во передающих антен
         numRx;          % Кол-во приемных антен всего
@@ -21,6 +21,9 @@ classdef StaticLOSChannel < matlab.System
     end
     properties(Access = protected)
         seed;
+    end
+    properties(SetAccess = protected)
+        At;         % матрица отклика антенной решетки относительно углов
     end
     %% Constructor, get         
     methods
@@ -87,21 +90,22 @@ classdef StaticLOSChannel < matlab.System
             anglesTxLoc = obj.anglesTx;
 
             channel = cell(numUsersLoc,1);
-            Ar = cell(numUsersLoc,1); G = cell(numUsersLoc,1); At = cell(numUsersLoc,1);
+            Ar = cell(numUsersLoc,1); G = cell(numUsersLoc,1); At_temp = cell(numUsersLoc,1);
             numScatters = cell(numUsersLoc,1);
 
             % H = At*G*Ar.'
             for uIdx = 1:numUsersLoc
                 numScatters{uIdx} = size(anglesTxLoc{uIdx},2);
                 % At   
-                At{uIdx} = steervec(obj.posArrayTx,anglesTxLoc{uIdx});
+                At_temp{uIdx} = steervec(obj.posArrayTx,anglesTxLoc{uIdx});
                 % Ar
                 Ar{uIdx} = ones(1,numScatters{uIdx});
                 % G
                 g = 1/sqrt(2)*complex(randn(s,1,numScatters{uIdx}),randn(s,1,numScatters{uIdx}));
                 G{uIdx} = diag(g);
 
-                channel{uIdx} = At{uIdx}*G{uIdx}*Ar{uIdx}.';
+                channel{uIdx} = At_temp{uIdx}*G{uIdx}*Ar{uIdx}.';
+                obj.At{uIdx} = At_temp{uIdx};
             end
 
         end

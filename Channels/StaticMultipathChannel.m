@@ -5,9 +5,11 @@ classdef StaticMultipathChannel < StaticLOSChannel
         averagePathGains = [-3 -9 -12]; % Средние коэффициенты усиления пути в Дб
         tau = [2 5 7];                  % Точки задержек пути 
     end
-    properties (Dependent, SetAccess = private)
+    properties(Dependent, SetAccess = private)
         pathDelays;                     % Задержки пути
         dt;                             % Шаг во временной области
+    end
+    properties(Dependent, Access = private)
         filter;
     end
     %% Constructor, get       
@@ -59,16 +61,16 @@ classdef StaticMultipathChannel < StaticLOSChannel
             
 
             for pIdx = 1:numPath
-                Ar = cell(numUsersLoc,1); G = cell(numUsersLoc,1); At = cell(numUsersLoc,1);
+                Ar = cell(numUsersLoc,1); G = cell(numUsersLoc,1); At_temp = cell(numUsersLoc,1);
                 % H = At*G*Ar.'
                 for uIdx = 1:numUsersLoc
                     numScatters{uIdx} = randi(s,obj.maxNumScatters);
                     % At        
                     if isscalar(obj.posArrayTx)
-                        At{uIdx} = ones(1,numScatters{uIdx});
+                        At_temp{uIdx} = ones(1,numScatters{uIdx});
                     else
                         obj.anglesTx{uIdx} = [360*rand(s,1,numScatters{uIdx})-180;180*rand(s,1,numScatters{uIdx})-90];
-                        At{uIdx} = steervec(obj.posArrayTx,obj.anglesTx{uIdx});
+                        At_temp{uIdx} = steervec(obj.posArrayTx,obj.anglesTx{uIdx});
                     end
                     % Ar
                     if isscalar(obj.posArrayRx)
@@ -81,7 +83,8 @@ classdef StaticMultipathChannel < StaticLOSChannel
                     g = 1/sqrt(2)*complex(randn(s,1,numScatters{uIdx}),randn(s,1,numScatters{uIdx}));
                     G{uIdx} = diag(g)*power(pIdx);
 
-                    channel{uIdx}(:,:,pIdx) = At{uIdx}*G{uIdx}*Ar{uIdx}.';
+                    channel{uIdx}(:,:,pIdx) = At_temp{uIdx}*G{uIdx}*Ar{uIdx}.';
+                    obj.At{uIdx,pIdx} = At_temp{uIdx};
                 end
             end            
         end

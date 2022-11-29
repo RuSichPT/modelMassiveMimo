@@ -4,6 +4,7 @@ function [numErrors,numBits,SINR_dB] = simulateOneSNR(obj,snr)
     numSTS = obj.main.numSTS;
     numSTSVec = obj.main.numSTSVec;
     hybridType = obj.hybridType; 
+    numRF = obj.numRF;
     modulation = obj.main.modulation;
     numUsers = obj.main.numUsers;
     precoderType = obj.main.precoderType;
@@ -15,7 +16,7 @@ function [numErrors,numBits,SINR_dB] = simulateOneSNR(obj,snr)
     numSubCarr = obj.ofdm.numSubCarriers;
     downChann = obj.downChannel;
     %% Зондирование канала
-    soundAllChannels = 1; % Зондированеи всех каналов     
+    soundAllChannels = 1; % Зондирование всех каналов
     [~,HestimZondCell] = obj.channelSounding(snr,soundAllChannels);
     %% Формируем данные
     numBits = bps * numSymbOFDM * numSubCarr;
@@ -27,7 +28,7 @@ function [numErrors,numBits,SINR_dB] = simulateOneSNR(obj,snr)
     [preambula, ltfSC] = obj.generatePreamble(numSTS);
     inpModData = cat(2, preambula, inpModData);
     %% Цифровое прекодирование BB beamforming
-    precoder = HybridPrecoder(precoderType,obj.main,HestimZondCell,hybridType);
+    precoder = HybridPrecoder(precoderType,obj.main,HestimZondCell,hybridType,numRF,getAt(downChann,obj.main,numSubCarr));
     precodData = precoder.applyFbb(inpModData);
     %% Модулятор OFDM  
     dataOFDMbb = ofdmmod(precodData, lenFFT, cycPrefLen, nullCarrInd);  
@@ -65,4 +66,37 @@ function [numErrors,numBits,SINR_dB] = simulateOneSNR(obj,snr)
     %% Выходные данные
     outData = cat(2,outData{:});
     numErrors = obj.calculateErrors(inpData, outData); 
+end
+
+function At = getAt(channel,system,numSC)
+    if isfield(channel, 'At')
+        At = channel.At;
+    else
+        maxNumScatters = [50 100];      % Диапазон рассеивателей
+        fc = 30e9;                      % Несущая частота
+        
+        cLight = physconst('LightSpeed');
+        lambda = cLight/fc;
+        nRays = randi(maxNumScatters);
+        expFactorTx = system.numTx / system.numSTS;   
+        if expFactorTx == 1 || system.numSTS == 1  % ULA
+            % Uniform Linear array
+            txarray = phased.ULA(system.numTx, 'ElementSpacing',0.5*lambda, ...
+                'Element',phased.IsotropicAntennaElement('BackBaffled',false));
+        else % URA
+            % Uniform Rectangular array
+            txarray = phased.PartitionedArray(...
+                'Array',phased.URA([expFactorTx system.numSTS],0.5*lambda),...
+                'SubarraySelection',ones(system.numSTS,system.numTx),'SubarraySteering','Custom');
+
+        end
+        posTxElem = getElementPosition(txarray)/lambda;
+        txang = [rand(1,nRays)*360-180;rand(1,nRays)*180-90]; % random
+        AtSC = steervec(posTxElem,txang);
+        At = AtSC;
+%         At = complex(zeros(numSC,size(AtSC,1),size(AtSC,2)));
+%         for carrIdx = 1:numSC
+%             At(carrIdx,:,:) = AtSC; % same for all sub-carriers
+%         end
+    end    
 end

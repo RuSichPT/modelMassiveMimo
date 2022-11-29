@@ -5,12 +5,21 @@ classdef HybridPrecoder < Precoder
         Fbb;        % Цифровые коэффициенты прекодирования 
         Frf;        % Аналоговые коэффициенты прекодирования 
     end
+    properties(Access = private)
+        numRays;    % numRays - кол-во лучей
+        numRF;
+        At;
+    end
     %% Constructor, get
     methods
         % HestCell - оценка канала размерностью Cell{numUserx}[numSC,numTx,numRx]
-        function obj = HybridPrecoder(type,system,HestCell,hybridType)
+        % At - матрица отклика антенной решетки относительно углов прихода
+        % сигнала на ант решетку. [numTx,numRays]
+        function obj = HybridPrecoder(type,system,HestCell,hybridType,numRF,At)
             obj@Precoder(type,system);
             obj.hybridType = hybridType;
+            obj.numRF = numRF;
+            obj.At = At;
             obj.calcPrecodWeights(HestCell);
         end    
     end
@@ -35,29 +44,37 @@ classdef HybridPrecoder < Precoder
             % Frf
             switch obj.type
                 case {'JSDM'}
-                    obj.Frf = getJSDM_Frf(HestCell,obj.system.numSTSVec); 
+                    frf = getJSDM_Frf(HestCell,obj.system.numSTSVec);
+                case {'ZF'}
+                    frf = getZF_Frf(HestCell,obj.At,obj.numRF);
             end
             
             if (obj.hybridType == "sub")
-                numRF = size(obj.Frf,1);
-                subNumTx = obj.system.numTx/numRF;
-                subNumSTS = obj.system.numSTS/numRF;
+                subNumTx = obj.system.numTx/obj.numRF;
+                subNumSTS = obj.system.numSTS/obj.numRF;
 
-                tmpFrf = cell(1,numRF);
-                for i = 1:numRF
-                    tmpFrf{i} = obj.Frf(1+(i-1)*subNumSTS:i*subNumSTS, 1+(i-1)*subNumTx:i*subNumTx);
+                tmpFrf = cell(1,obj.numRF);
+                for i = 1:obj.numRF
+                    tmpFrf{i} = frf(1+(i-1)*subNumSTS:i*subNumSTS, 1+(i-1)*subNumTx:i*subNumTx);
                 end
-                obj.Frf = blkdiag(tmpFrf{:});
+                frf = blkdiag(tmpFrf{:});
             end
                        
             % Fbb
-            FbbMU = zeros(numSC,obj.system.numSTS,obj.system.numSTS);
-            for uIdx = 1:obj.system.numUsers
-                stsIdx = sum(obj.system.numSTSVec(1:uIdx-1))+(1:obj.system.numSTSVec(uIdx));
-                FbbMU(:,stsIdx,stsIdx) = getFbbSU(HestCell{uIdx},obj.Frf(stsIdx,:));
+            switch obj.type
+                case {'JSDM'}
+                    fbbMU = zeros(numSC,obj.system.numSTS,obj.system.numSTS);
+                    for uIdx = 1:obj.system.numUsers
+                        stsIdx = sum(obj.system.numSTSVec(1:uIdx-1))+(1:obj.system.numSTSVec(uIdx));
+                        fbbMU(:,stsIdx,stsIdx) = getJSDM_FbbSU(HestCell{uIdx},frf(stsIdx,:));
+                    end
+                case {'ZF'}
+                    Hest = cat(3,HestCell{:});
+                    fbbMU = getZF_Fbb(Hest,frf);
             end
 
-            obj.Fbb = FbbMU;            
+            obj.Frf = frf;
+            obj.Fbb = fbbMU;
         end
     end
 end
@@ -74,7 +91,7 @@ function Frf = getJSDM_Frf(HestCell,numSTSVec)
     Frf = exp(1i*theta);
 end
 % Hest - оценка канала размерностью [numSC,numTx,numRx]
-function Fbb = getFbbSU(Hest,Frf)
+function Fbb = getJSDM_FbbSU(Hest,Frf)
     numSC = size(Hest,1);     % кол-во поднессущих
     Fbb = [];
     
@@ -85,4 +102,44 @@ function Fbb = getFbbSU(Hest,Frf)
         fbb(1,:,:) = U';
         Fbb = cat(1,Fbb,fbb);
     end
+end
+% HestCell - оценка канала размерностью Cell{numUserx}[numSC,numTx,numRx]
+function Frf = getZF_Frf(HestCell,At,numRF)
+    warning('off');
+    Frf = zeros(numRF,size(At,1));
+    Hest = cat(3,HestCell{:});
+    Hmean = reshape(mean(Hest,1),size(Hest,2),size(Hest,3));
+
+    At = At';
+    for m = 1:numRF   
+        [~,k] = minNormFrob(At,Frf,Hmean);
+
+        Frf(m,:) = At(k,:);
+        At(k,:) = [];
+    end
+    warning('on');
+end
+function Fbb = getZF_Fbb(Hest,Frf)
+    warning('off');
+    numSC = size(Hest,1);     % кол-во поднессущих
+    Fbb = [];
+    for i = 1:numSC
+        sqHest = reshape(Hest(i,:,:),size(Hest(i,:,:),2),size(Hest(i,:,:),3));        
+        Heff = Frf*sqHest; % так как у нас модель y = x*H + n, то Heff = Frf*H
+        fbb(1,:,:) = (Heff'*Heff) \ Heff';
+        Fbb = cat(1,Fbb,fbb);
+    end
+    warning('on');
+end
+function [minf,idx] = minNormFrob(At,Frf,H)
+    
+    f = zeros(1, size(At,1));
+    for i = 1:size(At,1)
+        frf = vertcat(Frf,At(i,:));
+        Heff = frf*H; % так как у нас модель y = x*H + n, то Heff = Frf*H
+        func = ((Heff'*Heff) \ Heff')*frf;
+        f(i) = norm(func,'fro');
+    end
+    
+    [minf,idx] = min(f);
 end

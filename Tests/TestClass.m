@@ -5,7 +5,6 @@ addpath('..\Precoders');
 addpath('..\DataBase\Verification');
 addpath('..\..\modelMassiveMimo');
 
-
 channelParam = ChannelParam();
 static = StaticChannel();
 if static.channel{1}() == static.channel{1}()
@@ -46,8 +45,9 @@ HestCell = cell(main.numUsers,1);
 for i = 1:main.numUsers
     HestCell{i} = randn(ofdm.numSubCarriers,main.numTx,main.numRxUsers(i));
 end
+At = zeros(main.numTx,75);
 digPrecoder = DigitalPrecoder('DIAG',main,HestCell);
-hybPrecoder = HybridPrecoder('JSDM',main,HestCell,'full');
+hybPrecoder = HybridPrecoder('JSDM',main,HestCell,'full',4,At);
 
 channel = RaylChannel('numTx',16);
 channel.sampleRate = 20e6;
