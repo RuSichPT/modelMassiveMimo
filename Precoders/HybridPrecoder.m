@@ -43,10 +43,16 @@ classdef HybridPrecoder < Precoder
             
             % Frf
             switch obj.type
-                case {'JSDM'}
-                    frf = getJSDM_Frf(HestCell,obj.system.numSTSVec);
+                case {'JSDM/OMP'}
+                    if obj.system.numUsers > 1                      
+                        frf = getJSDM_Frf(HestCell,obj.system.numSTSVec);                                               
+                    else
+                        [frf,fbbMU] = getOMP_Frf_Fbb(HestCell,obj.At,obj.system.numSTS,obj.numRF);
+                    end
                 case {'ZF'}
                     frf = getZF_Frf(HestCell,obj.At,obj.numRF);
+                otherwise
+                    error('Нет такого типа прекодера!');
             end
             
             if (obj.hybridType == "sub")
@@ -62,11 +68,13 @@ classdef HybridPrecoder < Precoder
                        
             % Fbb
             switch obj.type
-                case {'JSDM'}
-                    fbbMU = zeros(numSC,obj.system.numSTS,obj.system.numSTS);
-                    for uIdx = 1:obj.system.numUsers
-                        stsIdx = sum(obj.system.numSTSVec(1:uIdx-1))+(1:obj.system.numSTSVec(uIdx));
-                        fbbMU(:,stsIdx,stsIdx) = getJSDM_FbbSU(HestCell{uIdx},frf(stsIdx,:));
+                case {'JSDM/OMP'}
+                    if obj.system.numUsers > 1
+                        fbbMU = zeros(numSC,obj.system.numSTS,obj.system.numSTS);
+                        for uIdx = 1:obj.system.numUsers
+                            stsIdx = sum(obj.system.numSTSVec(1:uIdx-1))+(1:obj.system.numSTSVec(uIdx));
+                            fbbMU(:,stsIdx,stsIdx) = getJSDM_FbbSU(HestCell{uIdx},frf(stsIdx,:));
+                        end
                     end
                 case {'ZF'}
                     Hest = cat(3,HestCell{:});
@@ -118,6 +126,17 @@ function Frf = getZF_Frf(HestCell,At,numRF)
         At(k,:) = [];
     end
     warning('on');
+end
+function [Frf,Fbb] = getOMP_Frf_Fbb(HestCell,At,numSTS,numRF)
+    numSC = size(HestCell{1},1);     % кол-во поднессущих
+    AtExp = complex(zeros(numSC,size(At,1),size(At,2)));
+    for carrIdx = 1:numSC
+        AtExp(carrIdx,:,:) = At; % same for all sub-carriers
+    end
+    
+    [Fbb,frf] = omphybweights(HestCell{1},numSTS,numRF,AtExp);
+
+    Frf = permute(mean(frf,1),[2 3 1]); 
 end
 function Fbb = getZF_Fbb(Hest,Frf)
     warning('off');

@@ -12,9 +12,9 @@ rng(67)
 %% Создание Параметров
 param = SystemParam();
 param.numTx = 16;
-param.numUsers = 2;
-param.numRxUsers = [4 4]; 
-param.numSTSVec = [2 2];
+param.numUsers = 1;
+param.numRxUsers = 4; 
+param.numSTSVec = 2;
 param.modulation = 4;
 %% Создание канала
 channel = StaticChannel(); % StaticChannel % RaylSpecialChannel
@@ -25,12 +25,12 @@ channel.numRxUsers = param.numRxUsers;
 hmimo = HybridMassiveMimo('main',param,'downChannel',channel);
 mimo = MassiveMimo('main',param,'downChannel',channel);
 mimo.main.precoderType = 'DIAG';
-hmimo.main.precoderType = 'JSDM';
+hmimo.main.precoderType = 'JSDM/OMP';
 hmimo.hybridType = 'full';
 %% Симуляция
 SNR = 0:35;                             % Диапазон SNR 
 minNumErrs = 100;                       % Порог ошибок для цикла 
-maxNumSimulation = 1;                   % Максимальное число итераций в цикле while 50
+maxNumSimulation = 5;                   % Максимальное число итераций в цикле while 50
 maxNumZeroBER = 1000;                      % Максимальное кол-во измерений с нулевым кол-вом
 
 hmimo.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);

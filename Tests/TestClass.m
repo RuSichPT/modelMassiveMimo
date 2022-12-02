@@ -49,7 +49,7 @@ for i = 1:main.numUsers
 end
 At = zeros(main.numTx,75);
 digPrecoder = DigitalPrecoder('DIAG',main,HestCell);
-hybPrecoder = HybridPrecoder('JSDM',main,HestCell,'full',4,At);
+hybPrecoder = HybridPrecoder('JSDM/OMP',main,HestCell,'full',4,At);
 
 channel = RaylChannel('numTx',16);
 channel.sampleRate = 20e6;

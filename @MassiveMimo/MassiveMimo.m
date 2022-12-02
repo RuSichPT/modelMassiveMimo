@@ -17,7 +17,8 @@ classdef MassiveMimo < matlab.System & matlab.mixin.Copyable
         function obj = MassiveMimo(varargin)
             obj.main = SystemParam();
             obj.ofdm = OfdmParam();
-            setProperties(obj,nargin,varargin{:})
+            setProperties(obj,nargin,varargin{:});
+            obj.checkParam();
         end
     end
     %% Методы
@@ -81,6 +82,14 @@ classdef MassiveMimo < matlab.System & matlab.mixin.Copyable
             numTx = 1;
             obj.simulateOneSNR(snr);
             figObj = plotESD(obj.dataOFDM(:,numTx), sampleRate_Hz);
+        end        
+        function checkParam(obj)
+            if obj.main.numUsers ~= length(obj.main.numRxUsers)
+                error('Количество numUsers не совпадает c length(numRxUsers)');
+            end
+            if length(obj.main.numSTSVec) ~= length(obj.main.numRxUsers)
+                error('Количество length(numRxUsers) не совпадает c length(numSTSVec)');
+            end
         end
     end
 end

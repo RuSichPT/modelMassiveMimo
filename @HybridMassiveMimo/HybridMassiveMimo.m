@@ -12,7 +12,7 @@ classdef HybridMassiveMimo < MassiveMimo
     methods
         % Support name-value pair arguments when constructing object
         function obj = HybridMassiveMimo(varargin)
-            obj.main.precoderType = 'JSDM';
+            obj.main.precoderType = 'JSDM/OMP';
             setProperties(obj,nargin,varargin{:})
         end
         function v = get.numRF(obj)
