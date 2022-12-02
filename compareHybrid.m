@@ -36,10 +36,11 @@ maxNumZeroBER = 1000;                      % Максимальное кол-в�
 hmimo.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
 mimo.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
 %% Построение графиков
+fig = figure();
 str0 = 'Mean ';
 str1 = [str0 hmimo.main.precoderType ' ' num2str(hmimo.main.numTx) 'x'  num2str(hmimo.main.numRx)...
         'x'  num2str(hmimo.main.numSTS) ' type ' hmimo.hybridType];
-fig = hmimo.plotMeanBER('k', 2, 'SNR', str1);
+hmimo.plotMeanBER('k', 2, 'SNR', str1,fig);
 
 str2 = [str0 num2str(mimo.main.precoderType) ' ' num2str(mimo.main.numTx) 'x'  num2str(mimo.main.numRx) 'x'  num2str(mimo.main.numSTS)];
 mimo.plotMeanBER('--k', 2, 'SNR', str2, fig);

@@ -55,9 +55,7 @@ classdef StaticLOSChannel < matlab.System
             v = [obj.numRows, obj.numColumns];
         end
         function v = get.arrayTx(obj)
-            v = phased.URA('Size',obj.arraySize,...
-                            'ElementSpacing',obj.elementSpacing,...
-                            'Element',phased.IsotropicAntennaElement);
+            v = obj.getArrayTx();
         end
         function v = get.posArrayTx(obj)
             v = getElementPosition(obj.arrayTx)/obj.lambda;
@@ -78,7 +76,7 @@ classdef StaticLOSChannel < matlab.System
         end
     end
     %%
-    methods (Access = protected)
+    methods(Access = protected)
         function str = getStrForDisp(obj)
             str = '';
         end
@@ -108,6 +106,10 @@ classdef StaticLOSChannel < matlab.System
                 obj.At{uIdx} = At_temp{uIdx};
             end
 
+        end
+        function arrayTx = getArrayTx(obj)
+            arrayTx = phased.URA('Size',obj.arraySize,'ElementSpacing',obj.elementSpacing,...
+                        'Element',phased.IsotropicAntennaElement);
         end
     end
 end

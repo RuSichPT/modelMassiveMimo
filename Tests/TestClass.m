@@ -31,6 +31,8 @@ if multiChan.channel{2}(:,:,1) == multiChan.channel{2}(:,:,1)
     disp('ok')
 end
 
+custom = LOScustomAntElem();
+
 ofdm = OfdmParam();
 ofdm2 = OfdmParam();
 
