@@ -5,6 +5,10 @@ addpath('..\Precoders');
 addpath('..\DataBase\Verification');
 addpath('..\..\modelMassiveMimo');
 
+array = AntArrayURA('fc', 40e9);
+ang = [30;20];
+w = array.steervec(ang);
+
 channelParam = ChannelParam();
 static = StaticChannel();
 if static.channel{1}() == static.channel{1}()
@@ -16,18 +20,19 @@ end
 
 channelNN = ChannelForNeuralNet();
 
-LOS = StaticLOSChannel();
-if LOS.channel{1}() == LOS.channel{1}()
-    disp('ok')
-end
-if LOS.channel{2}() == LOS.channel{2}()
-    disp('ok')
-end
-multiChan = StaticMultipathChannel();
+multiChan = MultipathChannel();
 if multiChan.channel{1}(:,:,1) == multiChan.channel{1}(:,:,1)
     disp('ok')
 end
 if multiChan.channel{2}(:,:,1) == multiChan.channel{2}(:,:,1)
+    disp('ok')
+end
+
+LOS = LOSChannel();
+if LOS.channel{1}() == LOS.channel{1}()
+    disp('ok')
+end
+if LOS.channel{2}() == LOS.channel{2}()
     disp('ok')
 end
 

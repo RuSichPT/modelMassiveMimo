@@ -76,6 +76,12 @@ function checkChannel(obj)
     if obj.downChannel.numUsers ~= obj.main.numUsers
         error('Количество numRxUsers в модели и в канале не совпадает');
     end
+    
+    if isprop(obj.downChannel,'anglesTx')
+        if obj.main.numUsers ~= length(obj.downChannel.anglesTx)
+            error('В канале количество numUsers не совпадает c length(anglesTx)');
+        end
+    end
 end
 function C = mimoCapacitySINR(SINR_dB)
     % SINR - в дБ

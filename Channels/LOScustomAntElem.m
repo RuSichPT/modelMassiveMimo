@@ -1,4 +1,4 @@
-classdef LOScustomAntElem < StaticLOSChannel   
+classdef LOScustomAntElem < LOSChannel   
     methods(Access = protected)
         function arrayTx = getArrayTx(obj)
             Az = -90:90;
