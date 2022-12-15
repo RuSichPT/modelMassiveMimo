@@ -5,18 +5,19 @@ function [numErrors,numBits,SINR_dB] = simulateOneSNR(obj,snr)
     numRx = obj.main.numRx;
     numSTS = obj.main.numSTS;
     numSTSVec = obj.main.numSTSVec;
-    modulation = obj.main.modulation;
+    mod = obj.modulation;
     numUsers = obj.main.numUsers;
-    precoderType = obj.main.precoderType;
-    bps = obj.main.bps;
+    precodType = obj.precoderType;
+    bps = obj.bps;
     lenFFT = obj.ofdm.lengthFFT;
     cycPrefLen = obj.ofdm.cyclicPrefixLength;
     nullCarrInd = obj.ofdm.nullCarrierIndices;
     numSymbOFDM = obj.ofdm.numSymbOFDM;
     numSubCarr = obj.ofdm.numSubCarriers;
     downChann = obj.downChannel;
+    downChann.create();
     %% Зондирование канала
-    if (obj.main.precoderType == "DIAG") && (numUsers == 1)
+    if (obj.precoderType == "DIAG") && (numUsers == 1)
         soundAllChannels = 0; 
     else
         soundAllChannels = 1; % Зондирование всех каналов 
@@ -26,23 +27,23 @@ function [numErrors,numBits,SINR_dB] = simulateOneSNR(obj,snr)
     numBits = bps * numSymbOFDM * numSubCarr;
     inpData = randi([0 1], numBits, numSTS);
     %% Модулятор 
-    tmpModData = qammod(inpData, modulation, 'InputType', 'bit');
+    tmpModData = qammod(inpData, mod, 'InputType', 'bit');
     inpModData = reshape(tmpModData, numSubCarr, numSymbOFDM, numSTS);
     %% Модулятор пилотов
     [preambula, ltfSC] = obj.generatePreamble(numSTS);
     inpModData = cat(2, preambula, inpModData);
     %% Повторяем данные на каждую антенну
-    if (precoderType ~= "DIAG") && (numRx ~= numSTS)
+    if (precodType ~= "DIAG") && (numRx ~= numSTS)
         expFactorRx = numRx/numSTS;
         inpModData = repeatDataSC(inpModData,numSTS,expFactorRx);
     end
     %% Прекодирование
-    precoder = DigitalPrecoder(precoderType,obj.main,HestimZondCell);
+    precoder = DigitalPrecoder(precodType,obj.main,HestimZondCell);
     precodData = precoder.apply(inpModData);
     %% Модулятор OFDM
     dataOFDM = ofdmmod(precodData, lenFFT, cycPrefLen, nullCarrInd);
     %% Повторяем данные на каждую антенну (можно и до OFDM - не влияет)
-    if (precoderType == "DIAG") && (numUsers == 1)
+    if (precodType == "DIAG") && (numUsers == 1)
         expFactorTx = numTx/numSTS;
         dataOFDM = repeatData(dataOFDM,numSTS,expFactorTx);
     end
@@ -73,11 +74,11 @@ function [numErrors,numBits,SINR_dB] = simulateOneSNR(obj,snr)
         sigma(uIdx) = rms(equalizeData(:) - inpModDataTmp(:));
         SINR_dB(uIdx) = 20*log10(A/sigma(uIdx));
         %% Демодулятор
-        outData{uIdx} = qamdemod(equalizeData, modulation, 'OutputType', 'bit');
+        outData{uIdx} = qamdemod(equalizeData, mod, 'OutputType', 'bit');
     end
     %% Выходные данные
     outData = cat(2,outData{:});
-    numErrors = obj.calculateErrors(inpData, outData); 
+    numErrors = obj.sim.calculateErrors(inpData,outData); 
 end
 %%
 function newInData = repeatDataSC(inData,numSTS,expFactor)

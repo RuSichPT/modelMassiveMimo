@@ -44,17 +44,38 @@ customRect = phased.CustomAntennaElement('MagnitudePattern',magnitude_dB);
 figure();
 pattern(customRect,fc,AzPlot,Elev,'CoordinateSystem','rectangular','Type','power','Normalize',false)
 title('Custom 1.5rectangle 1 elem');
+ylim([0 7])
 %% Решетка
-steeringAngle = [10; 0];  %[azimuth; elevation]
+f=3e9; % рабочая частота
+c=3e8; % скорость света
+lambda1=c/f; % длина волны
+d=lambda/2; % расстояние между элементами решётки
+steeringAngle = [-60; 0];  %[azimuth; elevation]
 arraySize = [numUsers, numUsers];
+numElements = 8;
 elementSpacing = [0.5 0.5]*lambda;
 
 % Izo
-arrayTxIzo = phased.URA('Size',arraySize,'ElementSpacing',elementSpacing,'Element',izotropic);
-posArrayTxIzo = getElementPosition(arrayTxIzo)/lambda;
-WtIzo = steervec(posArrayTxIzo,steeringAngle);
+arrayTxIzoULA = phased.ULA('NumElements',numElements,'ElementSpacing',elementSpacing(1),'Element',izotropic);
+arrayTxIzoURA = phased.URA('Size',arraySize,'ElementSpacing',elementSpacing,'Element',izotropic);
+posArrayTxIzoURA = getElementPosition(arrayTxIzoURA)/lambda;
+posArrayTxIzoULA = getElementPosition(arrayTxIzoULA)/lambda;
+WtIzoURA = steervec(posArrayTxIzoURA,steeringAngle);
+WtIzoULA = steervec(posArrayTxIzoULA,steeringAngle(1));
+myWULA = getSteervec(fc,-60,8);
+
+xs = -60; % угол фазирования в градусах
+xph=xs*pi/180;
+% фазирующие коэффициенты
+for i=1:numElements
+    pos(i) = (i-1)*d/lambda;
+%     pos(i) = posArrayTxIzoULA(2,i);
+    Wg(i)=exp(-1i*2*pi*pos(i)*sin(xph)); %геометрические       
+end
+Wg = Wg';
+
 figure();
-pattern(arrayTxIzo,fc,AzPlot,Elev,'CoordinateSystem','rectangular','Type','power','Normalize',false);
+pattern(arrayTxIzoURA,fc,AzPlot,Elev,'CoordinateSystem','rectangular','Type','power','Normalize',false);
 title('Izotropic');
 
 % Sinc
@@ -74,7 +95,7 @@ pattern(arrayTxRect,fc,AzPlot,Elev,'CoordinateSystem','rectangular','Type','powe
 title('Custom 1.5rectangle');
 
 rng(67);
-[Husers1,H1] = createLOSchan(numUsers,posArrayTxIzo,anglesTx);
+[Husers1,H1] = createLOSchan(numUsers,posArrayTxIzoURA,anglesTx);
 rng(67);
 [Husers2,H2] = createLOSchan(numUsers,posArrayTxSinc,anglesTx);
 rng(67);
@@ -105,4 +126,19 @@ function [Husers,H] = createLOSchan(numUsers,txpos,txang)
         Husers{uIdx} = At{uIdx}*G{uIdx}*Ar{uIdx}.';
     end
     H = cat(2,Husers{:});
+end
+function w = getSteervec(fc,azimuth,numElem)
+    cLight = physconst('LightSpeed');
+    lambda = cLight/fc;
+    d = lambda / 2; % расстояние между элементами решётки
+    azimuthRad = azimuth * pi/180;
+    w = zeros(1,numElem);
+    posElem = zeros(1,numElem);
+    k = 2*pi/lambda;    % волновое число
+    for i = 1:numElem
+        psi(i) = (i-1)*k*d;     % фазовый сдвиг i-го фазовращателя 
+        posElem(i) = (i-1)*d/lambda;
+        w(i) = exp(-1i*2*pi*posElem(i)*sin(azimuthRad)); %геометрические 
+    end
+    w = w';
 end

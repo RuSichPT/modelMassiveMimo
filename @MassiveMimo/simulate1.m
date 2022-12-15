@@ -1,4 +1,4 @@
-function simulate(obj)         
+function simulate1(obj,numChannels)       
     checkChannel(obj);
     snr = obj.sim.snr;
     minNumErrs = obj.sim.minNumErrs;
@@ -9,56 +9,80 @@ function simulate(obj)
     ber = zeros(obj.main.numSTS, length(snr));
     capacity = zeros(obj.main.numUsers, length(snr));
     
+    numUsers = obj.main.numUsers;
+    numSTS = obj.main.numSTS;
+  
     for indSNR = 1:length(snr)
-        if (numZeroBER < maxNumZeroBER) 
-            [berIter,capacityIter,numSim] = calcIter(obj,snr(indSNR),minNumErrs,maxNumSimulation);
+        if (numZeroBER < maxNumZeroBER)
+            berChan = zeros(numSTS,numChannels);
+            capacityChan = zeros(numUsers,numChannels);
+            numSimChan = zeros(1,numChannels);
+
+            for indChan = 1:numChannels
+                anglesTx = getRandomCellAngs(obj.main.numUsers);
+                classChannel = class(obj.downChannel);
+                if classChannel == "LOSSpecialChannelIzo"
+                    los = LOSSpecialChannelIzo('sysconf',obj.main,'anglesTx',anglesTx);
+                else
+                    los = LOSSpecialChannelCust('sysconf',obj.main,'anglesTx',anglesTx);
+                end
+                obj.setChannel(los);
+                [berChan(:,indChan),capacityChan(:,indChan),numSimChan(indChan)]...
+                    = calcIter(obj,snr(indSNR),minNumErrs,maxNumSimulation);
+                str = ['Complete channel = ' num2str(indChan) ', angles = ' num2str(cat(2,anglesTx{:})) newline];
+                fprintf(str);
+            end
+            berIter = mean(berChan,2);
+            capacityIter = mean(capacityChan,2);
+            numSim = mean(numSimChan);
             ber(:,indSNR) = berIter;
             capacity(:,indSNR) = capacityIter;
-
+            
             if (ber == 0)
                 numZeroBER = numZeroBER + 1;
             end 
-            
-            fprintf('Complete SNR = %d dB, simulations = %d \n', snr(indSNR), numSim);
+            str = ['Complete SNR = ' num2str(snr(indSNR)) ' dB, simulations = ' num2str(numSim) newline];
+            fprintf(str);
         end
     end
     str = ['Complete ' obj.precoderType '\n'];
     fprintf(str);
-    
+        
     obj.sim = obj.sim.setBer(ber);
     obj.sim = obj.sim.setCapacity(capacity);
 end
 
 function checkChannel(obj)
     if ~isscalar(obj.downChannel)
-        error('Êàíàë íå íàéäåí! Óñòàíîâèòå êàíàë!');
+        error('ÐšÐ°Ð½Ð°Ð» Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½! Ð£ÑÑ‚Ð°Ð½Ð¾Ð²Ð¸Ñ‚Ðµ ÐºÐ°Ð½Ð°Ð»!');
     end
     
     if obj.downChannel.sysconf.numTx ~= obj.main.numTx
-        error('Êîëè÷åñòâî numTx â ìîäåëè è â êàíàëå íå ñîâïàäàåò');
+        error('ÐšÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ numTx Ð² Ð¼Ð¾Ð´ÐµÐ»Ð¸ Ð¸ Ð² ÐºÐ°Ð½Ð°Ð»Ðµ Ð½Ðµ ÑÐ¾Ð²Ð¿Ð°Ð´Ð°ÐµÑ‚');
     end
     
     if obj.downChannel.sysconf.numRx ~= obj.main.numRx
-        error('Êîëè÷åñòâî numRx â ìîäåëè è â êàíàëå íå ñîâïàäàåò');
+        error('ÐšÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ numRx Ð² Ð¼Ð¾Ð´ÐµÐ»Ð¸ Ð¸ Ð² ÐºÐ°Ð½Ð°Ð»Ðµ Ð½Ðµ ÑÐ¾Ð²Ð¿Ð°Ð´Ð°ÐµÑ‚');
     end
     
     if obj.downChannel.sysconf.numRxUsers ~= obj.main.numRxUsers
-        error('Êîëè÷åñòâî numRxUsers â ìîäåëè è â êàíàëå íå ñîâïàäàåò');
+        error('ÐšÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ numRxUsers Ð² Ð¼Ð¾Ð´ÐµÐ»Ð¸ Ð¸ Ð² ÐºÐ°Ð½Ð°Ð»Ðµ Ð½Ðµ ÑÐ¾Ð²Ð¿Ð°Ð´Ð°ÐµÑ‚');
     end
     
     if obj.downChannel.sysconf.numUsers ~= obj.main.numUsers
-        error('Êîëè÷åñòâî numRxUsers â ìîäåëè è â êàíàëå íå ñîâïàäàåò');
+        error('ÐšÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ numRxUsers Ð² Ð¼Ð¾Ð´ÐµÐ»Ð¸ Ð¸ Ð² ÐºÐ°Ð½Ð°Ð»Ðµ Ð½Ðµ ÑÐ¾Ð²Ð¿Ð°Ð´Ð°ÐµÑ‚');
     end
     
     if isprop(obj.downChannel,'anglesTx')
         if obj.main.numUsers ~= length(obj.downChannel.anglesTx)
-            error('Â êàíàëå êîëè÷åñòâî numUsers íå ñîâïàäàåò c length(anglesTx)');
+            error('Ð’ ÐºÐ°Ð½Ð°Ð»Ðµ ÐºÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ numUsers Ð½Ðµ ÑÐ¾Ð²Ð¿Ð°Ð´Ð°ÐµÑ‚ c length(anglesTx)');
         end
     end
 end
 function C = mimoCapacitySINR(SINR_dB)
-    % SINR - â äÁ
+    % SINR - Ð² Ð´Ð‘
     SINR = 10^(SINR_dB/10);
+
     C = log2(1+SINR);
 end
 
@@ -91,4 +115,10 @@ function [ber,capacity,numSim] = calcIter(obj,snr,minNumErrs,maxNumSimulation)
     ber = berconf;
     capacity = mean(capacityTmp,1);
     numSim = indSim;
+end
+function angCell = getRandomCellAngs(numUsers)
+    angCell = cell(numUsers,1);
+    for i = 1:numUsers
+        angCell{i} = randi(121) - 61;
+    end
 end

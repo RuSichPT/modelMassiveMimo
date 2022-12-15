@@ -1,50 +1,55 @@
-classdef MultipathChannel < FreqSelectChannel & matlab.System
-    properties
+classdef MultipathChannel < Channel
+    properties (SetAccess = private)
         maxNumScatters = [50 100];      % Диапазон рассеивателей
-        arrayTx;                        % Передающая решетка
-        arrayRx;                        % Принимающая решетка
-    end
-    properties(Dependent, SetAccess = private)
+        chconf ChannelConfig            % Канальная конфигурация
+        arrayTx AntArrayURA             % Передающая решетка
+        arrayRx cell                    % Передающая решетка
         channel;                        % Матрица канала
-    end
-    properties(Dependent, Access = private)
-        filter;
     end
     properties(SetAccess = protected)
         At;                             % Матрица отклика антенной решетки относительно углов
     end
-    properties(Access = protected)
-        seed;
-    end    
     %% Constructor, get       
     methods
         % Support name-value pair arguments when constructing object
-        function obj = MultipathChannel(varargin)
-            obj.getArrays();
-            setProperties(obj,nargin,varargin{:})
-            obj.seed = randi(1e6);
-        end
-        function v = get.filter(obj)
-            v = comm.internal.channel.ChannelFilter('SampleRate', obj.sampleRate, 'PathDelays', obj.pathDelays);
-        end
-        function v = get.channel(obj)                        
-            v = obj.createChannel();                        
+        function obj = MultipathChannel(args)
+            arguments
+                args.maxNumScatters = [50 100];
+                args.chconf = ChannelConfig();
+                args.sysconf = SystemConfig();
+            end
+            obj@Channel('sysconf',args.sysconf)
+            
+            obj.maxNumScatters = args.maxNumScatters; 
+            obj.chconf = args.chconf;
+            obj.arrayTx = obj.getArrayTx();
+            obj.arrayRx = obj.getArrayRx();            
         end
     end
     %%
     methods
         function outputData = pass(obj,inputData)
-            numUsers = obj.numUsers;
-            outputData = cell(numUsers,1);
-            numPath = length(obj.pathDelays);      
+            numUsers = obj.sysconf.numUsers;
+            pathDelays = obj.chconf.pathDelays;
+            numRxUsers = obj.sysconf.numRxUsers;
             
+            numPath = length(pathDelays);            
+         
             channelTmp = cat(2,obj.channel{:});
             channelTmp = permute(channelTmp, [2,1,3]); % obj.channel{i} = numTx, numRx, numPath
-            g = reshape(channelTmp, [], obj.numRx, obj.numTx, numPath);
-            outputDataTmp = step(obj.filter, inputData, g);
-            for i = 1:numUsers
-                outputData{i,:} = outputDataTmp(:,i);
+            g = reshape(channelTmp, [], obj.sysconf.numRx, obj.sysconf.numTx, numPath);
+            filter = comm.internal.channel.ChannelFilter('SampleRate', obj.chconf.sampleRate, 'PathDelays', pathDelays);
+            outputDataTmp = step(filter, inputData, g);
+            
+            outputData = cell(numUsers,1); 
+            for uIdx = 1:numUsers
+                rxU = numRxUsers(uIdx);
+                rxIdx = sum(numRxUsers(1:(uIdx-1)))+(1:rxU);
+                outputData{uIdx,:} = outputDataTmp(:,rxIdx);
             end
+        end
+        function create(obj)
+            obj.channel = obj.createChannel();
         end
     end
     %%
@@ -53,55 +58,56 @@ classdef MultipathChannel < FreqSelectChannel & matlab.System
             str = '';
         end
         function channel = createChannel(obj)            
-            s = RandStream('mt19937ar','Seed',obj.seed);
+            numPath = length(obj.chconf.pathDelays);            
+            power = (10.^(obj.chconf.avgPathGains_dB/10));
             
-            numPath = length(obj.pathDelays);            
-            power = (10.^(obj.averagePathGains/10));
-            
-            numUsersLoc = obj.numUsers;      
-  
-            channel = cell(numUsersLoc,1);
-            Ar = cell(numUsersLoc,numPath);
-            G = cell(numUsersLoc,numPath);
-            At = cell(numUsersLoc,numPath);
+            numUsers = obj.sysconf.numUsers;      
+            channel = cell(numUsers,1);
+            Ar = cell(numUsers,numPath);
+            G = cell(numUsers,numPath);
+            AtTemp = cell(numUsers,numPath);
 
             for pIdx = 1:numPath
                 % H = At*G*Ar.'
-                for uIdx = 1:numUsersLoc
-                    numScatters = randi(s,obj.maxNumScatters);
+                for uIdx = 1:numUsers
+                    numScatters = randi(obj.maxNumScatters);
                     % At
-                    anglesTx = [360*rand(s,1,numScatters)-180;180*rand(s,1,numScatters)-90];
-                    At{uIdx,pIdx} = obj.arrayTx.steervec(anglesTx);                   
+                    anglesTx = [360*rand(1,numScatters)-180;180*rand(1,numScatters)-90];
+                    AtTemp{uIdx,pIdx} = obj.arrayTx.steervec(anglesTx);                   
                     % Ar
-                    anglesRx = [360*rand(s,1,numScatters)-180;180*rand(s,1,numScatters)-90];
+                    anglesRx = [360*rand(1,numScatters)-180;180*rand(1,numScatters)-90];
                     Ar{uIdx,pIdx} = obj.arrayRx{uIdx}.steervec(anglesRx);
                     % G
-                    g = 1/sqrt(2)*complex(randn(s,1,numScatters),randn(s,1,numScatters));
+                    g = 1/sqrt(2)*complex(randn(1,numScatters),randn(1,numScatters));
                     G{uIdx,pIdx} = diag(g)*power(pIdx);
 
-                    channel{uIdx}(:,:,pIdx) = At{uIdx,pIdx}*G{uIdx,pIdx}*Ar{uIdx,pIdx}.';
+                    channel{uIdx}(:,:,pIdx) = AtTemp{uIdx,pIdx}*G{uIdx,pIdx}*Ar{uIdx,pIdx}.';
                 end
             end
-            obj.At = At;
+            obj.At = AtTemp;
         end
-        function getArrays(obj)
-            arraySize = numTxToarraySize(obj.numTx);
-            obj.arrayTx = AntArrayURA('arraySize',arraySize);
+        function array = getArrayTx(obj)
+            arraySize = obj.numTxToarraySize(obj.sysconf.numTx);
+            array = AntArrayURA('arraySize',arraySize);
+        end
+        function array = getArrayRx(obj)
+            numUsers = obj.sysconf.numUsers;
             
-            arRx = cell(obj.numUsers,1);
-            for uIdx = 1:obj.numUsers
-                arraySize = numTxToarraySize(obj.numRxUsers(uIdx));
+            arRx = cell(numUsers,1);
+            for uIdx = 1:numUsers
+                arraySize = obj.numTxToarraySize(obj.sysconf.numRxUsers(uIdx));
                 array = AntArrayURA('arraySize',arraySize);
                 arRx{uIdx} = array;
             end
-            obj.arrayRx = arRx;
+            array = arRx;
+        end
+        function arraySize = numTxToarraySize(~,numTx)
+            tmp = factor(numTx);
+            mid = ceil(length(tmp)/2);
+            rows = prod(tmp(1:mid));
+            columns = prod(tmp(mid+1:end));            
+            arraySize = [rows columns];           
         end
     end
 end        
-function arraySize = numTxToarraySize(numTx)
-    tmp = factor(numTx);
-    mid = ceil(length(tmp)/2);
-    rows = prod(tmp(1:mid));
-    columns = prod(tmp(mid+1:end));            
-    arraySize = [rows columns];           
-end
+

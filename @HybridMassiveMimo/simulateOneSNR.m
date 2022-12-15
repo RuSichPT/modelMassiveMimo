@@ -5,16 +5,17 @@ function [numErrors,numBits,SINR_dB] = simulateOneSNR(obj,snr)
     numSTSVec = obj.main.numSTSVec;
     hybridType = obj.hybridType; 
     numRF = obj.numRF;
-    modulation = obj.main.modulation;
+    mod = obj.modulation;
     numUsers = obj.main.numUsers;
-    precoderType = obj.main.precoderType;
-    bps = obj.main.bps;
+    precodType = obj.precoderType;
+    bps = obj.bps;
     lenFFT = obj.ofdm.lengthFFT;
     cycPrefLen = obj.ofdm.cyclicPrefixLength;
     nullCarrInd = obj.ofdm.nullCarrierIndices;
     numSymbOFDM = obj.ofdm.numSymbOFDM;
     numSubCarr = obj.ofdm.numSubCarriers;
     downChann = obj.downChannel;
+    downChann.create();
     %% Зондирование канала
     soundAllChannels = 1; % Зондирование всех каналов
     [~,HestimZondCell] = obj.channelSounding(snr,soundAllChannels);
@@ -22,13 +23,13 @@ function [numErrors,numBits,SINR_dB] = simulateOneSNR(obj,snr)
     numBits = bps * numSymbOFDM * numSubCarr;
     inpData = randi([0 1], numBits, numSTS);
     %% Модулятор 
-    tmpModData = qammod(inpData, modulation, 'InputType', 'bit');
+    tmpModData = qammod(inpData, mod, 'InputType', 'bit');
     inpModData = reshape(tmpModData, numSubCarr, numSymbOFDM, numSTS);
     %% Модулятор пилотов
     [preambula, ltfSC] = obj.generatePreamble(numSTS);
     inpModData = cat(2, preambula, inpModData);
     %% Цифровое прекодирование BB beamforming
-    precoder = HybridPrecoder(precoderType,obj.main,HestimZondCell,hybridType,numRF,getAt(downChann,obj.main,numSubCarr));
+    precoder = HybridPrecoder(precodType,obj.main,HestimZondCell,hybridType,numRF,getAt(downChann,obj.main,numSubCarr));
     precodData = precoder.applyFbb(inpModData);
     %% Модулятор OFDM  
     dataOFDMbb = ofdmmod(precodData, lenFFT, cycPrefLen, nullCarrInd);  
@@ -61,11 +62,11 @@ function [numErrors,numBits,SINR_dB] = simulateOneSNR(obj,snr)
         sigma(uIdx) = rms(equalizeData(:) - inpModDataTmp(:));
         SINR_dB(uIdx) = 20*log10(A/sigma(uIdx));
         %% Демодулятор
-        outData{uIdx} = qamdemod(equalizeData, modulation, 'OutputType', 'bit');
+        outData{uIdx} = qamdemod(equalizeData, mod, 'OutputType', 'bit');
     end
     %% Выходные данные
     outData = cat(2,outData{:});
-    numErrors = obj.calculateErrors(inpData, outData); 
+    numErrors = obj.sim.calculateErrors(inpData, outData); 
 end
 
 function At = getAt(channel,system,numSC)

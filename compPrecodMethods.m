@@ -2,64 +2,38 @@ clc;clear;
 addpath('Parameters');
 addpath('Channels')
 rng(122);
-%% Создание параметров
-param = SystemParam();
-param.numTx = 8;
-param.numUsers = 1;
-param.numRxUsers = 4; 
-param.numSTSVec = 2;
-param.modulation = 4;
-
+%% Система
+numTx = 32;
+numUsers = 4;
+numRxUsers = [1 1 1 1]; 
+numSTSVec = [1 1 1 1];
+mod = 4;
+config = SystemConfig('numUsers',numUsers,'numTx',numTx,'numRxUsers',numRxUsers,'numSTSVec',numSTSVec);
 %% Создание канала
-channel = StaticChannel(); % StaticChannel % RaylSpecialChannel
-channel.numTx = param.numTx;
-channel.numUsers = param.numUsers;
-channel.numRxUsers = param.numRxUsers;
-
-%% Создание моделей
-modelZF = MassiveMimo('main',param,'downChannel',channel);
-modelMF = MassiveMimo('main',param,'downChannel',channel);
-modelEBM = MassiveMimo('main',param,'downChannel',channel);
-modelRZF = MassiveMimo('main',param,'downChannel',channel);
-modelDIAG = MassiveMimo('main',param,'downChannel',channel);
-
-modelMF.main.precoderType = 'MF';
-modelEBM.main.precoderType = 'EBM';
-modelRZF.main.precoderType = 'RZF';
-modelDIAG.main.precoderType = 'DIAG';
+channel = StaticChannel('sysconf',config); % StaticChannel % RaylSpecialChannel
 %% Симуляция
-SNR = 0:40;                             % Диапазон SNR 
-minNumErrs = 100;                       % Порог ошибок для цикла 
-maxNumSimulation = 5;                   % Максимальное число итераций в цикле while 50
-maxNumZeroBER = 1;                      % Максимальное кол-во измерений с нулевым кол-вом 
+snr = 0:40;
+maxNumSimulation = 1;
+sim = SimulationConfig('snr',snr,'maxNumSimulation',maxNumSimulation);
+%% Создание моделей
+modelZF = MassiveMimo('main',config,'downChannel',channel,'sim',sim,'precoderType','ZF');
+modelMF = MassiveMimo('main',config,'downChannel',channel,'sim',sim,'precoderType','MF');
+modelEBM = MassiveMimo('main',config,'downChannel',channel,'sim',sim,'precoderType','EBM');
+modelRZF = MassiveMimo('main',config,'downChannel',channel,'sim',sim,'precoderType','RZF');
+modelDIAG = MassiveMimo('main',config,'downChannel',channel,'sim',sim,'precoderType','DIAG');
 
-modelMF.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
-modelZF.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
-modelEBM.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
-modelRZF.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
-modelDIAG.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
+modelMF.simulate();
+modelZF.simulate();
+modelEBM.simulate();
+modelRZF.simulate();
+modelDIAG.simulate();
 %% Построение графиков
-str0 = 'Mean ';
 fig = figure();
-str1 = [str0 num2str(modelMF.main.precoderType) ' ' num2str(modelMF.main.numTx) 'x'  num2str(modelMF.main.numRx) 'x'...
-    num2str(modelMF.main.numSTS) ' u' num2str(modelMF.main.numUsers)];
-modelMF.plotMeanBER('k', 2, 'SNR', str1, fig);
-
-str2 = [str0 num2str(modelZF.main.precoderType) ' ' num2str(modelZF.main.numTx) 'x'  num2str(modelZF.main.numRx) 'x'...
-    num2str(modelZF.main.numSTS) ' u' num2str(modelZF.main.numUsers)];
-modelZF.plotMeanBER('--k', 2, 'SNR', str2, fig);
-
-str3 = [str0 num2str(modelEBM.main.precoderType) ' ' num2str(modelEBM.main.numTx) 'x'  num2str(modelEBM.main.numRx) 'x'...
-    num2str(modelEBM.main.numSTS) ' u' num2str(modelEBM.main.numUsers)];
-modelEBM.plotMeanBER('-.k', 2, 'SNR', str3, fig);
-
-str4 = [str0 num2str(modelRZF.main.precoderType) ' ' num2str(modelRZF.main.numTx) 'x'  num2str(modelRZF.main.numRx) 'x'...
-    num2str(modelRZF.main.numSTS) ' u' num2str(modelRZF.main.numUsers)];
-modelRZF.plotMeanBER(':k', 2, 'SNR', str4, fig);
-
-str5 = [str0 num2str(modelDIAG.main.precoderType) ' ' num2str(modelDIAG.main.numTx) 'x'  num2str(modelDIAG.main.numRx) 'x'...
-    num2str(modelDIAG.main.numSTS) ' u' num2str(modelDIAG.main.numUsers)];
-modelDIAG.plotMeanBER('*-k', 2, 'SNR', str5, fig);
+modelMF.plotMeanBER('lineStyle','k','figObj',fig);
+modelZF.plotMeanBER('lineStyle','--k','figObj',fig);
+modelEBM.plotMeanBER('lineStyle','-.k','figObj',fig);
+modelRZF.plotMeanBER('lineStyle',':k','figObj',fig);
+modelDIAG.plotMeanBER('lineStyle','*-k','figObj',fig);
 
 modelMF.downChannel.dispChannel();
 modelZF.downChannel.dispChannel();

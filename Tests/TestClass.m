@@ -5,12 +5,17 @@ addpath('..\Precoders');
 addpath('..\DataBase\Verification');
 addpath('..\..\modelMassiveMimo');
 
+ch = ChannelConfig();
+sys = SystemConfig();
+chConf = ChannelConfig('tau',[2 3],'avgPathGains',[0 3]);
+sysConf = SystemConfig('numUsers',6,'numRxUsers',[1 2 1 1 1 1],'numSTSVec',[1 1 1 1 1 1]);
+
 array = AntArrayURA('fc', 40e9);
 ang = [30;20];
 w = array.steervec(ang);
 
-channelParam = ChannelParam();
 static = StaticChannel();
+static.create();
 if static.channel{1}() == static.channel{1}()
     disp('ok')
 end
@@ -18,9 +23,10 @@ if static.channel{2}() == static.channel{2}()
     disp('ok')
 end
 
-channelNN = ChannelForNeuralNet();
+% channelNN = ChannelForNeuralNet();
 
 multiChan = MultipathChannel();
+multiChan.create();
 if multiChan.channel{1}(:,:,1) == multiChan.channel{1}(:,:,1)
     disp('ok')
 end
@@ -29,6 +35,7 @@ if multiChan.channel{2}(:,:,1) == multiChan.channel{2}(:,:,1)
 end
 
 LOS = LOSChannel();
+LOS.create();
 if LOS.channel{1}() == LOS.channel{1}()
     disp('ok')
 end
@@ -36,7 +43,7 @@ if LOS.channel{2}() == LOS.channel{2}()
     disp('ok')
 end
 
-custom = LOScustomAntElem();
+% custom = LOScustomAntElem();
 
 ofdm = OfdmParam();
 ofdm2 = OfdmParam();
@@ -44,9 +51,10 @@ ofdm2 = OfdmParam();
 ofdm1 = OfdmParam('numSubCarriers',120);
 ofdm.numSubCarriers = 256;
 
-main = SystemParam();
-main.numTx = 32;
-main1 = SystemParam('modulation', 16);
+main = SystemConfig();
+main1 = SystemConfig('numTx', 16);
+
+chconf = ChannelConfig('tau',[1 2 3]);
 
 HestCell = cell(main.numUsers,1);
 for i = 1:main.numUsers
@@ -56,22 +64,21 @@ At = zeros(main.numTx,75);
 digPrecoder = DigitalPrecoder('DIAG',main,HestCell);
 hybPrecoder = HybridPrecoder('JSDM/OMP',main,HestCell,'full',4,At);
 
-channel = RaylChannel('numTx',16);
-channel.sampleRate = 20e6;
-mCh = channel.channel;
-channel1 = RaylChannel('tau',[1 2 3]);
-channel1.numRxUsers = [2 4 2 4];
+rayl = RaylChannel();
+rayl.create();
+mCh = rayl.channel;
+rayl1 = RaylChannel('chconf',chconf);
+rayl1.create();
 
-channel2 = RaylSpecialChannel();
-channel3 = RaylSpecialChannel('tau',[1 2 3]);
-channel2.numTx = 32;
-mCh1 = channel2.channel;
+raylspec = RaylSpecialChannel();
+raylspec.create();
+raylspec1 = RaylSpecialChannel('chconf',chconf);
+raylspec1.create();
+mCh1 = raylspec.channel;
 
-mimo = MassiveMimo();
-mimo.main.numTx = 32;
+mimo = MassiveMimo('main',main,'downChannel',raylspec);
 
 mimo1 = MassiveMimo();
-mimo1.main.numTx = 16;
 
 hmimo = HybridMassiveMimo();
 

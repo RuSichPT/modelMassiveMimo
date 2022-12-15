@@ -1,56 +1,42 @@
 clc;clear;%close all;
-addpath('Parameters');
-addpath('Channels');
+inlcudes()
 rng(67)
-% numRows = 4;
-% numColumns = 4;
-% anglesTx = {[2;1]; [91;-1]; [-85;0]; [179;3];};  %[azimuth;elevation]
-% channel = StaticLOSChannel('anglesTx',anglesTx,'numRows',numRows,'numColumns',numColumns);
-% channel = StaticMultipathChannel('numRows',numRows,'numColumns',numColumns);
-% channel.averagePathGains = 0;
-% channel.tau = 0;
-%% Создание Параметров
-param = SystemParam();
-param.numTx = 16;
-param.numUsers = 1;
-param.numRxUsers = 4; 
-param.numSTSVec = 2;
-param.modulation = 4;
-%% Создание канала
-channel = StaticChannel(); % StaticChannel % RaylSpecialChannel
-channel.numTx = param.numTx;
-channel.numUsers = param.numUsers;
-channel.numRxUsers = param.numRxUsers;
-%% Создание моделей
-hmimo = HybridMassiveMimo('main',param,'downChannel',channel);
-mimo = MassiveMimo('main',param,'downChannel',channel);
-mimo.main.precoderType = 'DIAG';
-hmimo.main.precoderType = 'JSDM/OMP';
-hmimo.hybridType = 'full';
+%% Система
+numUsers = 1;
+numTx = 64;
+numRxUsers = 4; 
+numSTSVec = 2;
+syconf = SystemConfig('numUsers',numUsers,'numTx',numTx,'numRxUsers',numRxUsers,'numSTSVec',numSTSVec);
+%% Канал
+anglesTx = {[91;-1];};%{[91;-1]; [2;1]; [-85;0]; [179;3];};  %[azimuth;elevation] {[91;-1];};%
+% channel = LOSChannel('sysconf',syconf,'anglesTx',anglesTx); % StaticChannel RaylSpecialChannel MultipathChannel LOSChannel
+channel = StaticChannel('sysconf',syconf);
 %% Симуляция
-SNR = 0:35;                             % Диапазон SNR 
-minNumErrs = 100;                       % Порог ошибок для цикла 
-maxNumSimulation = 5;                   % Максимальное число итераций в цикле while 50
-maxNumZeroBER = 1000;                      % Максимальное кол-во измерений с нулевым кол-вом
+snr = 0:40;                             % Диапазон SNR 
+sim = SimulationConfig('snr',snr);
+%% Создание моделей
+hmimo = HybridMassiveMimo('main',syconf,'downChannel',channel,'precoderType','JSDM/OMP','hybridType','full');
+mimo = MassiveMimo('main',syconf,'downChannel',channel,'precoderType','DIAG','sim',sim);
 
-hmimo.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
-mimo.simulate(SNR, maxNumZeroBER, minNumErrs, maxNumSimulation);
+hmimo.simulate();
+mimo.simulate();
 %% Построение графиков
 fig = figure();
-str0 = 'Mean ';
-str1 = [str0 hmimo.main.precoderType ' ' num2str(hmimo.main.numTx) 'x'  num2str(hmimo.main.numRx)...
-        'x'  num2str(hmimo.main.numSTS) ' type ' hmimo.hybridType];
-hmimo.plotMeanBER('k', 2, 'SNR', str1,fig);
+leg1 = hmimo.getLegend();
+leg1 = [leg1 ' type ' hmimo.hybridType];
+hmimo.plotMeanBER('lineStyle','k','legendStr',leg1,'figObj',fig);
+mimo.plotMeanBER('lineStyle','--k','figObj',fig);
 
-str2 = [str0 num2str(mimo.main.precoderType) ' ' num2str(mimo.main.numTx) 'x'  num2str(mimo.main.numRx) 'x'  num2str(mimo.main.numSTS)];
-mimo.plotMeanBER('--k', 2, 'SNR', str2, fig);
+fig1 = figure();
+hmimo.plotCapacity('type','mean','lineStyle','k','legendStr',leg1,'figObj',fig1);
+mimo.plotCapacity('type','mean','lineStyle','--k','figObj',fig1);
 
-fig1 = hmimo.plotCapacity('mean','k',2,str1);
-mimo.plotCapacity('mean','--k',2,str2,fig1);
-
-str0 = 'All STS ';
-str1 = [str0 hmimo.main.precoderType ' ' num2str(hmimo.main.numTx) 'x'  num2str(hmimo.main.numRx)...
-        'x'  num2str(hmimo.main.numSTS) ' type ' hmimo.hybridType];
-str2 = [str0 num2str(mimo.main.precoderType) ' ' num2str(mimo.main.numTx) 'x'  num2str(mimo.main.numRx) 'x'  num2str(mimo.main.numSTS)];
-fig1 = hmimo.plotCapacity('all','k',2,str1);
-mimo.plotCapacity('all','--k',2,str2,fig1);
+fig2 = figure();
+hmimo.plotCapacity('type','all','lineStyle','k','legendStr',leg1,'figObj',fig2);
+mimo.plotCapacity('type','all','lineStyle','--k','figObj',fig2);
+%%
+function inlcudes()
+    addpath('Parameters');
+    addpath('Channels');
+    addpath('Precoders');
+end

@@ -1,5 +1,4 @@
-classdef DigitalPrecoder < Precoder
-    
+classdef DigitalPrecoder < Precoder    
     properties(SetAccess = private)
         F;                  % Коэффициенты прекодирования 
     end

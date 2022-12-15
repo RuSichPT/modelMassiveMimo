@@ -1,21 +1,23 @@
 classdef (Abstract) Channel < handle
-    properties
-        numUsers = 4;                   % Кол-во пользователей
-        numTx = 32;                     % Кол-во передающих антен
-        numRxUsers = [1 1 1 1];         % Кол-во приемных антен на каждого пользователя
-    end
-    properties (Dependent, SetAccess = private)
-        numRx;                          % Кол-во приемных антен
+    properties (SetAccess = private)
+        sysconf SystemConfig;  % Системная конфигурация
     end
     %%
     methods
-        function v = get.numRx(obj)
-            v = sum(obj.numRxUsers);
+        % Support name-value pair arguments when constructing object 
+        function obj = Channel(args)
+            arguments
+                args.sysconf = SystemConfig();
+            end
+            obj.sysconf = args.sysconf ;
         end
     end    
     %%
     methods (Abstract = true)
         pass(obj,inputData);
+    end    
+    methods (Abstract = true)
+        create(obj);
     end
     methods (Abstract = true, Access = protected)
         getStrForDisp(obj);

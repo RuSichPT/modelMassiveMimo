@@ -13,7 +13,8 @@ classdef LOScustomAntElem < LOSChannel
                 magnitude_dB(:,k) = magSinc_dB(i);
             end
             custom = phased.CustomAntennaElement('MagnitudePattern',magnitude_dB);
-            arrayTx = phased.URA('Size',obj.arraySize,'ElementSpacing',obj.elementSpacing,'Element',custom);
+            arraySize = obj.numTxToarraySize(obj.sysconf.numTx);
+            arrayTx = phased.URA('Size',arraySize,'ElementSpacing',obj.elementSpacing,'Element',custom);
         end
     end
 end
