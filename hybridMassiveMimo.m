@@ -7,8 +7,8 @@ numUsers = 4;
 numRx = 4;
 numRxUsers = [1 1 1 1];
 numSTSVec = [1 1 1 1];
-sysconf = SystemConfig('numUsers',numUsers,'numTx',numTx,'numRxUsers',numRxUsers,'numSTSVec',numSTSVec);
 precoderType = 'DIAG';
+sysconf = SystemConfig('numUsers',numUsers,'numTx',numTx,'numRxUsers',numRxUsers,'numSTSVec',numSTSVec);
 %% Канал
 tau = [0 2 5];
 avgPathGains_dB = [0 -3 -9];
