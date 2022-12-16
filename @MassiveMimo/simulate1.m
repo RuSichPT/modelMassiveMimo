@@ -1,5 +1,4 @@
 function simulate1(obj,numChannels)       
-    checkChannel(obj);
     snr = obj.sim.snr;
     minNumErrs = obj.sim.minNumErrs;
     maxNumSimulation = obj.sim.maxNumSimulation;
@@ -52,33 +51,6 @@ function simulate1(obj,numChannels)
     obj.sim = obj.sim.setCapacity(capacity);
 end
 
-function checkChannel(obj)
-    if ~isscalar(obj.downChannel)
-        error('Канал не найден! Установите канал!');
-    end
-    
-    if obj.downChannel.sysconf.numTx ~= obj.main.numTx
-        error('Количество numTx в модели и в канале не совпадает');
-    end
-    
-    if obj.downChannel.sysconf.numRx ~= obj.main.numRx
-        error('Количество numRx в модели и в канале не совпадает');
-    end
-    
-    if obj.downChannel.sysconf.numRxUsers ~= obj.main.numRxUsers
-        error('Количество numRxUsers в модели и в канале не совпадает');
-    end
-    
-    if obj.downChannel.sysconf.numUsers ~= obj.main.numUsers
-        error('Количество numRxUsers в модели и в канале не совпадает');
-    end
-    
-    if isprop(obj.downChannel,'anglesTx')
-        if obj.main.numUsers ~= length(obj.downChannel.anglesTx)
-            error('В канале количество numUsers не совпадает c length(anglesTx)');
-        end
-    end
-end
 function C = mimoCapacitySINR(SINR_dB)
     % SINR - в дБ
     SINR = 10^(SINR_dB/10);
