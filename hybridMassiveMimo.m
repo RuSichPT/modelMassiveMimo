@@ -27,7 +27,6 @@ modelHybridFull.downChannel.dispChannel();
 modelMM.downChannel.dispChannel();
 modelHybridSub.downChannel.dispChannel();
 %% Симуляция
-
 modelHybridFull.simulate();
 modelMM.simulate();
 modelHybridSub.simulate();
@@ -44,15 +43,15 @@ modelHybridFull.plotCapacity('type','mean','lineStyle','--k','figObj',fig1);
 modelMM.plotCapacity('type','mean','lineStyle','k','figObj',fig1);
 modelHybridSub.plotCapacity('type','mean','lineStyle','-.k','figObj',fig1);
 %% Save
-if modelMM.downChannel.tau == 0 
-    channel = cat(2, class(modelMM.downChannel),'flat');
-else
-    channel = class(modelMM.downChannel);
-end
+% if modelMM.downChannel.tau == 0 
+%     channel = cat(2, class(modelMM.downChannel),'flat');
+% else
+%     channel = class(modelMM.downChannel);
+% end
 % str = ['DataBase/RLNC2022/'  channel ' numSim ' num2str(maxNumSimulation) ' ' num2str(modelMM.main.numTx) 'x'...
 %         num2str(modelMM.main.numRx) 'x'  num2str(modelMM.main.numSTS) 'x'   erase(num2str(modelMM.main.numSTSVec),' ') '.mat'];
     
-str = ['DataBase/Теория и техника радиосвязи 2022/'  channel ' numSim ' num2str(maxNumSimulation) ' ' num2str(modelMM.main.numTx) 'x'...
-        num2str(modelMM.main.numRx) 'x'  num2str(modelMM.main.numSTS) 'x'   erase(num2str(modelMM.main.numSTSVec),' ') '.mat'];
+% str = ['DataBase/Теория и техника радиосвязи 2022/'  channel ' numSim ' num2str(maxNumSimulation) ' ' num2str(modelMM.main.numTx) 'x'...
+%         num2str(modelMM.main.numRx) 'x'  num2str(modelMM.main.numSTS) 'x'   erase(num2str(modelMM.main.numSTSVec),' ') '.mat'];
     
 % save(str,'modelHybridFull','modelMM','modelHybridSub');

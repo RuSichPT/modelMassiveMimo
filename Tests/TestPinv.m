@@ -21,8 +21,11 @@ A = [-1 0 1 2;
     1 0 -1 -2];
 
 pinvA1 = pinv(A);
+sigma = svd(A)
 [U,S,V] = svd(A);
 pinvA2 = V*pinv(S)*U';
-pinvA3 = A.'*pinv(A*A.');
+S1 = pinv(S);
+pinvA3 = V(:,1:2)*S1(1:2,1:2)*U(:,1:2)';
+pinvA4 = A.'*pinv(A*A.');
 cond(A)
 cond(A*A.')
