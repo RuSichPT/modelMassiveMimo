@@ -1,28 +1,28 @@
-## modelMassiveMimo
+# modelMassiveMimo
 
-# Digital Massive MIMO скрипты:
+## Digital Massive MIMO скрипты:
 
-* - digitalMM_RID.m - посмотреть вероятность битовой ошибки(BER) и пропускную способность(Capacity) в различных условиях в Digital Massive MIMO системе
+* digitalMM_RID.m - посмотреть вероятность битовой ошибки(BER) и пропускную способность(Capacity) в различных условиях в Digital Massive MIMO системе
 
-* - compPrecodMethods.m - сравнение методов прекодирования (ZF, MF, EBM, RZF, DIAG) в  Digital Massive MIMO системе
+* compPrecodMethods.m - сравнение методов прекодирования (ZF, MF, EBM, RZF, DIAG) в  Digital Massive MIMO системе
 
-* - compPrecodMIA.m - сравнение методов прекодирования (ZF, TPE, NSA, NI, NI-NSA) в  Digital Massive MIMO системе
+* compPrecodMIA.m - сравнение методов прекодирования (ZF, TPE, NSA, NI, NI-NSA) в  Digital Massive MIMO системе
 
-* - compIzoCustomAntElem.m - сравнение изотропных и кастомных антенных элементов в  Digital Massive MIMO системе
+* compIzoCustomAntElem.m - сравнение изотропных и кастомных антенных элементов в  Digital Massive MIMO системе
 
-# Hybrid Massive MIMO скрипты:
+## Hybrid Massive MIMO скрипты:
 
-* - hybridMM_RID.m - посмотреть вероятность битовой ошибки(BER) и пропускную способность(Capacity) в различных условиях
+* hybridMM_RID.m - посмотреть вероятность битовой ошибки(BER) и пропускную способность(Capacity) в различных условиях
 
-* - hybridMassiveMimo.m - сравнение FULL и SUB прекодирование в Hybrid Massive MIMO системе
+* hybridMassiveMimo.m - сравнение FULL и SUB прекодирование в Hybrid Massive MIMO системе
 
-# Digital and Hybrid  Massive MIMO скрипты:
+## Digital and Hybrid  Massive MIMO скрипты:
 
-* - compareHybrid.m - сравнение Digital и Hybrid Massive MIMO систем
+* compareHybrid.m - сравнение Digital и Hybrid Massive MIMO систем
 
-# Other
+## Other
 
-* - compCustomAntElem.m - старый не работает 
+* compCustomAntElem.m - старый не работает 
  
-* - compareJSDM_DRL.m - сравнение методов прекодирования JSDM и DRL(нейросеть) для Hybrid Massive MIMO (не работает, еще нет меода DRL)
+* compareJSDM_DRL.m - сравнение методов прекодирования JSDM и DRL(нейросеть) для Hybrid Massive MIMO (не работает, еще нет меода DRL)
 
