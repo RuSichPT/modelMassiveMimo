@@ -22,6 +22,8 @@
 
 ## Other
 
+* calculateCapacity.m - расчет пропускной способности для модели Кронекера и QuaDRiGa
+
 * compCustomAntElem.m - старый не работает 
  
 * compareJSDM_DRL.m - сравнение методов прекодирования JSDM и DRL(нейросеть) для Hybrid Massive MIMO (не работает, еще нет меода DRL)
