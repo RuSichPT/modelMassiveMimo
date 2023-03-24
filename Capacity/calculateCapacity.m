@@ -1,5 +1,5 @@
 clear;clc;close all;
-addpath("functions");
+addpath("../functions");
 %% Задаем параметры
 numTx = 24;
 numRx = 4;

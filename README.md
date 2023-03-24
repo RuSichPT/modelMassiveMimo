@@ -22,7 +22,7 @@
 
 ## Other
 
-* calculateCapacity.m - расчет пропускной способности для модели Кронекера и QuaDRiGa
+* Capacity/calculateCapacity.m - расчет пропускной способности для модели Кронекера и QuaDRiGa
 
 * compCustomAntElem.m - старый не работает 
  

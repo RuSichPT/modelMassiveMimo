@@ -3,7 +3,7 @@ classdef MultipathChannel < Channel
         maxNumScatters = [50 100];      % Диапазон рассеивателей
         chconf ChannelConfig            % Канальная конфигурация
         arrayTx AntArrayURA             % Передающая решетка
-        arrayRx cell                    % Передающая решетка
+        arrayRx cell                    % Приемная решетка
         channel;                        % Матрица канала
     end
     properties(SetAccess = protected)

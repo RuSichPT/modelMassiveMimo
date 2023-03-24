@@ -1,6 +1,6 @@
 function [H] = createQuaDRiGa(no_rx, numChan)
 
-    addpath("../QuaDriGa/quadriga_src/")
+    addpath("../../QuaDriGa/quadriga_src/")
     
     [aBS, aMT] = antennasSetup();
     layout = quaDRiGaSetup(no_rx,aBS,aMT);
