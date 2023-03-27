@@ -24,7 +24,11 @@
 
 * Capacity/calculateCapacity.m - расчет пропускной способности для модели Кронекера и QuaDRiGa
 
+* Optimization/optimizCapacity.m - скрипт расчета аналитической пропускной способности и решение оптимизационной задачи для ULA как в статье
+"Capacity Analysis and Optimal Spacing Design for Compact Array Massive MIMO Systems With Finite Aperture"
+
 * compCustomAntElem.m - старый не работает 
  
 * compareJSDM_DRL.m - сравнение методов прекодирования JSDM и DRL(нейросеть) для Hybrid Massive MIMO (не работает, еще нет меода DRL)
+
 
