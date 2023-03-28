@@ -4,6 +4,9 @@
 * - добавил скрипт расчета аналитической пропускной способности и решение оптимизационной задачи для ULA как в статье
 "Capacity Analysis and Optimal Spacing Design for Compact Array Massive MIMO Systems With Finite Aperture"
 optimizCapacity.m - сам скрипт
+* - добавил скрипты
+functions/mimoCapacity.m - расчет пропускной способности
+functions/createStaticChannel.m - создание простых каналов QuaDRiGa
 
 ## 1.0.1
 * - добавил скрипт расчета пропускной способности для модели Кронекера и QuaDRiGa. (работа huawei) 
