@@ -1,5 +1,7 @@
-rng(25);% при этом rng S0 ~= []
+rng(25);% Если  убрать доп условия(см ниже), то при этом rng S0 ~= []
 clear;clc;
+addpath("../functions")
+
 numTx = 8;
 numRx = 4;
 numRF = 2;
@@ -14,14 +16,15 @@ H = H';
 %%
 K = numTx*(numTx-1)/2;
 %%
-S_func = @(r) (r-1)*numSub+1:r*numSub;
+S_r = @(r) (r-1)*numSub+1:r*numSub;
 S = cell(1,numRF+1);
 S{1} = 1:numTx; %% 99 проц опечатка, в статье было numRF
 for k = 2:length(S)
     r = k-1;
-    S{k} = S_func(r);
+    S{k} = S_r(r);
 end
 %%
+R_r = @(r) H(:,S_r(r))'*H(:,S_r(r));
 R = H'*H;
 absR = abs(R);
 Ru = triu(absR,1);
@@ -37,6 +40,7 @@ for k = 1:K
     ik_jk = [ik jk];
     all_ik_jk = cat(1,all_ik_jk,ik_jk);
     S0 = S{1};
+    S0_all{k} = S{1};
     for ii = 1:length(S)
         Smem{k,ii} = S{1,ii};
     end
@@ -84,10 +88,10 @@ for k = 1:K
                 disp(str);
             end
             % В случае добавления доп условия всегда в конце S0 == []
-            if MU_new_j > MU_new_i && MU_new_j > MU_current && M ~= 0 % Возможно надо добавить && L ~= 0
+            if MU_new_j > MU_new_i && MU_new_j > MU_current && M ~= 0 && L ~= 0 % Доп условие L ~= 0
                 S{M+1} = Stemp_M_j;
                 S{L+1} = Stemp_L_j;
-            elseif MU_new_i > MU_new_j && MU_new_i > MU_current && L ~= 0 % Возможно надо добавить && M ~= 0
+            elseif MU_new_i > MU_new_j && MU_new_i > MU_current && L ~= 0 && M ~= 0 % Доп условие M ~= 0
                 S{M+1} = Stemp_M_i;
                 S{L+1} = Stemp_L_i;
             end
@@ -101,36 +105,23 @@ for k = 1:K
             end
         end
     end
-%     if size(S{1},2) == 1 && (S{1} == ik_jk(1) || S{1} == ik_jk(2))
-%         error('нельзя')
-%     end
 end
+
+Snew = dynamicSubarrayPartitioning(R,numRF,numTx);
 
 function value = func(S,nsel,r,numRF,absR)
     powerS = length(S);
     if powerS == 0 || (nsel == numRF && r == 0)
         value = 0;
     else
-        value = 1/powerS*sumR(S,absR);
+        value = 1/powerS*sumR(absR,S);
     end
 end
 
-function sum = sumR(S,R)
-    imax = size(R,1);
-    jmax = size(R,2);
-    
-    setI = 1:imax;
-    setJ = 1:jmax;
-
-    I = intersect(S,setI);
-    J = intersect(S,setJ);
-    sum = 0;
-    for c0 = 1:length(I)
-        for c1 = 1:length(J)
-            sum = sum + R(I(c0),J(c1));
-        end
-    end
+function value = sumR(R,S)
+    value = sum(sum(R(S,S)));
 end
+
 % M L = 0,1,2 с нуля
 function [M,L] = get_m_l(nsel,ik_jk,S)
     M = -1;

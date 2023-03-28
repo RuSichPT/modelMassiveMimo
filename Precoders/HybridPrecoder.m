@@ -64,6 +64,8 @@ classdef HybridPrecoder < Precoder
                     tmpFrf{i} = frf(1+(i-1)*subNumSTS:i*subNumSTS, 1+(i-1)*subNumTx:i*subNumTx);
                 end
                 frf = blkdiag(tmpFrf{:});
+            elseif (obj.hybridType == "dynamic")
+                frf = getDynamicFrf(frf,HestCell,obj.numRF,obj.system.numTx);
             end
                        
             % Fbb
@@ -126,6 +128,40 @@ function Frf = getZF_Frf(HestCell,At,numRF)
         At(k,:) = [];
     end
     warning('on');
+end
+% HestCell - оценка канала размерностью Cell{numUserx}[numSC,numTx,numRx]
+function newFrf = getDynamicFrf(Frf,HestCell,numRF,numTx)
+    Hest = cat(3,HestCell{:});
+    Hmean = reshape(mean(Hest,1),size(Hest,2),size(Hest,3));
+    Hmean = Hmean';
+    
+    R = Hmean'*Hmean;
+    S = dynamicSubarrayPartitioning(R,numRF,numTx);
+    
+    subNumTx = numTx/numRF;
+    subNumSTS = 2/numRF;
+% 
+%     tmpFrf = cell(1,numRF);
+%     for i = 1:numRF
+%         tmpFrf{i} = Frf(1+(i-1)*subNumSTS:i*subNumSTS, 1+(i-1)*subNumTx:i*subNumTx);
+%     end
+%     newFrf1 = blkdiag(tmpFrf{:});
+        
+    tmpFrf = cell(1,numRF);
+    for i = 1:numRF
+        tmpFrf{i} = Frf(i,S{i});
+    end
+    newFrf = blkdiag(tmpFrf{:});
+    
+    H = Hmean;
+    S_r = @(r) (r-1)*subNumTx+1:r*subNumTx;
+    R_S = @(S) H(:,S)'*H(:,S);
+    
+    M1_ = svd(R_S(S_r(1))) + svd(R_S(S_r(2)));
+    M1 = M1_(1);
+    M2a = svd(R_S(S{1}));
+    M2b = svd(R_S(S{2}));
+    M2 = M2a(1) + M2b(1);
 end
 function [Frf,Fbb] = getOMP_Frf_Fbb(HestCell,At,numSTS,numRF)
     numSC = size(HestCell{1},1);     % кол-во поднессущих

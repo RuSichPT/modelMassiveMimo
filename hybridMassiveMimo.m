@@ -13,35 +13,41 @@ sysconf = SystemConfig('numUsers',numUsers,'numTx',numTx,'numRxUsers',numRxUsers
 tau = [0 2 5];
 avgPathGains_dB = [0 -3 -9];
 chconf = ChannelConfig('tau',tau,'avgPathGains_dB',avgPathGains_dB);
-channel = RaylSpecialChannel('chconf',chconf,'sysconf',sysconf);
+% channel = RaylSpecialChannel('chconf',chconf,'sysconf',sysconf);
+channel = StaticChannel('sysconf',sysconf);
 %% Симуляция
-snr = 0:25;
-maxNumSimulation = 1;
+snr = 0:35;
+maxNumSimulation = 5;
 sim = SimulationConfig('snr',snr,'maxNumSimulation',maxNumSimulation);
 %% Модели
 modelMM = MassiveMimo('main',sysconf,'downChannel',channel,'sim',sim,'precoderType','ZF');
 modelHybridFull = HybridMassiveMimo('main',sysconf,'downChannel',channel,'sim',sim,'precoderType','JSDM/OMP');
 modelHybridSub = HybridMassiveMimo('main',sysconf,'downChannel',channel,'sim',sim,'precoderType','JSDM/OMP','hybridType','sub');
+modelHybridDynamic = HybridMassiveMimo('main',sysconf,'downChannel',channel,'sim',sim,'precoderType','JSDM/OMP','hybridType','dynamic');
 
 modelHybridFull.downChannel.dispChannel();
 modelMM.downChannel.dispChannel();
 modelHybridSub.downChannel.dispChannel();
+modelHybridDynamic.downChannel.dispChannel();
 %% Симуляция
-modelHybridFull.simulate();
-modelMM.simulate();
+modelHybridDynamic.simulate();
+% modelHybridFull.simulate();
+% modelMM.simulate();
 modelHybridSub.simulate();
 %% Построение графиков
 % Ber
 fig = figure();
-modelHybridFull.plotMeanBER('lineStyle','--k','figObj',fig);
-modelMM.plotMeanBER('lineStyle','k','figObj',fig);
+% modelHybridFull.plotMeanBER('lineStyle','--k','figObj',fig);
+% modelMM.plotMeanBER('lineStyle','k','figObj',fig);
 modelHybridSub.plotMeanBER('lineStyle','-.k','figObj',fig);
+modelHybridDynamic.plotMeanBER('lineStyle',':k','figObj',fig);
 
 % Capacity
 fig1 = figure();
-modelHybridFull.plotCapacity('type','mean','lineStyle','--k','figObj',fig1);
-modelMM.plotCapacity('type','mean','lineStyle','k','figObj',fig1);
+% modelHybridFull.plotCapacity('type','mean','lineStyle','--k','figObj',fig1);
+% modelMM.plotCapacity('type','mean','lineStyle','k','figObj',fig1);
 modelHybridSub.plotCapacity('type','mean','lineStyle','-.k','figObj',fig1);
+modelHybridDynamic.plotCapacity('type','mean','lineStyle',':k','figObj',fig1);
 %% Save
 % if modelMM.downChannel.tau == 0 
 %     channel = cat(2, class(modelMM.downChannel),'flat');
