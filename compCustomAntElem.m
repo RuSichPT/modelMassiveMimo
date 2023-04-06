@@ -1,6 +1,4 @@
 clc;clear;
-addpath('Parameters');
-addpath('Channels');
 rng(67)
 %% Создание канала
 numRows = 8;

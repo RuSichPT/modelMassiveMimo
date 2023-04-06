@@ -1,5 +1,4 @@
 function [numErrors,numBits,SINR_dB] = simulateOneSNR(obj,snr)
-    addpath('Precoders');
     % Переопределение переменных
     numSTS = obj.main.numSTS;
     numSTSVec = obj.main.numSTSVec;

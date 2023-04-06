@@ -1,6 +1,4 @@
 clc;clear;close all;
-addpath('Parameters');
-addpath('Channels');
 %% Система
 numUsers = 4;
 numTx = 16;

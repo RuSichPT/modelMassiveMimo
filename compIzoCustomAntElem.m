@@ -1,5 +1,4 @@
 clear;clc;
-inlcudes()
 %% Система
 numUsers = 4;
 numTx = 8;
@@ -53,9 +52,3 @@ svd(Hizo)
 svd(Hcust)
 cond(Hizo)
 cond(Hcust)
-%%
-function inlcudes()
-    addpath('Parameters');
-    addpath('Channels');
-    addpath('Precoders');
-end

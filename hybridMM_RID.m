@@ -1,6 +1,4 @@
 clc;clear;close all;
-addpath('Parameters');
-addpath('Channels');
 %% Создание модели
 numUsers = 2;
 numTx = 32;

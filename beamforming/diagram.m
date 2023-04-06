@@ -1,5 +1,4 @@
-clear;
-close all
+clear;close all;clc;
 
 phi_uniform = 1: 180;
 G_uniform = ones(1, length(phi_uniform));
@@ -41,7 +40,7 @@ grid on
 % ylabel("G")
 % legend(["Изотропный излучатель", "Изотропный излучатель в диапазоне [-60; 60] град.", strcat("Аппроксимация при w = ", num2str(w))])
 % grid on
-save G_uniform G_uniform;
-save G_sector G_sector;
-save G_sinc G_sinc;
-save G_Fure G_Fure;
+save beamforming\G_uniform G_uniform;
+save beamforming\G_sector G_sector;
+save beamforming\G_sinc G_sinc;
+save beamforming\G_Fure G_Fure;

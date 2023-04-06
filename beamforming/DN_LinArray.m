@@ -1,4 +1,4 @@
-close all; clear all; clc;
+close all; clear; clc;
 phi=-90:1:89; J=sqrt(-1); 
 phi1=phi*pi/180;
 %% параметры системы

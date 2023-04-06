@@ -22,7 +22,6 @@ classdef MassiveMimo < matlab.mixin.Copyable
                 args.downChannel = RaylSpecialChannel();
                 args.sim = SimulationConfig();
             end
-            addpath('functions');
             obj.check(args);
             obj.main = args.main;
             obj.modulation = args.modulation;

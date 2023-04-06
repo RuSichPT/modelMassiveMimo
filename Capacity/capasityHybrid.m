@@ -1,5 +1,4 @@
 clear;close all;clc;
-addpath("..\functions");
 set(0,'DefaultAxesFontName','Times New Roman');
 set(0,'DefaultTextFontName','Times New Roman'); 
 flag_chanel = 'STATIC';
@@ -10,11 +9,11 @@ prm.numUsers = prm.numRx;
 prm.numSTS = prm.numRx;
 prm.numCarriers = 1;
 prm.numSTSVec = ones(1,prm.numUsers);
-load('..\DataBase/NeuralNetwork/H_I.txt')
-load('..\DataBase/NeuralNetwork/H_Q.txt')
-load('..\DataBase/NeuralNetwork/F_rf_I.txt')
-load('..\DataBase/NeuralNetwork/F_rf_Q.txt')
-load('..\DataBase/NeuralNetwork/C_DRL.txt')
+load('.\DataBase\NeuralNetwork\H_I.txt')
+load('.\DataBase\NeuralNetwork\H_Q.txt')
+load('.\DataBase\NeuralNetwork\F_rf_I.txt')
+load('.\DataBase\NeuralNetwork\F_rf_Q.txt')
+load('.\DataBase\NeuralNetwork\C_DRL.txt')
 Frf_NN = F_rf_I+1i*F_rf_Q;
 H_chan = H_I+1i*H_Q;
 H_chan = H_chan';
@@ -54,3 +53,12 @@ str1 = ['hybrid mMIMO JSDM ' num2str(prm.numTx) 'x' num2str(prm.numRx)];
 str2 = ['hybrid mMIMO NN ' num2str(prm.numTx) 'x' num2str(prm.numRx)];
 str3 = ['optimal mMIMO ' num2str(prm.numTx) 'x' num2str(prm.numRx)];
 legend(str1,str2,str3,'location','northwest');
+%%
+function C = mimoCapacity(H, SNR_dB, numSTS)
+    % SNR - в дБ
+    SNR = 10^(SNR_dB/10);
+    lambdas = eig(H*H');
+    lambdas = flip(lambdas);
+    lambdas = lambdas(1:numSTS);
+    C = sum(log2(1+SNR*abs(lambdas)));
+end

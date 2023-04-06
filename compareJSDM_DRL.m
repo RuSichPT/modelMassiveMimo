@@ -1,5 +1,4 @@
 clc;clear;
-inlcudes()
 %% Система
 numUsers = 1;
 mod = 16;
@@ -25,9 +24,3 @@ fig = figure();
 fig = hmimo.plotMeanBER('k', 2, 'SNR', str1,fig);
 mimo.plotMeanBER('--k', 2, 'SNR', str2,fig);
 hmimoNN.plotMeanBER('-.k', 2, 'SNR', str3, fig);
-%%
-function inlcudes()
-addpath('Parameters');
-addpath('Channels');
-addpath('DataBase/Verification');
-end

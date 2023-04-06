@@ -1,5 +1,4 @@
 clear;close all;clc;
-addpath("..\functions");
 flag_chanel = 'STATIC';
 Exp = 100;% Кол-во опытов
 SNR = 0:21; % диапазон SNR

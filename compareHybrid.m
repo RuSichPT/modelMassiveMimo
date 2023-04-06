@@ -1,5 +1,4 @@
 clc;clear;%close all;
-inlcudes()
 rng(67)
 %% Система
 numUsers = 1;
@@ -34,9 +33,3 @@ mimo.plotCapacity('type','mean','lineStyle','--k','figObj',fig1);
 fig2 = figure();
 hmimo.plotCapacity('type','all','lineStyle','k','legendStr',leg1,'figObj',fig2);
 mimo.plotCapacity('type','all','lineStyle','--k','figObj',fig2);
-%%
-function inlcudes()
-    addpath('Parameters');
-    addpath('Channels');
-    addpath('Precoders');
-end
