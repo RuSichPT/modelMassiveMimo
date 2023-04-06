@@ -1,9 +1,4 @@
 clear; clc;
-addpath('..\Parameters');
-addpath('..\Channels');
-addpath('..\Precoders');
-addpath('..\DataBase\Verification');
-addpath('..\..\modelMassiveMimo');
 
 ch = ChannelConfig();
 sys = SystemConfig();

@@ -22,11 +22,6 @@
 
 ## Other
 
-* Capacity/calculateCapacity.m - расчет пропускной способности для модели Кронекера и QuaDRiGa
-
-* Optimization/optimizCapacity.m - скрипт расчета аналитической пропускной способности и решение оптимизационной задачи для ULA как в статье
-"Capacity Analysis and Optimal Spacing Design for Compact Array Massive MIMO Systems With Finite Aperture"
-
 * beamforming/watchZF.m - скрипт для просмотра ДН для метода прекодирования ZF
 
 * compCustomAntElem.m - старый не работает 

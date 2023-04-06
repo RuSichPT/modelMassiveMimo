@@ -1,5 +1,4 @@
 clc; clear;
-addpath("..\functions");
 %% Параметры
 N_T = 32;   % num Tx antennas
 K = 2;      % num Users
@@ -98,7 +97,7 @@ function [F_RF,F_BB] = getCoeff_RF_BB(At,H,N_RF)
         At(:,k) = [];
     end
 
-    F_BB = F_RF'*H'/(H*F_RF*F_RF'*H');
+    F_BB = F_RF'*H'/((H*F_RF)*F_RF'*H');
 end
 
 function [minf,idx] = minNormFrob(At,F_RF,H)
@@ -113,5 +112,5 @@ function [minf,idx] = minNormFrob(At,F_RF,H)
 end
 
 function [f] = myFunc(F_RF,H)
-    f = norm(F_RF*F_RF'*H'/(H*F_RF*F_RF'*H'),'fro');
+    f = norm(F_RF*F_RF'*H'/((H*F_RF)*F_RF'*H'),'fro');
 end

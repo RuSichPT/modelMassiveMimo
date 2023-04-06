@@ -10,7 +10,7 @@ syconf = SystemConfig('numUsers',numUsers,'numTx',numTx,'numRxUsers',numRxUsers,
 %% Создание канала
 channel = RaylSpecialChannel('sysconf',syconf); % StaticChannel % RaylSpecialChannel
 %% Симуляция
-snr = 0:40;
+snr = 0:10;
 maxNumSimulation = 1;
 sim = SimulationConfig('snr',snr,'maxNumSimulation',maxNumSimulation);
 %% Создание моделей

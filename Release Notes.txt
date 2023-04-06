@@ -1,9 +1,21 @@
 # Release Notes
 
+## 1.0.3
+* - добавил скрипты
+beamforming/watchZF.m - скрипт для просмотра ДН для метода прекодирования ZF
+TestSVD_EIG.m -
+
+* - добавил подмодуль matlabFunctions
+
+* - перенес часть кода в другие репозитории
+https://github.com/RuSichPT/capacityOptimization
+https://github.com/RuSichPT/matlabFunctions
+
+
 ## 1.0.2
-* - добавил скрипт расчета аналитической пропускной способности и решение оптимизационной задачи для ULA как в статье
-"Capacity Analysis and Optimal Spacing Design for Compact Array Massive MIMO Systems With Finite Aperture"
+* - добавил скрипт расчета аналитической пропускной способности и решение оптимизационной задачи для ULA как в статье "Capacity Analysis and Optimal Spacing Design for Compact Array Massive MIMO Systems With Finite Aperture"
 optimizCapacity.m - сам скрипт
+
 * - добавил скрипты
 functions/mimoCapacity.m - расчет пропускной способности
 functions/createStaticChannel.m - создание простых каналов QuaDRiGa
