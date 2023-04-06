@@ -1,0 +1,3 @@
+[submodule "matlabFunctions"]
+	path = matlabFunctions
+	url = https://github.com/RuSichPT/matlabFunctions.git
